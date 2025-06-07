@@ -1,5 +1,4 @@
 ﻿
-
 namespace FinTrack.API.Core.Common
 {
     /// <summary>
