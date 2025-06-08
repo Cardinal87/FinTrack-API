@@ -9,8 +9,18 @@ namespace FinTrack.API.Core.Entities
     /// </summary>
     public class Transaction : Entity
     {
+        
         public Transaction(decimal amount, Guid fromAccountId, Guid toAccountId, DateTime date)
         {
+            if (amount <= 0)
+            {
+                throw new ArgumentException("Amount is negative or zero");
+            }
+            if (fromAccountId == toAccountId)
+            {
+                throw new ArgumentException("The destination account is the same as the source account");
+            }
+            
             Amount = amount;
             FromAccountId = fromAccountId;
             ToAccountId = toAccountId;
