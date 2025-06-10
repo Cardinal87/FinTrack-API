@@ -18,7 +18,10 @@ namespace FinTrack.API.Core.Entities
         private string phone;
         private string passwordHash;
         
-        
+        private User()
+        {
+
+        } 
         public User(string email, string phone, string name, string hash, Account account)
         {
             Email = email;

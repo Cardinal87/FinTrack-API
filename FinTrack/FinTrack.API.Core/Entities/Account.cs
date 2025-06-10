@@ -8,6 +8,11 @@ namespace FinTrack.API.Core.Entities
     /// </summary>
     public class Account : Entity
     {
+        private Account()
+        {
+
+        }
+        
         public Account(Guid userId)
         {
             UserId = userId;
