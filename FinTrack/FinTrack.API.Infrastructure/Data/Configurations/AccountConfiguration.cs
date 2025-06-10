@@ -13,13 +13,13 @@ namespace FinTrack.API.Infrastructure.Data.Configurations
             builder.Property(t => t.UserId).IsRequired();
             
             
-            builder.HasMany(t => t.Transactions)
+            builder.HasMany(t => t.OutgoingTransactions)
                 .WithOne()
                 .HasForeignKey(t => t.FromAccountId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired(false);
 
-            builder.HasMany(t => t.Transactions)
+            builder.HasMany(t => t.IncomingTransactions)
                 .WithOne()
                 .HasForeignKey(t => t.ToAccountId)
                 .OnDelete(DeleteBehavior.Cascade)

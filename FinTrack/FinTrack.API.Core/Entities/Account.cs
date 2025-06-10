@@ -20,7 +20,8 @@ namespace FinTrack.API.Core.Entities
 
         public decimal Balance { get; private set; } = 0;
         public Guid UserId { get; private set; }
-        public ICollection<Transaction> Transactions { get; private set; } = new List<Transaction>();
+        public ICollection<Transaction> OutgoingTransactions { get; private set; } = new List<Transaction>();
+        public ICollection<Transaction> IncomingTransactions { get; private set; } = new List<Transaction>();
 
         /// <summary>
         /// debit money from balance
