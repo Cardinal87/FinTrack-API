@@ -7,7 +7,7 @@ namespace FinTrack.API.Core.Common
     
     public abstract class Entity
     {
-        public Guid Id { get; private set; }
+        public Guid Id { get; private set; } = Guid.NewGuid();
 
         public override bool Equals(object? obj)
         {

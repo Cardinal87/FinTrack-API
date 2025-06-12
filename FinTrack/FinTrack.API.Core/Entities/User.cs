@@ -17,24 +17,23 @@ namespace FinTrack.API.Core.Entities
         private string email;
         private string phone;
         private string passwordHash;
-        
+
         private User()
         {
 
         } 
-        public User(string email, string phone, string name, string hash, Account account)
+        public User(string email, string phone, string name, string hash)
         {
             Email = email;
             Phone = phone;
             Name = name;
             PasswordHash = hash;
-            Account = account ?? throw new ArgumentNullException("Account is null");
-            
+            Account = new Account(Id);
         }
 
         
 
-        public Account Account { get; private set; }
+        public Account Account{get; private set;}
         
         public string Name { 
             get => name; [MemberNotNull(nameof(name))]
