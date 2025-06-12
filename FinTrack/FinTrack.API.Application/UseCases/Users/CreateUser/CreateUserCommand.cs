@@ -1,0 +1,18 @@
+﻿using MediatR;
+
+namespace FinTrack.API.Application.UseCases.Users.CreateUser
+{
+
+    /// <summary>
+    /// Represents MediatR command for creating new user.
+    /// Returns id of the created user
+    /// </summary>
+    /// <param name="phone">phone number inc E.164 format</param>
+    /// <param name="email">valid email address</param>
+    /// <param name="name">full name (1-100 characters)</param>
+    /// <param name="hash">salted password hash (64 characters)</param>
+    public record CreateUserCommand(string phone,
+                                    string email,
+                                    string name,
+                                    string hash) : IRequest<Guid>;
+}
