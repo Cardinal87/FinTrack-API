@@ -14,7 +14,7 @@ namespace FinTrack.API.Core.Entities
 
         }
         
-        public Transaction(decimal amount, Guid fromAccountId, Guid toAccountId, DateTime date)
+        public Transaction(decimal amount, Guid fromAccountId, Guid toAccountId)
         {
             if (amount <= 0)
             {
