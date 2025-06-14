@@ -1,4 +1,5 @@
 ﻿using FinTrack.API.Core.Interfaces;
+using FinTrack.API.Core.Exceptions;
 using MediatR;
 
 namespace FinTrack.API.Application.UseCases.Account.DebitBalance
@@ -17,7 +18,7 @@ namespace FinTrack.API.Application.UseCases.Account.DebitBalance
     /// Exceptions:
     /// <para> - <see cref="ArgumentException"/>: debit amount is negative or equal to zero</para>
     /// <para> - <see cref="ArgumentNullException"/>: account with given id does not exists</para>
-    /// <para> - <see cref="InvalidOperationException"/>: debit amount is greater than balance of the account</para>
+    /// <para> - <see cref="InsufficientFundsException"/>: debit amount is greater than balance of the account</para>
     /// 
     /// </para>
     /// </remarks>                                               

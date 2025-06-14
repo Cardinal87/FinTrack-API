@@ -1,5 +1,6 @@
 ﻿
 using FinTrack.API.Core.Common;
+using FinTrack.API.Core.Exceptions;
 
 namespace FinTrack.API.Core.Entities
 {
@@ -22,7 +23,7 @@ namespace FinTrack.API.Core.Entities
             }
             if (fromAccountId == toAccountId)
             {
-                throw new ArgumentException("The destination account is the same as the source account");
+                throw new InvalidTransactionException("The destination account ID is the same as the source account ID");
             }
             
             Amount = amount;

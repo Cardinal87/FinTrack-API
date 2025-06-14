@@ -1,5 +1,6 @@
 ﻿
 using FinTrack.API.Core.Common;
+using FinTrack.API.Core.Exceptions;
 namespace FinTrack.API.Core.Entities
 {   
     /// <summary>
@@ -29,12 +30,13 @@ namespace FinTrack.API.Core.Entities
         /// debit money from balance
         /// </summary>
         /// <param name="amount">amount that will be debited</param>
-        /// <exception cref="InvalidOperationException">amount param is greater than balance</exception>
+        /// <exception cref="InsufficientFundsException">amount param is greater than balance</exception>
+        /// <exception cref="ArgumentException">amount if negative or equal to zero</exception>
         public void Debit(decimal amount)
         {
             if (Balance < amount)
             {  
-                throw new InvalidOperationException("Insufficient funds");
+                throw new InsufficientFundsException(Balance, amount);
             }
             if (amount <= 0)
             {
@@ -48,6 +50,7 @@ namespace FinTrack.API.Core.Entities
         /// top up the balance
         /// </summary>
         /// <param name="amount">amount that will be credited to the balance</param>
+        /// <exception cref="ArgumentException">amount if negative or equal to zero</exception>
         public void TopUp(decimal amount)
         {
             if (amount <= 0)
@@ -57,20 +60,38 @@ namespace FinTrack.API.Core.Entities
             Balance += amount;
         }
 
+
+        /// <summary>
+        /// Add transaction to list of outgoing transactions
+        /// </summary>
+        /// <param name="transaction">
+        /// <see cref="Transaction"/> entity
+        /// </param>
+        /// <exception cref="InvalidTransactionException">
+        /// Transaction source account id and this account id does not match
+        /// </exception>
         internal void AddOutgoingTransaction(Transaction transaction)
         {
             if (transaction.FromAccountId != Id)
             {
-                throw new ArgumentException("Transaction not for this account");
+                throw new InvalidTransactionException("The transaction does not originate from this account");
             }
             _outgoingTransactions.Add(transaction);
         }
-
+        /// <summary>
+        /// Add transaction to list of incoming transactions
+        /// </summary>
+        /// <param name="transaction">
+        /// <see cref="Transaction"/> entity
+        /// </param>
+        /// <exception cref="InvalidTransactionException">
+        /// Transaction destination account id and this account id does not match
+        /// </exception>
         internal void AddIncomingTransaction(Transaction transaction)
         {
             if (transaction.ToAccountId != Id)
             {
-                throw new ArgumentException("Transaction not for this account");
+                throw new InvalidTransactionException("The transaction is not addressed to this account");
             }
             _incomingTransactions.Add(transaction);
         }
