@@ -12,24 +12,9 @@ namespace FinTrack.API.Infrastructure.Data
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         
-        public DatabaseClient() 
-        {
+        public DatabaseClient(DbContextOptions<DatabaseClient> options) : base(options) { }
 
-        }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            var options = new NpgsqlConnectionStringBuilder
-            {
-                Host = "localhost",
-                Port = 5432,
-                Database = "FinTrackDb",
-                Password = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD"),
-                Username = Environment.GetEnvironmentVariable("POSTGRES_USERNAME")
-            };
-
-            optionsBuilder.UseNpgsql(options.ToString());
-        }
-
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UserConfiguration());
