@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FinTrack.API.Infrastructure.Data.Repositories
 {
-    class AccountRepository : IAccountRepository
+    public class AccountRepository : IAccountRepository
     {
         private DatabaseClient _client;
 
