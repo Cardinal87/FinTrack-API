@@ -17,6 +17,7 @@ namespace FinTrack.API.Core.Entities
         private string email;
         private string phone;
         private string passwordHash;
+        private readonly List<Account> accounts = new();
 
         private User()
         {
@@ -28,12 +29,11 @@ namespace FinTrack.API.Core.Entities
             Phone = phone;
             Name = name;
             PasswordHash = hash;
-            Account = new Account(Id);
         }
 
-        
 
-        public Account Account{get; private set;}
+
+        public IReadOnlyCollection<Account> Accounts => accounts.AsReadOnly();
         
         public string Name { 
             get => name; [MemberNotNull(nameof(name))]
@@ -85,5 +85,25 @@ namespace FinTrack.API.Core.Entities
                 passwordHash = value;
             }
         }
+
+        public void AddAccount(Account account)
+        {
+            if (account.UserId != Id)
+            {
+                throw new ArgumentException("Account does not belong to the user");
+            }
+            accounts.Add(account);
+        }
+
+        public void DeleteAccount(Guid accountId)
+        {
+            var account = accounts.FirstOrDefault(t => t.Id == accountId);
+            if (account == null)
+            {
+                throw new KeyNotFoundException("Account with this id does not belong to the user");
+            }
+            accounts.Remove(account);
+        }
+
     }
 }

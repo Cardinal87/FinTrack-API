@@ -16,7 +16,7 @@ namespace FinTrack.API.Core.Entities
 
         }
         
-        internal Account(Guid userId)
+        public Account(Guid userId)
         {
             UserId = userId;
         }

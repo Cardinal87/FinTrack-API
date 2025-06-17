@@ -16,9 +16,9 @@ namespace FinTrack.API.Infrastructure.Data.Configurations
             builder.Property(t => t.Name).HasMaxLength(100).IsRequired();
             builder.HasIndex(t => t.Name).IsUnique();
 
-            builder.HasOne(t => t.Account)
+            builder.HasMany(t => t.Accounts)
                 .WithOne()
-                .HasForeignKey<Account>(t => t.UserId)
+                .HasForeignKey(t => t.UserId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         }

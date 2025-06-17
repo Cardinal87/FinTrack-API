@@ -83,37 +83,21 @@ namespace FinTrack.IntegrationTests.Databases
             var phone = "+79998887766";
             var user = new User(email, phone, name, hash);
 
+            var firstAccount = new Account(user.Id);
+            var secondAccount = new Account(user.Id);
+
             _client.Users.Add(user);
+            _client.Accounts.Add(firstAccount);
+            _client.Accounts.Add(secondAccount);
             await _client.SaveChangesAsync();
-            Guid id = user.Account.Id;
 
             _client.Users.Remove(user);
             await _client.SaveChangesAsync();
 
-            var account = await _client.Accounts.FirstOrDefaultAsync(t => t.Id == id);
-            account.Should().BeNull();
+            var accounts = await _client.Accounts.Where(t => t.UserId == user.Id).ToListAsync();
+            accounts.Should().HaveCount(0);
 
         }
-
-        [Fact]
-        async public Task CreateUser_ValidData_CreateAccount()
-        {
-            var hash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01";
-            var email = "test@email.com";
-            var name = "test_user";
-            var phone = "+79998887766";
-            var user = new User(email, phone, name, hash);
-
-            _client.Users.Add(user);
-            await _client.SaveChangesAsync();
-            Guid id = user.Account.Id;
-
-            var account = await _client.Accounts.FirstOrDefaultAsync(t => t.Id == id);
-
-            account.Should().NotBeNull();
-            account.Balance.Should().Be(0);
-            account.OutgoingTransactions.Should().BeEmpty();
-            account.IncomingTransactions.Should().BeEmpty();
-        }
+       
     }
 }
