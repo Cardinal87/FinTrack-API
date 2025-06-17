@@ -8,7 +8,7 @@ namespace FinTrack.API.Core.Interfaces
         /// Begins tracking the given entity as "Added"
         /// </summary>
         /// <param name="account">the entity to track </param>
-        void Save(Account account);
+        void Add(Account account);
 
         /// <summary>
         /// Begins tracking the given entity as "Updated"

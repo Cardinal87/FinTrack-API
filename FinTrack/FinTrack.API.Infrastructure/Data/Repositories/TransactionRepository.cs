@@ -36,7 +36,7 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             return await query.ToListAsync();
         }
 
-        public void Save(Transaction transaction)
+        public void Add(Transaction transaction)
         {
             _client.Transactions.Add(transaction);
         }

@@ -33,7 +33,7 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             return await _client.Accounts.FindAsync(id);
         }
 
-        public void Save(Account account)
+        public void Add(Account account)
         {
             _client.Accounts.Add(account);
         }
