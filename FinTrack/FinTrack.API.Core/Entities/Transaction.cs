@@ -15,7 +15,7 @@ namespace FinTrack.API.Core.Entities
 
         }
         
-        public Transaction(decimal amount, Guid fromAccountId, Guid toAccountId)
+        public Transaction(decimal amount, Guid fromAccountId, Guid toAccountId, DateTime time)
         {
             if (amount <= 0)
             {
@@ -25,11 +25,15 @@ namespace FinTrack.API.Core.Entities
             {
                 throw new InvalidTransactionException("The destination account ID is the same as the source account ID");
             }
-            
+            if (time > DateTime.UtcNow)
+            {
+                throw new ArgumentException("Incorrect date of transaction");
+            }
+
             Amount = amount;
             FromAccountId = fromAccountId;
             ToAccountId = toAccountId;
-            Date = DateTime.UtcNow;
+            Date = time;
         }
 
         public decimal Amount { get; }
