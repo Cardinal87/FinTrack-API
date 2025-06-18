@@ -12,7 +12,7 @@ namespace FinTrack.API.Infrastructure.Data.Configurations
             builder.Property(t => t.Amount).HasPrecision(18, 2).IsRequired();
             builder.Property(t => t.FromAccountId).IsRequired();
             builder.Property(t => t.ToAccountId).IsRequired();
-            builder.Property(t => t.Date).HasColumnType("timestamp");
+            builder.Property(t => t.Date).HasColumnType("timestamp with time zone");
         }
     }
 }

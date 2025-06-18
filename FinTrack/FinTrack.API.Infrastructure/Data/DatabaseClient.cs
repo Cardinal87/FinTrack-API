@@ -1,7 +1,6 @@
 ﻿using FinTrack.API.Core.Entities;
 using FinTrack.API.Infrastructure.Data.Configurations;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 
 
 namespace FinTrack.API.Infrastructure.Data
@@ -13,8 +12,8 @@ namespace FinTrack.API.Infrastructure.Data
         public DbSet<Transaction> Transactions { get; set; }
         
         public DatabaseClient(DbContextOptions<DatabaseClient> options) : base(options) { }
+ 
 
-        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UserConfiguration());
