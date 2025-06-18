@@ -11,10 +11,12 @@ namespace FinTrack.API.Core.Services
     public class TransferService
     {
         private readonly IAccountRepository _accountRepository;
+        private readonly ITransactionRepository _transactionRepository;
 
-        public TransferService(IAccountRepository accountRepository)
+        public TransferService(IAccountRepository accountRepository, ITransactionRepository transactionRepository)
         {
             _accountRepository = accountRepository;
+            _transactionRepository = transactionRepository;
         }
 
         async public Task<Guid> HandleTransactionAsync(decimal amount, Guid toAccountId, Guid fromAccountId)
@@ -26,13 +28,17 @@ namespace FinTrack.API.Core.Services
             {
                 throw new ArgumentException("One of accounts does not exist");
             }
-            var transaction = new Transaction(amount, fromAccountId, toAccountId);
+            var transaction = new Transaction(amount, fromAccountId, toAccountId, DateTime.UtcNow);
 
             fromAccount.Debit(amount);
             fromAccount.AddOutgoingTransaction(transaction);
 
             toAccount.TopUp(amount);
             toAccount.AddIncomingTransaction(transaction);
+
+
+            _transactionRepository.Add(transaction);
+            await _transactionRepository.SaveChangesAsync();
 
             await _accountRepository.UpdateAsync(toAccount);
             await _accountRepository.UpdateAsync(fromAccount);
