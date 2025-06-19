@@ -8,6 +8,8 @@ namespace FinTrack.API.Infrastructure.Data.DbEntities
         public DateTime Date { get; set; }
         public decimal Amount { get; set; }
         public Guid FromAccountId { get; set; }
+        public AccountDb FromAccount { get; set; } = null!;
         public Guid ToAccountId { get; set; }
+        public AccountDb ToAccount { get; set; } = null!;
     }
 }
