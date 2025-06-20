@@ -11,11 +11,6 @@ namespace FinTrack.API.Core.Entities
         private readonly List<Transaction> _outgoingTransactions = new();
         private readonly List<Transaction> _incomingTransactions = new();
         
-        private Account()
-        {
-
-        }
-        
         public Account(Guid userId)
         {
             UserId = userId;
@@ -70,7 +65,7 @@ namespace FinTrack.API.Core.Entities
         /// <exception cref="InvalidTransactionException">
         /// Transaction source account id and this account id does not match
         /// </exception>
-        internal void AddOutgoingTransaction(Transaction transaction)
+        public void AddOutgoingTransaction(Transaction transaction)
         {
             if (transaction.FromAccountId != Id)
             {
@@ -87,7 +82,7 @@ namespace FinTrack.API.Core.Entities
         /// <exception cref="InvalidTransactionException">
         /// Transaction destination account id and this account id does not match
         /// </exception>
-        internal void AddIncomingTransaction(Transaction transaction)
+        public void AddIncomingTransaction(Transaction transaction)
         {
             if (transaction.ToAccountId != Id)
             {
