@@ -19,10 +19,6 @@ namespace FinTrack.API.Core.Entities
         private string passwordHash;
         private readonly List<Account> accounts = new();
 
-        private User()
-        {
-
-        } 
         public User(string email, string phone, string name, string hash)
         {
             Email = email;
