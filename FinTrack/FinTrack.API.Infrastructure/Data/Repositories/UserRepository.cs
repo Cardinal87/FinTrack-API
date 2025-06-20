@@ -1,5 +1,7 @@
-﻿using FinTrack.API.Core.Entities;
+﻿using AutoMapper;
+using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
+using FinTrack.API.Infrastructure.Data.DbEntities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinTrack.API.Infrastructure.Data.Repositories
@@ -7,15 +9,16 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
     public class UserRepository : IUserRepository
     {
         private DatabaseClient _client;
-
-        public UserRepository(DatabaseClient client)
+        private IMapper _mapper;
+        public UserRepository(DatabaseClient client, IMapper mapper)
         {
             _client = client;
+            _mapper = mapper;
         }
 
         async public Task DeleteAsync(Guid id)
         {
-            var user = await GetByIdAsync(id);
+            var user = await _client.Users.FindAsync(id);
             if (user == null)
             {
                 throw new KeyNotFoundException("Entity with given id does not exist");
@@ -25,27 +28,32 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
 
         async public Task<IEnumerable<User>> GetAllAsync()
         {
-            return await _client.Users.ToListAsync();
+            var dbList = await _client.Users.ToListAsync();
+            var userList = _mapper.Map<List<User>>(dbList);
+            return userList;
         }
 
         async public Task<User?> GetByIdAsync(Guid id)
         {
-            return await _client.Users.FindAsync(id);
+            var dbUser = await _client.Users.FindAsync(id);
+            var user = _mapper.Map<User>(dbUser);
+            return user;
         }
 
         public void Add(User user)
         {
-            _client.Users.Add(user);
+            var dbUser = _mapper.Map<UserDb>(user);
+            _client.Users.Add(dbUser);
         }
 
         async public Task UpdateAsync(User user)
         {
-            var existingUser = await GetByIdAsync(user.Id);
+            var existingUser = await _client.Users.FindAsync(user.Id);
             if (existingUser == null)
             {
                 throw new KeyNotFoundException("Entity with given id does not exist");
             }
-            _client.Users.Update(user);
+            _mapper.Map(user, existingUser);
         }
 
         async public Task SaveChangesAsync() => await _client.SaveChangesAsync();
