@@ -1,10 +1,9 @@
-﻿
-
+﻿using AutoMapper;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
-using FinTrack.API.Core.Services;
-using FinTrack.API.Infrastructure.Data;
+using FinTrack.API.Infrastructure.Data.DbEntities;
 using FinTrack.API.Infrastructure.Data.Repositories;
+using FinTrack.API.Infrastructure.Mappers;
 using FinTrack.IntegrationTests.Common;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -19,17 +18,43 @@ namespace FinTrack.IntegrationTests.Repositories
         override async public Task InitializeAsync()
         {
             await base.InitializeAsync();
-            _transactionRepository = new TransactionRepository(_client);
-            var hash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01";
-            var email = "test@email.com";
-            var name = "test_user";
-            var phone = "+79998887766";
-            var user = new User(email, phone, name, hash);
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<TransactionMapper>();
+            });
+
+            IMapper mapper = config.CreateMapper();
+
+            _transactionRepository = new TransactionRepository(_client, mapper);
+            var user = new UserDb()
+            {
+                Email = "test@email.com",
+                Phone = "+79998887766",
+                Name = "test_user",
+                PasswordHash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01"
+            };
+
+            _client.Users.Add(user);
+            await _client.SaveChangesAsync();
+
             var fromAccount = new Account(user.Id);
             var toAccount = new Account(user.Id);
-            _client.Users.Add(user);
-            _client.Accounts.Add(fromAccount);
-            _client.Accounts.Add(toAccount);
+
+            var fromAccountDb = new AccountDb()
+            {
+                Id = fromAccount.Id,
+                Balance = 0,
+                UserId = user.Id
+            };
+            var toAccountDb = new AccountDb()
+            {
+                Id = toAccount.Id,
+                Balance = 0,
+                UserId = user.Id
+            };
+
+            _client.Accounts.Add(fromAccountDb);
+            _client.Accounts.Add(toAccountDb);
             await _client.SaveChangesAsync();
             _fromAccount = fromAccount;
             _toAccount = toAccount;
@@ -126,7 +151,16 @@ namespace FinTrack.IntegrationTests.Repositories
             foreach(var date in dates)
             {
                 var transaction = new Transaction(100, _fromAccount.Id, _toAccount.Id, date);
-                _client.Transactions.Add(transaction);
+
+                var transactionDb = new TransactionDb()
+                {
+                    Id = transaction.Id,
+                    Amount = transaction.Amount,
+                    FromAccountId = transaction.FromAccountId,
+                    ToAccountId = transaction.ToAccountId,
+                    Date = transaction.Date
+                };
+                _client.Transactions.Add(transactionDb);
                 list.Add(transaction);
             }
             await _client.SaveChangesAsync();
