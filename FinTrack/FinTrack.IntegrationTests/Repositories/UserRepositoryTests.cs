@@ -4,6 +4,9 @@ using FinTrack.API.Core.Entities;
 using FluentAssertions;
 using FinTrack.IntegrationTests.Common;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using FinTrack.API.Infrastructure.Mappers;
+using FinTrack.API.Infrastructure.Data.DbEntities;
 
 namespace FinTrack.IntegrationTests.Repositories
 {
@@ -14,7 +17,14 @@ namespace FinTrack.IntegrationTests.Repositories
         override async public Task InitializeAsync()
         {
             await base.InitializeAsync();
-            _userRepository = new UserRepository(_client);
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<UserMapper>();
+                
+            });
+
+            IMapper mapper = config.CreateMapper();
+            _userRepository = new UserRepository(_client, mapper);
         }
 
 
@@ -54,22 +64,21 @@ namespace FinTrack.IntegrationTests.Repositories
         {
 
             var user = (await AddValidUsers(1))[0];
-            var savedUser = await _client.Users.FirstAsync(t => t.Id == user.Id);
 
-            savedUser.Name = "updated_name";
-            savedUser.Email = "updated@email.com";
-            savedUser.Phone = "+78889997766";
-            savedUser.PasswordHash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb02";
+            user.Name = "updated_name";
+            user.Email = "updated@email.com";
+            user.Phone = "+78889997766";
+            user.PasswordHash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb02";
 
-            await _userRepository.UpdateAsync(savedUser);
+            await _userRepository.UpdateAsync(user);
             await _userRepository.SaveChangesAsync();
 
             var updatedUser = await _client.Users.FirstOrDefaultAsync(t => t.Id == user.Id);
             updatedUser.Should().NotBeNull();
-            updatedUser.Email.Should().Be(savedUser.Email);
-            updatedUser.Name.Should().Be(savedUser.Name);
-            updatedUser.Phone.Should().Be(savedUser.Phone);
-            updatedUser.PasswordHash.Should().Be(savedUser.PasswordHash);
+            updatedUser.Email.Should().Be(user.Email);
+            updatedUser.Name.Should().Be(user.Name);
+            updatedUser.Phone.Should().Be(user.Phone);
+            updatedUser.PasswordHash.Should().Be(user.PasswordHash);
         }
 
         [Fact]
@@ -85,10 +94,14 @@ namespace FinTrack.IntegrationTests.Repositories
             var recievedList = users.ToList();
 
             recievedList.Should().HaveCount(3);
-            recievedList.Should().Contain(user1);
-            recievedList.Should().Contain(user2);
-            recievedList.Should().Contain(user3);
+            var userDb1 = recievedList.FirstOrDefault(t => t.Id == user1.Id);
+            var userDb2 = recievedList.FirstOrDefault(t => t.Id == user2.Id);
+            var userDb3 = recievedList.FirstOrDefault(t => t.Id == user3.Id);
 
+
+            userDb1.Should().NotBeNull();
+            userDb2.Should().NotBeNull();
+            userDb3.Should().NotBeNull();
         }
 
 
@@ -123,14 +136,24 @@ namespace FinTrack.IntegrationTests.Repositories
                 var email = $"test{nonce}@email.com";
                 var name = $"test_user{nonce}";
                 var phone = $"+7999888776{nonce}";
+
                 var user = new User(email, phone, name, hash);
+
+                var userDb = new UserDb()
+                {
+                    Id = user.Id,
+                    Email = email,
+                    Phone = phone,
+                    Name = name,
+                    PasswordHash = hash
+                };
                 list.Add(user);
-                _client.Users.Add(user);
+                _client.Users.Add(userDb);
             }
             await _client.SaveChangesAsync();
 
             return list;
-
         }
+
     }
 }
