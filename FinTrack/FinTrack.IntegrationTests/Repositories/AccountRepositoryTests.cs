@@ -1,6 +1,9 @@
-﻿using FinTrack.API.Core.Entities;
+﻿using AutoMapper;
+using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
+using FinTrack.API.Infrastructure.Data.DbEntities;
 using FinTrack.API.Infrastructure.Data.Repositories;
+using FinTrack.API.Infrastructure.Mappers;
 using FinTrack.IntegrationTests.Common;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -9,17 +12,26 @@ namespace FinTrack.IntegrationTests.Repositories
     public class AccountRepositoryTests : DatabaseTestBase
     {
         private IAccountRepository _accountRepository = null!;
-        private User defaultUser = null!;
+        private UserDb defaultUser = null!;
         
         override async public Task InitializeAsync()
         {
             await base.InitializeAsync();
-            _accountRepository = new AccountRepository(_client);
-            var hash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01";
-            var email = "test@email.com";
-            var name = "test_user";
-            var phone = "+79998887766";
-            var user = new User(email, phone, name, hash);
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<AccountMapper>();
+            });
+
+            IMapper mapper = config.CreateMapper();
+            _accountRepository = new AccountRepository(_client, mapper);
+            var user = new UserDb()
+            {
+                Email = "test@email.com",
+                Phone = "+79998887766",
+                Name = "test_user",
+                PasswordHash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01"
+            };
+
             _client.Users.Add(user);
             await _client.SaveChangesAsync();
             defaultUser = user;
@@ -35,13 +47,18 @@ namespace FinTrack.IntegrationTests.Repositories
             _accountRepository.Add(second_account);
             await _accountRepository.SaveChangesAsync();
 
-
             await _client.SaveChangesAsync();
             var accounts = await _client.Accounts.ToListAsync();
 
             accounts.Should().HaveCount(2);
-            accounts.Should().Contain(first_account);
-            accounts.Should().Contain(second_account);
+
+            var firstAccountDb = accounts.First(t => t.Id == first_account.Id);
+            firstAccountDb.UserId.Should().Be(defaultUser.Id);
+            firstAccountDb.Balance.Should().Be(0);
+
+            var secondAccountDb = accounts.First(t => t.Id == second_account.Id);
+            secondAccountDb.UserId.Should().Be(defaultUser.Id);
+            secondAccountDb.Balance.Should().Be(0);
         }
 
         [Fact]
@@ -96,7 +113,10 @@ namespace FinTrack.IntegrationTests.Repositories
             var accounts = await _client.Accounts.ToListAsync();
 
             accounts.Should().HaveCount(1);
-            accounts.Should().Contain(list[1]);
+            var accountDb = accounts.First(t => t.Id == list[1].Id);
+
+            accountDb.UserId.Should().Be(list[1].UserId);
+            accountDb.Balance.Should().Be(list[1].Balance);
         }
 
         private async Task<List<Account>> AddValidAccounts(int amount)
@@ -106,8 +126,15 @@ namespace FinTrack.IntegrationTests.Repositories
             for (int i = 0; i < amount; i++)
             {
                 var account = new Account(defaultUser.Id);
+                
+                var accountDb = new AccountDb()
+                {
+                    Id = account.Id,
+                    UserId = account.UserId,
+                    Balance = 0
+                };
                 accounts.Add(account);
-                _client.Accounts.Add(account);
+                _client.Accounts.Add(accountDb);
             }
             await _client.SaveChangesAsync();
             return accounts;
