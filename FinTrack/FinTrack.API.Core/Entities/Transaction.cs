@@ -10,11 +10,6 @@ namespace FinTrack.API.Core.Entities
     /// </summary>
     public class Transaction : Entity
     {
-        private Transaction()
-        {
-
-        }
-        
         public Transaction(decimal amount, Guid fromAccountId, Guid toAccountId, DateTime time)
         {
             if (amount <= 0)
