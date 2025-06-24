@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.API.Application", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.IntegrationTests", "FinTrack.IntegrationTests\FinTrack.IntegrationTests.csproj", "{5CB46E01-735F-48CE-8DD0-C693DC18F863}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Tests", "FinTrack.Tests\FinTrack.Tests.csproj", "{9BE38A8C-60B8-4426-94E4-2875245E9E95}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{5CB46E01-735F-48CE-8DD0-C693DC18F863}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CB46E01-735F-48CE-8DD0-C693DC18F863}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CB46E01-735F-48CE-8DD0-C693DC18F863}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BE38A8C-60B8-4426-94E4-2875245E9E95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BE38A8C-60B8-4426-94E4-2875245E9E95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BE38A8C-60B8-4426-94E4-2875245E9E95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BE38A8C-60B8-4426-94E4-2875245E9E95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
