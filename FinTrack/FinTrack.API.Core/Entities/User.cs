@@ -3,7 +3,17 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 namespace FinTrack.API.Core.Entities
 {
-
+    /// <summary>
+    /// Represents a registered user in the financial tracking system.
+    /// </summary>
+    /// <remarks>
+    /// Responsibilities:
+    /// <list type="bullet">
+    /// <item>Authentication and identity in the system</item>
+    /// <item>Personal information storage</item>
+    /// <item>Ownership of the financial accounts</item>
+    /// </list>
+    /// </remarks>
     public class User : Entity
     {
         private const string phonePattern = @"^\+[1-9]\d{1,14}$";
@@ -24,9 +34,31 @@ namespace FinTrack.API.Core.Entities
             PasswordHash = hash;
         }
 
-
+        /// <summary>
+        /// Read-only collection with user's accounts
+        /// </summary>
         public IReadOnlyCollection<Account> Accounts => accounts.AsReadOnly();
 
+        /// <summary>
+        /// User's name
+        /// </summary>
+        /// <remarks>
+        /// Rules:
+        /// <list type="bullet">
+        /// <item>Must be non-empty and not whitespaces only</item>
+        /// <item>
+        /// Must be unique across the system
+        /// (The uniqueness is provided by the database indexes)
+        /// </item>
+        /// <item>Must non-greater than 100 characters</item>
+        /// </list>
+        /// 
+        /// Exceptions:
+        /// <list type="bullet">
+        /// <item><see cref="ArgumentException"/> - Incorrect name format</item>
+        /// 
+        /// </list>
+        /// </remarks>
 
         public string Name { 
             get => name; 
@@ -41,6 +73,26 @@ namespace FinTrack.API.Core.Entities
                 name = value;
             }
         }
+
+        /// <summary>
+        /// User's email address
+        /// </summary>
+        /// <remarks>
+        /// Rules:
+        /// <list type="bullet">
+        /// <item>Must follow RFC 5322</item>
+        /// <item>
+        /// Must be unique across the system
+        /// (The uniqueness is provided by the database indexes)
+        /// </item>
+        /// </list>
+        /// 
+        /// Exceptions:
+        /// <list type="bullet">
+        /// <item><see cref="ArgumentException"/> - Incorrect email format</item>
+        /// 
+        /// </list>
+        /// </remarks>
         public string Email 
         { 
             get => email;
@@ -55,6 +107,26 @@ namespace FinTrack.API.Core.Entities
                 email = value;
             } 
         }
+
+        /// <summary>
+        /// User's phone
+        /// </summary>
+        /// <remarks>
+        /// Rules:
+        /// <list type="bullet">
+        /// <item>Must follow E.164</item>
+        /// <item>
+        /// Must be unique across the system
+        /// (The uniqueness is provided by the database indexes)
+        /// </item>
+        /// </list>
+        /// 
+        /// Exceptions:
+        /// <list type="bullet">
+        /// <item><see cref="ArgumentException"/> - Incorrect phone format</item>
+        /// 
+        /// </list>
+        /// </remarks>
         public string Phone 
         { 
             get => phone;
@@ -68,6 +140,23 @@ namespace FinTrack.API.Core.Entities
                 phone = value;
             }
         }
+
+        /// <summary>
+        /// User's password hash
+        /// </summary>
+        /// <remarks>
+        /// Rules:
+        /// <list type="bullet">
+        /// <item>Must be result of SHA-256 cryptographic function</item>
+        /// <item>Must be a 64-hex characters</item>
+        /// </list>
+        /// 
+        /// Exceptions:
+        /// <list type="bullet">
+        /// <item><see cref="ArgumentException"/> - Incorrect hash format</item>
+        /// 
+        /// </list>
+        /// </remarks>
         public string PasswordHash
         {
             get => passwordHash;
@@ -82,6 +171,16 @@ namespace FinTrack.API.Core.Entities
             }
         }
 
+        /// <summary>
+        /// Attaches user's account to account collection
+        /// </summary>
+        /// <param name="account">
+        /// account of the current user
+        /// </param>
+        /// 
+        /// <exception cref="ArgumentException">
+        /// Account's reference to user and current user's id does not match
+        /// </exception>
         public void AddAccount(Account account)
         {
             if (account.UserId != Id)
@@ -91,6 +190,16 @@ namespace FinTrack.API.Core.Entities
             accounts.Add(account);
         }
 
+        /// <summary>
+        /// Deattaches user's account from collection
+        /// </summary>
+        /// <param name="accountId">
+        /// Id of the attached account
+        /// </param>
+        /// 
+        /// <exception cref="KeyNotFoundException">
+        /// Account with such id does not exist in user's collection
+        /// </exception>
         public void DeleteAccount(Guid accountId)
         {
             var account = accounts.FirstOrDefault(t => t.Id == accountId);
