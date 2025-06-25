@@ -3,15 +3,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 namespace FinTrack.API.Core.Entities
 {
-    
-    /// <summary>
-    /// presents User entity
-    /// </summary>
+
     public class User : Entity
     {
-        private const string phonePattern = @"^\+?[1-9][0-9]{7,14}$";
+        private const string phonePattern = @"^\+[1-9]\d{1,14}$";
         private const string emailPattern = @"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$";
-
+        private const string hashPattern = @"^[0-9a-fA-F]{64}$";
 
         private string name;
         private string email;
@@ -28,16 +25,18 @@ namespace FinTrack.API.Core.Entities
         }
 
 
-
         public IReadOnlyCollection<Account> Accounts => accounts.AsReadOnly();
-        
+
+
         public string Name { 
-            get => name; [MemberNotNull(nameof(name))]
+            get => name; 
+            
+            [MemberNotNull(nameof(name))]
             set
             {
-                if (String.IsNullOrWhiteSpace(value))
+                if (String.IsNullOrWhiteSpace(value) || value.Length > 100)
                 {
-                    throw new ArgumentException("Name cannot be empty or whitespace");
+                    throw new ArgumentException("Incorrect name format");
                 }
                 name = value;
             }
@@ -45,12 +44,13 @@ namespace FinTrack.API.Core.Entities
         public string Email 
         { 
             get => email;
+            
             [MemberNotNull(nameof(email))]
             set 
             {
                 if (!Regex.IsMatch(value, emailPattern))
                 {
-                    throw new ArgumentException("Invalid email");
+                    throw new ArgumentException("Incorrect email format");
                 }
                 email = value;
             } 
@@ -63,7 +63,7 @@ namespace FinTrack.API.Core.Entities
             {
                 if (!Regex.IsMatch(value, phonePattern))
                 {
-                    throw new ArgumentException("Invalid phone");
+                    throw new ArgumentException("Incorrect phone format");
                 }
                 phone = value;
             }
@@ -74,9 +74,9 @@ namespace FinTrack.API.Core.Entities
             [MemberNotNull(nameof(passwordHash))]
             set
             {
-                if (String.IsNullOrWhiteSpace(value))
+                if (!Regex.IsMatch(value, hashPattern))
                 {
-                    throw new ArgumentException("Password hash cannot be empty or whitespace");
+                    throw new ArgumentException("Incorrect hash format");
                 }
                 passwordHash = value;
             }
