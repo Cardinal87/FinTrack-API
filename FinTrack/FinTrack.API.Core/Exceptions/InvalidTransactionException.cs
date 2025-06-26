@@ -6,8 +6,16 @@ namespace FinTrack.API.Core.Exceptions
     /// Exception for transactions
     /// </summary>
     /// <remarks>
-    /// Must be thrown in case of incorrect transaction handling
+    /// Must be thrown in case of incorrect transaction creating
     /// with indicating the reason
+    /// <para>
+    /// Cases:
+    /// <list type="bullet">
+    /// <item>date of transaction is greater than <see cref="DateTime.UtcNow"/></item>
+    /// <item>Trasaction.FromAccountId == Transaction.ToAccountId</item>
+    /// <item>Amount of transaction is less than zero</item>
+    /// </list>
+    /// </para>
     /// </remarks>
     public sealed class InvalidTransactionException : DomainException
     {
