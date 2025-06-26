@@ -62,14 +62,16 @@ namespace FinTrack.API.Core.Entities
         /// <param name="transaction">
         /// <see cref="Transaction"/> entity
         /// </param>
-        /// <exception cref="InvalidTransactionException">
+        /// <exception cref="TransactionOwnershipException">
         /// Transaction source account id and this account id does not match
         /// </exception>
         public void AddOutgoingTransaction(Transaction transaction)
         {
             if (transaction.FromAccountId != Id)
             {
-                throw new InvalidTransactionException("The transaction does not originate from this account");
+                throw new TransactionOwnershipException("The transaction does not originate from this account",
+                                                        Id,
+                                                        transaction.FromAccountId);
             }
             _outgoingTransactions.Add(transaction);
         }
@@ -79,14 +81,16 @@ namespace FinTrack.API.Core.Entities
         /// <param name="transaction">
         /// <see cref="Transaction"/> entity
         /// </param>
-        /// <exception cref="InvalidTransactionException">
+        /// <exception cref="TransactionOwnershipException">
         /// Transaction destination account id and this account id does not match
         /// </exception>
         public void AddIncomingTransaction(Transaction transaction)
         {
             if (transaction.ToAccountId != Id)
             {
-                throw new InvalidTransactionException("The transaction is not addressed to this account");
+                throw new TransactionOwnershipException("The transaction is not addressed to this account",
+                                                        Id,
+                                                        transaction.ToAccountId);
             }
             _incomingTransactions.Add(transaction);
         }
