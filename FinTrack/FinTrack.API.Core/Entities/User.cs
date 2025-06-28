@@ -1,4 +1,5 @@
 ﻿using FinTrack.API.Core.Common;
+using FinTrack.API.Core.Exceptions;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 namespace FinTrack.API.Core.Entities
@@ -185,7 +186,7 @@ namespace FinTrack.API.Core.Entities
         {
             if (account.UserId != Id)
             {
-                throw new ArgumentException("Account does not belong to the user");
+                throw new AccountOwnershipException(Id, account.UserId);
             }
             accounts.Add(account);
         }
