@@ -1,5 +1,6 @@
 ﻿
 using FinTrack.API.Core.Entities;
+using FinTrack.API.Core.Exceptions;
 using FluentAssertions;
 using System.Xml.Linq;
 
@@ -94,6 +95,48 @@ namespace FinTrack.Tests.Core.Entities
             validName.Should().NotThrow();
             invalidName.Should().Throw<ArgumentException>();
 
+        }
+
+        [Fact]
+        public void AddAccount_WithMixedAccounts_AcceptsSingleValid()
+        {
+            var user = new User("test@email.com",
+                                "+79998887766",
+                                "test_user",
+                                "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01");
+
+            var valid_account = new Account(user.Id);
+            var invalid_account = new Account(Guid.NewGuid());
+
+            var add_valid_account = () => user.AddAccount(valid_account);
+            var add_invalid_account = () => user.AddAccount(invalid_account);
+
+            add_valid_account.Should().NotThrow();
+            add_invalid_account.Should().Throw<AccountOwnershipException>();
+            user.Accounts.Should().HaveCount(1);
+            user.Accounts.Should().Contain(valid_account);
+
+
+
+        }
+
+        [Fact]
+        public void DeleteAccout_WithMixesGuid_AcceptSingleValid()
+        {
+            var user = new User("test@email.com",
+                                "+79998887766",
+                                "test_user",
+                                "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01");
+
+            var valid_account = new Account(user.Id);
+            user.AddAccount(valid_account);
+
+            var delete_existing = () => user.DeleteAccount(valid_account.Id);
+            var invalid_delete = () => user.DeleteAccount(Guid.NewGuid());
+
+            delete_existing.Should().NotThrow();
+            invalid_delete.Should().Throw<KeyNotFoundException>();
+            user.Accounts.Should().HaveCount(0);
         }
     }
 }
