@@ -14,7 +14,7 @@ namespace FinTrack.API.Core.Entities
         {
             if (amount <= 0)
             {
-                throw new ArgumentException("Amount is negative or zero");
+                throw new InvalidTransactionException("Amount is negative or zero");
             }
             if (fromAccountId == toAccountId)
             {
@@ -22,7 +22,7 @@ namespace FinTrack.API.Core.Entities
             }
             if (time > DateTime.UtcNow)
             {
-                throw new ArgumentException("Incorrect date of transaction");
+                throw new InvalidTransactionException("Incorrect date of transaction");
             }
 
             Amount = amount;
