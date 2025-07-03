@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.IntegrationTests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.Tests", "FinTrack.Tests\FinTrack.Tests.csproj", "{9BE38A8C-60B8-4426-94E4-2875245E9E95}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTrack.API", "FinTrack.API\FinTrack.API.csproj", "{219979CA-7891-42FB-8E4B-2759D520D97B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{9BE38A8C-60B8-4426-94E4-2875245E9E95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BE38A8C-60B8-4426-94E4-2875245E9E95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BE38A8C-60B8-4426-94E4-2875245E9E95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{219979CA-7891-42FB-8E4B-2759D520D97B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{219979CA-7891-42FB-8E4B-2759D520D97B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{219979CA-7891-42FB-8E4B-2759D520D97B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{219979CA-7891-42FB-8E4B-2759D520D97B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
