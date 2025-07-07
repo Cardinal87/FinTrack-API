@@ -1,8 +1,7 @@
-﻿
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 
-namespace FinTrack.API.Infrastructure.Identity
+namespace FinTrack.API.Infrastructure.Identity.Services
 {
     public class JwtKeyService
     {
