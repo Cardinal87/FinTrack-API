@@ -46,6 +46,18 @@ namespace FinTrack.API.Core.Interfaces
         Task<User?> GetByIdAsync(Guid id);
 
         /// <summary>
+        /// Returns entity with given email asynchronously
+        /// </summary>
+        /// <param name="email">email of the entity</param>
+        /// <returns>
+        ///     <see cref="Task"/>.
+        ///     The task result contains a <see cref="User"/> with given <paramref name="id"/> or <see langword="null"/> if 
+        ///     entity with given email does not exist 
+        /// </returns>
+        Task<User?> GetByEmailAsync(string email);
+
+
+        /// <summary>
         /// Asynchronously save all changes maked in repository
         /// </summary>
         /// <returns><see cref="Task"/></returns>

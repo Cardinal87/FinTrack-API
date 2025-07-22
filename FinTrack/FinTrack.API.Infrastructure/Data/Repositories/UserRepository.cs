@@ -39,6 +39,12 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             var user = _mapper.Map<User>(dbUser);
             return user;
         }
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            var dbUser = await _client.Users.FirstOrDefaultAsync(t => t.Email == email);
+            var user = _mapper.Map<User>(dbUser);
+            return user;
+        }
 
         public void Add(User user)
         {
@@ -57,5 +63,7 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
         }
 
         async public Task SaveChangesAsync() => await _client.SaveChangesAsync();
+
+        
     }
 }
