@@ -12,7 +12,7 @@ namespace FinTrack.Tests.Core.Entities
         [Fact]
         public void EmailValidation_WithMixedEmails_AcceptsSingleValid()
         {
-            var hash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01";
+            var hash = "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=";
             var name = "test_user";
             var phone = "+79998887766";
 
@@ -43,7 +43,7 @@ namespace FinTrack.Tests.Core.Entities
         [Fact]
         public void PhoneValidation_WithMixedPhone_AcceptsSingleValid()
         {
-            var hash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01";
+            var hash = "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=";
             var name = "test_user";
             var email = "test@email.com";
 
@@ -69,13 +69,16 @@ namespace FinTrack.Tests.Core.Entities
             var phone = "+79998887766";
 
 
-            var validHash = () => new User(email, phone, name, "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01");
+            var validHash1 = () => new User(email, phone, name, "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=");
+            var validHash2 = () => new User(email, phone, name, "MD5.50.zrIHcuDJ0kDHXrJrDjer7g==.X03MO1qnZdYdgyfeuILPmQ==");
 
             var invalidHash1 = () => new User(email, phone, name, "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb0");
             var invalidHash2 = () => new User(email, phone, name, "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb011");
             var invalidHash3 = () => new User(email, phone, name, "");
 
-            validHash.Should().NotThrow();
+            validHash1.Should().NotThrow();
+            validHash2.Should().NotThrow();
+
             invalidHash1.Should().Throw<ArgumentException>();
             invalidHash2.Should().Throw<ArgumentException>();
             invalidHash3.Should().Throw<ArgumentException>();
@@ -84,7 +87,7 @@ namespace FinTrack.Tests.Core.Entities
         [Fact]
         public void NameValidation_WithMixedNames_AcceptsSingleValid()
         {
-            var hash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01";
+            var hash = "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=";
             var email = "test@email.com";
             var phone = "+79998887766";
 
@@ -103,7 +106,7 @@ namespace FinTrack.Tests.Core.Entities
             var user = new User("test@email.com",
                                 "+79998887766",
                                 "test_user",
-                                "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01");
+                                "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=");
 
             var valid_account = new Account(user.Id);
             var invalid_account = new Account(Guid.NewGuid());
@@ -126,7 +129,7 @@ namespace FinTrack.Tests.Core.Entities
             var user = new User("test@email.com",
                                 "+79998887766",
                                 "test_user",
-                                "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01");
+                                "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=");
 
             var valid_account = new Account(user.Id);
             user.AddAccount(valid_account);
