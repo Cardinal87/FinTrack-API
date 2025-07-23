@@ -19,7 +19,7 @@ namespace FinTrack.API.Core.Entities
     {
         private const string phonePattern = @"^\+[1-9]\d{1,14}$";
         private const string emailPattern = @"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$";
-        private const string hashPattern = @"^[0-9a-fA-F]{64}$";
+        private const string hashPattern = @"^[A-Za-z0-9]+\.\d+\.[A-Za-z0-9+/]+={0,2}\.[A-Za-z0-9+/]+={0,2}$";
 
         private string name;
         private string email;
@@ -148,8 +148,11 @@ namespace FinTrack.API.Core.Entities
         /// <remarks>
         /// Rules:
         /// <list type="bullet">
-        /// <item>Must be result of SHA-256 cryptographic function</item>
-        /// <item>Must be a 64-hex characters</item>
+        /// <item>Must be result of cryptographic function</item>
+        /// <item>
+        /// Must follow next format:
+        /// {Hash algorithm}.{Iteration count}.{Salt in Base64}.{Hash in Base64}
+        /// </item>
         /// </list>
         /// 
         /// Exceptions:
