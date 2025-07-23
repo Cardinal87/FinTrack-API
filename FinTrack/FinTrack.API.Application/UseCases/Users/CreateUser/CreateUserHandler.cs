@@ -9,13 +9,12 @@ namespace FinTrack.API.Application.UseCases.Users.CreateUser
     internal class CreateUserHandler : IRequestHandler<CreateUserCommand, Guid>
     {
         private IUserRepository _userRepository;
-        private IAccountRepository _accountRepository;
+        private IPasswordHasher _passwordHasher;
         
-        
-        public CreateUserHandler(IUserRepository userRepository, IAccountRepository accountRepository)
+        public CreateUserHandler(IUserRepository userRepository, IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
-            _accountRepository = accountRepository;
+            _passwordHasher = passwordHasher;
         }
 
 
@@ -27,10 +26,12 @@ namespace FinTrack.API.Application.UseCases.Users.CreateUser
         /// <returns></returns>
         async public Task<Guid> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
+            var hash = _passwordHasher.GetHash(request.password);
+            
             var user = new User(request.email,
                                 request.phone,
                                 request.name,
-                                request.hash);
+                                hash);
 
             _userRepository.Add(user);
             await _userRepository.SaveChangesAsync();
