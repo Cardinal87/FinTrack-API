@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
+    <PackageReference Include="MediatR" Version="13.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FinTrack.API.Application\FinTrack.API.Application.csproj" />
+    <ProjectReference Include="..\FinTrack.API.Core\FinTrack.API.Core.csproj" />
+    <ProjectReference Include="..\FinTrack.API.Infrastructure\FinTrack.API.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
