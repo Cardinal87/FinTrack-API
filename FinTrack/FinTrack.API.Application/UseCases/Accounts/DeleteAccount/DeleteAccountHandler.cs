@@ -14,7 +14,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
     /// 
     /// <para>
     /// Exceptions:
-    /// <para><see cref="KeyNotFoundException"/> - user with given id does not exist</para>
+    /// <para><see cref="KeyNotFoundException"/> - account with given id does not exist</para>
     /// </para>
     /// </remarks>
     internal class DeleteAccountHandler : IRequestHandler<DeleteAccountCommand>
@@ -28,7 +28,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
 
         async public Task Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
         {
-            await _accountRepository.DeleteAsync(request.userId);
+            await _accountRepository.DeleteAsync(request.accountId);
             await _accountRepository.SaveChangesAsync();
 
 
