@@ -2,7 +2,7 @@
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 
-namespace FinTrack.API.Application.UseCases.Account.TopUpBalance
+namespace FinTrack.API.Application.UseCases.Accounts.TopUpBalance
 {
 
     /// <summary>

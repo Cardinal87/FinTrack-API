@@ -2,7 +2,7 @@
 
 using MediatR;
 
-namespace FinTrack.API.Application.UseCases.Account.DeleteAccount
+namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
 {
     /// <summary>
     ///  Represents MediatR command to delete account.

@@ -1,5 +1,5 @@
 ﻿using MediatR;
-namespace FinTrack.API.Application.UseCases.Account.TopUpBalance
+namespace FinTrack.API.Application.UseCases.Accounts.TopUpBalance
 {
     /// <summary>
     /// Represents MediatR command to top up balance.

@@ -2,7 +2,7 @@
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 
-namespace FinTrack.API.Application.UseCases.Account.CreateAccount
+namespace FinTrack.API.Application.UseCases.Accounts.CreateAccount
 {
     /// <summary>
     /// Handles account creating 

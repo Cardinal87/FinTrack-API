@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace FinTrack.API.Application.UseCases.Account.DebitBalance
+namespace FinTrack.API.Application.UseCases.Accounts.DebitBalance
 {
     /// <summary>
     /// Represents MediatR command to debit balance.

@@ -3,7 +3,7 @@
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 
-namespace FinTrack.API.Application.UseCases.Account.DeleteAccount
+namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
 {
     /// <summary>
     /// Handler deleting account

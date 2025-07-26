@@ -2,7 +2,7 @@
 using FinTrack.API.Core.Exceptions;
 using MediatR;
 
-namespace FinTrack.API.Application.UseCases.Account.DebitBalance
+namespace FinTrack.API.Application.UseCases.Accounts.DebitBalance
 {
 
     /// <summary>

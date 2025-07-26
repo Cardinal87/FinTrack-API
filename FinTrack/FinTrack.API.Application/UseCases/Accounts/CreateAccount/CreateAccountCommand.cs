@@ -1,7 +1,7 @@
 ﻿
 using MediatR;
 
-namespace FinTrack.API.Application.UseCases.Account.CreateAccount
+namespace FinTrack.API.Application.UseCases.Accounts.CreateAccount
 {
     /// <summary>
     /// Represents MediatR command to create account.
