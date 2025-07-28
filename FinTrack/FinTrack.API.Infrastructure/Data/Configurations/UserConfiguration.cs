@@ -17,6 +17,7 @@ namespace FinTrack.API.Infrastructure.Data.Configurations
             builder.Property(t => t.PasswordHash).HasMaxLength(64).IsRequired();
             builder.Property(t => t.Name).HasMaxLength(100).IsRequired();
             builder.HasIndex(t => t.Name).IsUnique();
+            builder.Property(t => t.Roles).IsRequired();
 
             builder.HasMany(t => t.Accounts)
                 .WithOne(t => t.User)

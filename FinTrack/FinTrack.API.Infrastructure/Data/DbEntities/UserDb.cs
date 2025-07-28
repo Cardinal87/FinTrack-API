@@ -11,6 +11,7 @@ namespace FinTrack.API.Infrastructure.Data.DbEntities
         public string Phone { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
         public List<AccountDb> Accounts { get; set; } = new();
+        public List<string> Roles { get; set; } = new();
         
     }
 }
