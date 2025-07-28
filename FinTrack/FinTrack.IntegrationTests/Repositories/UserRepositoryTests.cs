@@ -1,6 +1,7 @@
 ﻿using FinTrack.API.Infrastructure.Data.Repositories;
 using FinTrack.API.Core.Interfaces;
 using FinTrack.API.Core.Entities;
+using FinTrack.API.Core.Common;
 using FluentAssertions;
 using FinTrack.IntegrationTests.Common;
 using Microsoft.EntityFrameworkCore;
@@ -31,17 +32,25 @@ namespace FinTrack.IntegrationTests.Repositories
         [Fact]
         async public Task AddUser_ValidData_Success()
         {
-            var hash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01";
+            var hash = "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=";
             var email = "test@email.com";
             var name = "test_user";
             var phone = "+79998887766";
             var user = new User(email, phone, name, hash);
+            user.AssignRole(UserRoles.Admin);
+            user.AssignRole(UserRoles.User);
 
             _userRepository.Add(user);
             await _userRepository.SaveChangesAsync();
 
             var savedUser = await _client.Users.FirstOrDefaultAsync(t => t.Id == user.Id);
             savedUser.Should().NotBeNull();
+            savedUser.Email.Should().Be(email);
+            savedUser.Phone.Should().Be(phone);
+            savedUser.PasswordHash.Should().Be(hash);
+            savedUser.Name.Should().Be(name);
+            savedUser.Roles.Should().Contain(UserRoles.Admin);
+            savedUser.Roles.Should().Contain(UserRoles.User);
 
         }
 
@@ -68,7 +77,8 @@ namespace FinTrack.IntegrationTests.Repositories
             user.Name = "updated_name";
             user.Email = "updated@email.com";
             user.Phone = "+78889997766";
-            user.PasswordHash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb02";
+            user.PasswordHash = "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=";
+            user.AssignRole(UserRoles.Admin);
 
             await _userRepository.UpdateAsync(user);
             await _userRepository.SaveChangesAsync();
@@ -79,6 +89,7 @@ namespace FinTrack.IntegrationTests.Repositories
             updatedUser.Name.Should().Be(user.Name);
             updatedUser.Phone.Should().Be(user.Phone);
             updatedUser.PasswordHash.Should().Be(user.PasswordHash);
+            updatedUser.Roles.Should().Contain(UserRoles.Admin);
         }
 
         [Fact]
@@ -132,7 +143,7 @@ namespace FinTrack.IntegrationTests.Repositories
             var list = new List<User>();
             for (int nonce = 0; nonce < amount; nonce++)
             {
-                var hash = $"10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb0{nonce}";
+                var hash = "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=";
                 var email = $"test{nonce}@email.com";
                 var name = $"test_user{nonce}";
                 var phone = $"+7999888776{nonce}";
