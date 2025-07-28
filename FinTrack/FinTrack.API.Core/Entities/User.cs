@@ -26,6 +26,7 @@ namespace FinTrack.API.Core.Entities
         private string phone;
         private string passwordHash;
         private readonly List<Account> accounts = new();
+        private readonly List<string> roles = new();
 
         public User(string email, string phone, string name, string hash)
         {
@@ -39,6 +40,11 @@ namespace FinTrack.API.Core.Entities
         /// Read-only collection with user's accounts
         /// </summary>
         public IReadOnlyCollection<Account> Accounts => accounts.AsReadOnly();
+
+        /// <summary>
+        /// Read-only collection with user's roles
+        /// </summary>
+        public IReadOnlyCollection<string> Roles => roles.AsReadOnly();
 
         /// <summary>
         /// User's name
@@ -214,5 +220,21 @@ namespace FinTrack.API.Core.Entities
             accounts.Remove(account);
         }
 
+        /// <summary>
+        /// Assings a new role to user
+        /// </summary>
+        /// <param name="role">one of the string constants of <see cref="UserRoles"/></param>
+        /// <exception cref="DomainException">role not defined in <see cref="UserRoles"/></exception>
+        public void AssignRole(string role)
+        {
+            if (!UserRoles.AllRoles.Contains(role))
+            {
+                throw new DomainException($"incorrect role {role}");
+            }
+            if (!roles.Contains(role))
+            {
+                roles.Add(role);
+            }
+        }
     }
 }
