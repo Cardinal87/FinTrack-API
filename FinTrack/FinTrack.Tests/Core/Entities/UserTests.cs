@@ -2,7 +2,7 @@
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Exceptions;
 using FluentAssertions;
-using System.Xml.Linq;
+using FinTrack.API.Core.Common;
 
 namespace FinTrack.Tests.Core.Entities
 {
@@ -62,7 +62,7 @@ namespace FinTrack.Tests.Core.Entities
 
 
         [Fact]
-        public void HashValidation_WithMixedHash_AcceptsSingleValid()
+        public void HashValidation_WithMixedHash_AcceptsOnlyValid()
         {
             var name = "test_user";
             var email = "test@email.com";
@@ -140,6 +140,27 @@ namespace FinTrack.Tests.Core.Entities
             delete_existing.Should().NotThrow();
             invalid_delete.Should().Throw<KeyNotFoundException>();
             user.Accounts.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public void RoleValidation_WithMixedValues_AcceptsOnlyValid()
+        {
+            var user = new User("test@email.com",
+                                "+79998887766",
+                                "test_user",
+                                "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=");
+
+            var addValidRole1 = () => user.AssignRole(UserRoles.Admin);
+            var addValidRole2 = () => user.AssignRole(UserRoles.Admin);
+
+            var addInvalidRole1 = () => user.AssignRole("IncorrectRole");
+            var addInvalidRole2 = () => user.AssignRole("");
+
+            addValidRole1.Should().NotThrow();
+            addValidRole2.Should().NotThrow();
+            addInvalidRole1.Should().Throw<DomainException>();
+            addInvalidRole2.Should().Throw<DomainException>();
+
         }
     }
 }
