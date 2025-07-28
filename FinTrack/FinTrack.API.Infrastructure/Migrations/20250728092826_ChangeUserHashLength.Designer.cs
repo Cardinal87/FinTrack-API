@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using FinTrack.API.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FinTrack.API.Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseClient))]
-    partial class DatabaseClientModelSnapshot : ModelSnapshot
+    [Migration("20250728092826_ChangeUserHashLength")]
+    partial class ChangeUserHashLength
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
