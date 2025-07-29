@@ -2,6 +2,7 @@
 
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
+using FinTrack.API.Core.Common;
 using MediatR;
 
 namespace FinTrack.API.Application.UseCases.Accounts.GetAccount
@@ -16,8 +17,17 @@ namespace FinTrack.API.Application.UseCases.Accounts.GetAccount
 
         async public Task<Account?> Handle(GetAccountCommand request, CancellationToken cancellationToken)
         {
-            var account = await _accountRepository.GetByIdAsync(request.guid);
+            var account = await _accountRepository.GetByIdAsync(request.accountId);
+            if (request.roles.Contains(UserRoles.Admin))
+            {
+                return account;
+            }
+            if (request.userId != account?.UserId)
+            {
+                throw new ArgumentException("access denied");
+            }
             return account;
+            
         }
     }
 }
