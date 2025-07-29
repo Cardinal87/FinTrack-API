@@ -1,6 +1,7 @@
 ﻿
 
 using FinTrack.API.Core.Interfaces;
+using FinTrack.API.Core.Common;
 using MediatR;
 
 namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
@@ -28,8 +29,19 @@ namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
 
         async public Task Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
         {
-            await _accountRepository.DeleteAsync(request.accountId);
-            await _accountRepository.SaveChangesAsync();
+            var account = await _accountRepository.GetByIdAsync(request.accountId);
+            if(account == null)
+            {
+                throw new KeyNotFoundException($"accoun with id {request.accountId} does not exist");
+            }
+            if (request.roles.Contains(UserRoles.Admin) ||
+                request.userId == account.UserId)
+            {
+                await _accountRepository.DeleteAsync(request.accountId);
+                await _accountRepository.SaveChangesAsync();
+                return;
+            }
+            throw new ArgumentException("access denied");
 
 
         }

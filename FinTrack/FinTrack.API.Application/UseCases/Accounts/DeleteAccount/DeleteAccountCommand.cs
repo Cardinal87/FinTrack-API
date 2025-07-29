@@ -10,6 +10,12 @@ namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
     /// <param name="accountId">
     /// Id of the existing account
     /// </param>
-    public record DeleteAccountCommand(Guid accountId) : IRequest;
+    /// <param name="userGuid">
+    /// Id of the user that invokes command
+    /// </param>
+    /// <param name="roles">
+    /// User roles
+    /// </param>
+    public record DeleteAccountCommand(Guid userId, IReadOnlyCollection<string> roles, Guid accountId) : IRequest;
     
 }
