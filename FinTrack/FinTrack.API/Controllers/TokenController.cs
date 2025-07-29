@@ -29,7 +29,7 @@ namespace FinTrack.API.Controllers
             {
                 return Unauthorized(new { message = "invalid credentials" });
             }
-            var token = _jwtTokenService.GenerateToken(authUser, new List<string> { "User" });
+            var token = _jwtTokenService.GenerateToken(authUser);
             return Ok(new {token});
         }
 
