@@ -1,15 +1,16 @@
-﻿using MediatR;
+﻿using FinTrack.API.Application.Common;
+using MediatR;
 namespace FinTrack.API.Application.UseCases.Accounts.TopUpBalance
 {
     /// <summary>
     /// Represents MediatR command to top up balance.
-    /// Returns balance of the account
+    /// Returns <see cref="ValueResult{T}"/> with balance of the account
     /// </summary>
     /// <param name="accountId">Destination account id</param>
     /// <param name="amount">
     /// Deposit amount.
     /// Must be positive
     /// </param>
-    public record TopUpBalanceCommand(Guid accountId, decimal amount) : IRequest<decimal>;
+    public record TopUpBalanceCommand(Guid accountId, decimal amount) : IRequest<ValueResult<decimal>>;
     
 }

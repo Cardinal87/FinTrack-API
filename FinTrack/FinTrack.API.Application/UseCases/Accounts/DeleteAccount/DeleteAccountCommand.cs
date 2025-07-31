@@ -1,5 +1,6 @@
 ﻿
 
+using FinTrack.API.Application.Common;
 using MediatR;
 
 namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
@@ -16,6 +17,6 @@ namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
     /// <param name="roles">
     /// User roles
     /// </param>
-    public record DeleteAccountCommand(Guid userId, IReadOnlyCollection<string> roles, Guid accountId) : IRequest;
+    public record DeleteAccountCommand(Guid userId, IReadOnlyCollection<string> roles, Guid accountId) : IRequest<Result>;
     
 }

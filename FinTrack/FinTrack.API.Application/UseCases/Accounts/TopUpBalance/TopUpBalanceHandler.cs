@@ -1,4 +1,6 @@
 ﻿
+using FinTrack.API.Application.Common;
+using FinTrack.API.Core.Exceptions;
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 
@@ -20,7 +22,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.TopUpBalance
     /// <para> - <see cref="ArgumentNullException"/>: account does not exist</para>
     /// </para>
     /// </remarks>
-    internal class TopUpBalanceHandler : IRequestHandler<TopUpBalanceCommand, decimal>
+    internal class TopUpBalanceHandler : IRequestHandler<TopUpBalanceCommand, ValueResult<decimal>>
     {
         private readonly IAccountRepository _accountRepository;
 
@@ -29,19 +31,27 @@ namespace FinTrack.API.Application.UseCases.Accounts.TopUpBalance
             _accountRepository = accountRepository;
         }
 
-        async public Task<decimal> Handle(TopUpBalanceCommand request, CancellationToken cancellationToken)
+        async public Task<ValueResult<decimal>> Handle(TopUpBalanceCommand request, CancellationToken cancellationToken)
         {
-            var account = await _accountRepository.GetByIdAsync(request.accountId);
-            if (account == null)
+            try
             {
-                throw new KeyNotFoundException("Account with given id does not exist");
-            }
-            account.TopUp(request.amount);
+                var account = await _accountRepository.GetByIdAsync(request.accountId);
+                if (account == null)
+                {
+                    return ValueResult<decimal>.Fail(OperationStatusMessages.NotFound);
+                }
+                account.TopUp(request.amount);
 
-            
-            await _accountRepository.UpdateAsync(account);
-            await _accountRepository.SaveChangesAsync();
-            return account.Balance;
+
+                await _accountRepository.UpdateAsync(account);
+                await _accountRepository.SaveChangesAsync();
+                return ValueResult<decimal>.Ok(account.Balance, OperationStatusMessages.Ok);
+            }
+            catch (IncorrectAmountException)
+            {
+                return ValueResult<decimal>.Fail(OperationStatusMessages.BadRequest);
+            }
+
         }
     }
 }

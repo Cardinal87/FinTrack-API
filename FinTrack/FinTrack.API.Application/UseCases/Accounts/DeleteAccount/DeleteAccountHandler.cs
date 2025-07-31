@@ -3,6 +3,7 @@
 using FinTrack.API.Core.Interfaces;
 using FinTrack.API.Core.Common;
 using MediatR;
+using FinTrack.API.Application.Common;
 
 namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
 {
@@ -18,7 +19,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
     /// <para><see cref="KeyNotFoundException"/> - account with given id does not exist</para>
     /// </para>
     /// </remarks>
-    internal class DeleteAccountHandler : IRequestHandler<DeleteAccountCommand>
+    internal class DeleteAccountHandler : IRequestHandler<DeleteAccountCommand, Result>
     {
         private readonly IAccountRepository _accountRepository;
 
@@ -27,21 +28,21 @@ namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
             _accountRepository = accountRepository;
         }
 
-        async public Task Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
+        async public Task<Result> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
         {
             var account = await _accountRepository.GetByIdAsync(request.accountId);
             if(account == null)
             {
-                throw new KeyNotFoundException($"accoun with id {request.accountId} does not exist");
+                return Result.Fail(OperationStatusMessages.NotFound);
             }
             if (request.roles.Contains(UserRoles.Admin) ||
                 request.userId == account.UserId)
             {
                 await _accountRepository.DeleteAsync(request.accountId);
                 await _accountRepository.SaveChangesAsync();
-                return;
+                return Result.Ok(OperationStatusMessages.NoContent);
             }
-            throw new ArgumentException("access denied");
+            return Result.Fail(OperationStatusMessages.Forbidden);
 
 
         }
