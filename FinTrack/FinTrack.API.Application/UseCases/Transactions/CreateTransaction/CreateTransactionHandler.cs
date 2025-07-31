@@ -32,9 +32,9 @@ namespace FinTrack.API.Application.UseCases.Transactions.CreateTransaction
             }
             catch (IncorrectAmountException)
             {
-                return ValueResult<Guid>.Fail(OperationStatusMessages.NotFound);
+                return ValueResult<Guid>.Fail(OperationStatusMessages.BadRequest);
             }
-            catch (KeyNotFoundException)
+            catch (EntityNotFoundException)
             {
                 return ValueResult<Guid>.Fail(OperationStatusMessages.NotFound);
             }

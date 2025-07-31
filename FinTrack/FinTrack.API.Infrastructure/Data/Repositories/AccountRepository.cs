@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FinTrack.API.Core.Entities;
+using FinTrack.API.Core.Exceptions;
 using FinTrack.API.Core.Interfaces;
 using FinTrack.API.Infrastructure.Data.DbEntities;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             var account = await _client.Accounts.FindAsync(id);
             if (account == null)
             {
-                throw new KeyNotFoundException("Entity with given id does not exist");
+                throw new EntityNotFoundException($"entity with id {id} does not exist");
             }
             _client.Accounts.Remove(account);
         }
@@ -52,7 +53,7 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             var existingAccount = await _client.Accounts.FindAsync(account.Id);
             if (existingAccount == null)
             {
-                throw new KeyNotFoundException("Entity with given id does not exist");
+                throw new EntityNotFoundException($"entity with id {account.Id} does not exist");
             }
             _mapper.Map(account, existingAccount);
         }

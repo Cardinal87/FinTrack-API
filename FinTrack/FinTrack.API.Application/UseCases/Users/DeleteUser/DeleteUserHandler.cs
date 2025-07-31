@@ -1,5 +1,6 @@
 ﻿
 using FinTrack.API.Application.Common;
+using FinTrack.API.Core.Exceptions;
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 
@@ -36,7 +37,7 @@ namespace FinTrack.API.Application.UseCases.Users.DeleteUser
                 await _userRepository.SaveChangesAsync();
                 return Result.Ok(OperationStatusMessages.NoContent);
             }
-            catch(KeyNotFoundException)
+            catch(EntityNotFoundException)
             {
                 return Result.Fail(OperationStatusMessages.NotFound);
             }

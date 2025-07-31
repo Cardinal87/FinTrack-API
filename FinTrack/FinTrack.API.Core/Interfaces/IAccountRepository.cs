@@ -1,5 +1,5 @@
 ﻿using FinTrack.API.Core.Entities;
-
+using FinTrack.API.Core.Exceptions;
 namespace FinTrack.API.Core.Interfaces
 {
     public interface IAccountRepository
@@ -14,7 +14,7 @@ namespace FinTrack.API.Core.Interfaces
         /// Begins tracking the given entity as "Updated"
         /// </summary>
         /// <param name="account">the entity to update</param>
-        /// <exception cref="KeyNotFoundException">the given entity does not exist</exception>
+        /// <exception cref="EntityNotFoundException">the given entity does not exist</exception>
         /// <returns><see cref="Task"/></returns>
         Task UpdateAsync(Account account);
 
@@ -22,7 +22,7 @@ namespace FinTrack.API.Core.Interfaces
         /// Begins tracking the given entity as "Deleted"
         /// </summary>
         /// <param name="id">id of the entity to delete</param>
-        /// <exception cref="KeyNotFoundException">the given entity does not exist</exception>
+        /// <exception cref="EntityNotFoundException">the given entity does not exist</exception>
         /// <returns><see cref="Task"/></returns>
         Task DeleteAsync(Guid id);
 

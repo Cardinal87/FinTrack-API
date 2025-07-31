@@ -1,6 +1,7 @@
 ﻿
 
 using FinTrack.API.Core.Entities;
+using FinTrack.API.Core.Exceptions;
 using FinTrack.API.Core.Interfaces;
 
 namespace FinTrack.API.Core.Services
@@ -26,7 +27,7 @@ namespace FinTrack.API.Core.Services
 
             if (toAccount == null || fromAccount == null)
             {
-                throw new ArgumentException("One of accounts does not exist");
+                throw new EntityNotFoundException("One of the accounts does not exist");
             }
             var transaction = new Transaction(amount, fromAccountId, toAccountId, DateTime.UtcNow);
 
