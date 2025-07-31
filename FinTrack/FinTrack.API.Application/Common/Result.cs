@@ -13,6 +13,6 @@ namespace FinTrack.API.Application.Common
         
 
         public static Result Ok(string statusMessage) => new Result(true, statusMessage);
-        public static Result Fail(string statusMessage, Exception exception) => new Result(false, statusMessage);
+        public static Result Fail(string statusMessage) => new Result(false, statusMessage);
     }
 }

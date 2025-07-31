@@ -15,6 +15,6 @@ namespace FinTrack.API.Application.Common
 
         public static ValueResult<T> Ok(T value, string statusMessage) => new ValueResult<T>(value, true, statusMessage);
 
-        public static ValueResult<T> Fail(string statusMessage, Exception exception) => new ValueResult<T>(default, false, statusMessage);
+        public static ValueResult<T> Fail(string statusMessage) => new ValueResult<T>(default, false, statusMessage);
     }
 }
