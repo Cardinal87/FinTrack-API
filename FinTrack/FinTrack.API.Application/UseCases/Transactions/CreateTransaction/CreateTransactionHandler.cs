@@ -1,4 +1,5 @@
 ﻿using FinTrack.API.Application.Common;
+using FinTrack.API.Core.Exceptions;
 using FinTrack.API.Core.Services;
 using MediatR;
 namespace FinTrack.API.Application.UseCases.Transactions.CreateTransaction
@@ -29,7 +30,7 @@ namespace FinTrack.API.Application.UseCases.Transactions.CreateTransaction
 
                 return ValueResult<Guid>.Ok(guid, OperationStatusMessages.Created);
             }
-            catch (ArgumentException)
+            catch (IncorrectAmountException)
             {
                 return ValueResult<Guid>.Fail(OperationStatusMessages.NotFound);
             }

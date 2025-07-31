@@ -28,16 +28,22 @@ namespace FinTrack.API.Core.Entities
         /// <exception cref="InvalidTransactionException">
         /// Thrown when:
         /// <list type="bullet">
-        /// <item><paramref name="amount"/>is negative or zero</item>
         /// <item><paramref name="time"/> is later than <see cref="DateTime.UtcNow"/></item>
         /// <item><paramref name="fromAccountId"/>is equal to <paramref name="toAccountId"/></item>
         /// </list>
         /// </exception>
+        /// <exception cref="IncorrectAmountException">
+        /// Thrown when:
+        /// <list type="bullet">
+        /// <item><paramref name="amount"/>is negative or zero</item>
+        /// </list>
+        /// </exception> 
+
         public Transaction(decimal amount, Guid fromAccountId, Guid toAccountId, DateTime time)
         {
             if (amount <= 0)
             {
-                throw new InvalidTransactionException("Amount is negative or zero");
+                throw new IncorrectAmountException(amount, "Amount is negative or zero");
             }
             if (fromAccountId == toAccountId)
             {

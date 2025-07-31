@@ -26,7 +26,7 @@ namespace FinTrack.API.Core.Entities
         /// </summary>
         /// <param name="amount">amount that will be debited</param>
         /// <exception cref="InsufficientFundsException">amount param is greater than balance</exception>
-        /// <exception cref="ArgumentException">amount if negative or equal to zero</exception>
+        /// <exception cref="IncorrectAmountException">amount if negative or equal to zero</exception>
         public void Debit(decimal amount)
         {
             if (Balance < amount)
@@ -35,7 +35,7 @@ namespace FinTrack.API.Core.Entities
             }
             if (amount <= 0)
             {
-                throw new ArgumentException("amount must be positive");
+                throw new IncorrectAmountException(amount, "Amount is negative or zero");
             }
             Balance -= amount;
         }
@@ -45,12 +45,12 @@ namespace FinTrack.API.Core.Entities
         /// top up the balance
         /// </summary>
         /// <param name="amount">amount that will be credited to the balance</param>
-        /// <exception cref="ArgumentException">amount if negative or equal to zero</exception>
+        /// <exception cref="IncorrectAmountException">amount if negative or equal to zero</exception>
         public void TopUp(decimal amount)
         {
             if (amount <= 0)
             {
-                throw new ArgumentException("amount must be positive");
+                throw new IncorrectAmountException(amount, "Amount is negative or zero");
             }
             Balance += amount;
         }
