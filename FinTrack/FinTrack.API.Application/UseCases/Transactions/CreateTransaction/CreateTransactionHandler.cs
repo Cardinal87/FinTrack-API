@@ -1,4 +1,5 @@
-﻿using FinTrack.API.Core.Services;
+﻿using FinTrack.API.Application.Common;
+using FinTrack.API.Core.Services;
 using MediatR;
 namespace FinTrack.API.Application.UseCases.Transactions.CreateTransaction
 {
@@ -9,7 +10,7 @@ namespace FinTrack.API.Application.UseCases.Transactions.CreateTransaction
     /// <remarks>
     /// Use core service for handle transaction
     /// </remarks>
-    internal class CreateTransactionHandler : IRequestHandler<CreateTransactionCommand, Guid>
+    internal class CreateTransactionHandler : IRequestHandler<CreateTransactionCommand, ValueResult<Guid>>
     {
         private TransferService _transferService;
 
@@ -18,13 +19,24 @@ namespace FinTrack.API.Application.UseCases.Transactions.CreateTransaction
             _transferService = transferService;
         }
 
-        async public Task<Guid> Handle(CreateTransactionCommand request, CancellationToken cancellationToken)
+        async public Task<ValueResult<Guid>> Handle(CreateTransactionCommand request, CancellationToken cancellationToken)
         {
-            var guid = await _transferService.HandleTransactionAsync(request.amount,
-                                                          request.toAccountId,
-                                                          request.fromAccountId);
+            try
+            {
+                var guid = await _transferService.HandleTransactionAsync(request.amount,
+                                                              request.toAccountId,
+                                                              request.fromAccountId);
 
-            return guid;
+                return ValueResult<Guid>.Ok(guid, OperationStatusMessages.Created);
+            }
+            catch (ArgumentException)
+            {
+                return ValueResult<Guid>.Fail(OperationStatusMessages.NotFound);
+            }
+            catch (KeyNotFoundException)
+            {
+                return ValueResult<Guid>.Fail(OperationStatusMessages.NotFound);
+            }
         }
     }
 }
