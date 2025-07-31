@@ -1,11 +1,12 @@
-﻿using MediatR;
+﻿using FinTrack.API.Application.Common;
+using MediatR;
 
 namespace FinTrack.API.Application.UseCases.Users.CreateUser
 {
 
     /// <summary>
     /// Represents MediatR command for creating new user.
-    /// Returns id of the created user
+    /// Returns <see cref="ValueResult{T}"/> with id of the created user
     /// </summary>
     /// <param name="phone">phone number inc E.164 format</param>
     /// <param name="email">valid email address</param>
@@ -14,5 +15,5 @@ namespace FinTrack.API.Application.UseCases.Users.CreateUser
     public record CreateUserCommand(string phone,
                                     string email,
                                     string name,
-                                    string password) : IRequest<Guid>;
+                                    string password) : IRequest<ValueResult<Guid>>;
 }

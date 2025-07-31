@@ -1,4 +1,5 @@
 ﻿
+using FinTrack.API.Application.Common;
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 
@@ -17,7 +18,7 @@ namespace FinTrack.API.Application.UseCases.Users.DeleteUser
     /// <para>- <see cref="KeyNotFoundException"/>: User with given id does not exist</para>
     /// </para>
     /// </remarks>
-    internal class DeleteUserHandler : IRequestHandler<DeleteUserCommand>
+    internal class DeleteUserHandler : IRequestHandler<DeleteUserCommand, Result>
     {
 
         private IUserRepository _userRepository;
@@ -27,10 +28,18 @@ namespace FinTrack.API.Application.UseCases.Users.DeleteUser
             _userRepository = userRepository;
         }
 
-        async public Task Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+        async public Task<Result> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
-            await _userRepository.DeleteAsync(request.id);
-            await _userRepository.SaveChangesAsync();
+            try
+            {
+                await _userRepository.DeleteAsync(request.id);
+                await _userRepository.SaveChangesAsync();
+                return Result.Ok(OperationStatusMessages.NoContent);
+            }
+            catch(KeyNotFoundException)
+            {
+                return Result.Fail(OperationStatusMessages.NotFound);
+            }
         }
     }
 }

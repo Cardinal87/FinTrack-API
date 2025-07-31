@@ -1,12 +1,13 @@
 ﻿
 
+using FinTrack.API.Application.Common;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 
 namespace FinTrack.API.Application.UseCases.Users.CreateUser
 {
-    internal class CreateUserHandler : IRequestHandler<CreateUserCommand, Guid>
+    internal class CreateUserHandler : IRequestHandler<CreateUserCommand, ValueResult<Guid>>
     {
         private IUserRepository _userRepository;
         private IPasswordHasher _passwordHasher;
@@ -24,7 +25,7 @@ namespace FinTrack.API.Application.UseCases.Users.CreateUser
         /// <param name="request">DTO with user data</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        async public Task<Guid> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        async public Task<ValueResult<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             var hash = _passwordHasher.GetHash(request.password);
             
@@ -35,7 +36,7 @@ namespace FinTrack.API.Application.UseCases.Users.CreateUser
 
             _userRepository.Add(user);
             await _userRepository.SaveChangesAsync();
-            return user.Id;
+            return ValueResult<Guid>.Ok(user.Id, OperationStatusMessages.Created);
         }
     }
 }

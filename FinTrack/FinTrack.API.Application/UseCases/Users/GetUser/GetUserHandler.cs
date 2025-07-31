@@ -1,11 +1,12 @@
-﻿using FinTrack.API.Core.Entities;
+﻿using FinTrack.API.Application.Common;
+using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 
 
 namespace FinTrack.API.Application.UseCases.Users.GetUser
 {
-    internal class GetUserHandler : IRequestHandler<GetUserCommand, User?>
+    internal class GetUserHandler : IRequestHandler<GetUserCommand, ValueResult<User>>
     {
         private readonly IUserRepository _userRepository;
 
@@ -14,10 +15,14 @@ namespace FinTrack.API.Application.UseCases.Users.GetUser
             _userRepository = userRepository;
         }
 
-        async public Task<User?> Handle(GetUserCommand request, CancellationToken cancellationToken)
+        async public Task<ValueResult<User>> Handle(GetUserCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(request.guid);
-            return user;
+            if(user == null)
+            {
+                return ValueResult<User>.Fail(OperationStatusMessages.NotFound);
+            }
+            return ValueResult<User>.Ok(user, OperationStatusMessages.Ok);
         }
     }
 }
