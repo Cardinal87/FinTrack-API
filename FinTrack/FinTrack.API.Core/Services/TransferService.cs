@@ -20,6 +20,23 @@ namespace FinTrack.API.Core.Services
             _transactionRepository = transactionRepository;
         }
 
+
+        /// <summary>
+        /// Handles transaction between accounts
+        /// </summary>
+        /// <param name="amount">amount of the transaction</param>
+        /// <param name="toAccountId">id of the destination account</param>
+        /// <param name="fromAccountId">id of the source account</param>
+        /// <returns></returns>
+        /// <exception cref="EntityNotFoundException">
+        /// Source or destination accounts does not exists
+        /// </exception>
+        /// <exception cref="InsufficientFundsException">
+        /// Amount of the transaction is greater than the source account balance
+        /// </exception>
+        /// <exception cref="IncorrectAmountException">
+        /// Amount of the transaction is negative or equal to zero
+        /// </exception>
         async public Task<Guid> HandleTransactionAsync(decimal amount, Guid toAccountId, Guid fromAccountId)
         {
             var toAccount = await _accountRepository.GetByIdAsync(toAccountId);
