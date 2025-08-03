@@ -7,18 +7,7 @@ using FinTrack.API.Application.Common;
 
 namespace FinTrack.API.Application.UseCases.Accounts.DeleteAccount
 {
-    /// <summary>
-    /// Handler deleting account
-    /// </summary>
-    /// <remarks>
-    /// Steps:
-    /// <para>1. Use repository to delete account and save changes</para>
-    /// 
-    /// <para>
-    /// Exceptions:
-    /// <para><see cref="KeyNotFoundException"/> - account with given id does not exist</para>
-    /// </para>
-    /// </remarks>
+    
     internal class DeleteAccountHandler : IRequestHandler<DeleteAccountCommand, Result>
     {
         private readonly IAccountRepository _accountRepository;

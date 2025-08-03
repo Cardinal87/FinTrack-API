@@ -5,16 +5,7 @@ using MediatR;
 
 namespace FinTrack.API.Application.UseCases.Accounts.CreateAccount
 {
-    /// <summary>
-    /// Handles account creating 
-    /// </summary>
-    /// <remarks>
-    /// Steps:
-    /// <para>1. Create account with given user id</para>
-    /// <para>2. Add account to repository and save changes</para>
-    /// <para>3. Return id of the created account</para>
-    /// 
-    /// </remarks>
+    
     internal class CreateAccountHandler : IRequestHandler<CreateAccountCommand, ValueResult<Guid>>
     {
         private readonly IAccountRepository _accountRepository;

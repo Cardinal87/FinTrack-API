@@ -19,12 +19,7 @@ namespace FinTrack.API.Application.UseCases.Users.CreateUser
         }
 
 
-        /// <summary>
-        /// Creates and save User to database
-        /// </summary>
-        /// <param name="request">DTO with user data</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
+        
         async public Task<ValueResult<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             var hash = _passwordHasher.GetHash(request.password);

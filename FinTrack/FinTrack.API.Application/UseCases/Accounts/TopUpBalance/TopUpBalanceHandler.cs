@@ -7,21 +7,7 @@ using MediatR;
 namespace FinTrack.API.Application.UseCases.Accounts.TopUpBalance
 {
 
-    /// <summary>
-    /// Handles account deposits
-    /// </summary>
-    /// <remarks>
-    /// Steps:
-    /// <para>1. Check if account with given id exists</para>
-    /// <para>2. Top up balance using entity method</para>
-    /// <para>3. Update entity in repository and save changes</para>
-    /// 
-    /// <para>
-    /// Exceptions:
-    /// <para> - <see cref="ArgumentException"/>: amount of the deposit is negative or equal to zero</para>
-    /// <para> - <see cref="ArgumentNullException"/>: account does not exist</para>
-    /// </para>
-    /// </remarks>
+    
     internal class TopUpBalanceHandler : IRequestHandler<TopUpBalanceCommand, ValueResult<decimal>>
     {
         private readonly IAccountRepository _accountRepository;
