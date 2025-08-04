@@ -58,6 +58,17 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             _mapper.Map(account, existingAccount);
         }
 
+        public async Task<IEnumerable<Guid>> GetAccountIdsByUserIdAsync(Guid id)
+        {
+            var accountIds = await _client.Accounts.Where(x => x.UserId == id)
+                                                   .Select(x => x.Id).ToListAsync();
+
+            return accountIds;
+        }
+
+
         public async Task SaveChangesAsync() => await _client.SaveChangesAsync();
+
+        
     }
 }

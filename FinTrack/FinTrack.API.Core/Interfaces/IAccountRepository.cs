@@ -36,6 +36,16 @@ namespace FinTrack.API.Core.Interfaces
         Task<IEnumerable<Account>> GetAllAsync();
 
         /// <summary>
+        /// Returns ids of all user accounts
+        /// </summary>
+        /// <param name="id">User id</param>
+        /// <returns>
+        /// <see cref="IEnumerable{T}"/> contains <see cref="Guid"/>
+        /// </returns>
+        Task<IEnumerable<Guid>> GetAccountIdsByUserIdAsync(Guid id);
+
+
+        /// <summary>
         /// Returns entity with given id asynchronously
         /// </summary>
         /// <param name="id">id of entity</param>
