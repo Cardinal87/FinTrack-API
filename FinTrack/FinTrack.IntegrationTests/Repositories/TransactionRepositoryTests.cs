@@ -116,7 +116,7 @@ namespace FinTrack.IntegrationTests.Repositories
                 new DateTime(2010, 10, 11, 15, 15, 15, 15, DateTimeKind.Utc)
             });
 
-            var enumerable = await _transactionRepository.GetByDateAsync(new DateTime(2010, 10, 10, 10, 10, 10, 10, DateTimeKind.Utc));
+            var enumerable = await _transactionRepository.GetByDateAsync(new DateOnly(2010, 10, 10));
             var transactionList = enumerable.ToList();
 
             transactionList.Should().HaveCount(2);

@@ -24,9 +24,9 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             return transactionList;
         }
 
-        async public Task<IEnumerable<Transaction>> GetByDateAsync(DateTime date)
+        async public Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date)
         {
-            var dbList = await _client.Transactions.Where(t => DateTime.Compare(t.Date.Date, date.Date) == 0).ToListAsync();
+            var dbList = await _client.Transactions.Where(t => DateOnly.FromDateTime(t.Date) == date).ToListAsync();
             var transactionList = _mapper.Map<List<Transaction>>(dbList);
             return transactionList;
         }

@@ -31,15 +31,14 @@ namespace FinTrack.API.Core.Interfaces
         Task<Transaction?> GetByIdAsync(Guid id);
 
         /// <summary>
-        /// Returns the <see cref="Transaction"/> with given date.
-        /// Compares only <see cref="DateTime.Date"/>
+        /// Returns the <see cref="Transaction"/> with given <see cref="DateOnly"/>
         /// </summary>
         /// <param name="date">date of the transaction</param>
         /// <returns>
         ///     <see cref="Task"/>.
         ///      The task result contains a <see cref="IEnumerable{T}"/> with <see cref="Transaction"/> entities
         /// </returns>
-        Task<IEnumerable<Transaction>> GetByDateAsync(DateTime date);
+        Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date);
 
 
         /// <summary>
