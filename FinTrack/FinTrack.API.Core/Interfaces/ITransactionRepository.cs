@@ -40,6 +40,19 @@ namespace FinTrack.API.Core.Interfaces
         /// </returns>
         Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date);
 
+        /// <summary>
+        /// Returns the <see cref="Transaction"/>s with given <paramref name="date"/>
+        /// and if <paramref name="accountIds"/> contains <see cref="Transaction.FromAccountId"/> or
+        /// <see cref="Transaction.ToAccountId"/>
+        /// </summary>
+        /// <param name="date">date of the transaction</param>
+        /// <param name="accountIds">id of accounts involved in the transaction</param>
+        /// <returns>
+        ///     <see cref="Task"/>.
+        ///      The task result contains a <see cref="IEnumerable{T}"/> with <see cref="Transaction"/> entities
+        /// </returns>
+        Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date, IEnumerable<Guid> accountIds);
+
 
         /// <summary>
         /// Returns all entities between <paramref name="fromDate"/> and <paramref name="toDate"/> inclusive

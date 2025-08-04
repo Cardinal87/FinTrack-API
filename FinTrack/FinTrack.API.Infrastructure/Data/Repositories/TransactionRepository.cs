@@ -31,6 +31,16 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             return transactionList;
         }
 
+        async public Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date, IEnumerable<Guid> accountIds)
+        {
+            var dbList = await _client.Transactions.Where(t => DateOnly.FromDateTime(t.Date) == date
+                                                               && (accountIds.Contains(t.FromAccountId)
+                                                               || accountIds.Contains(t.ToAccountId))).ToListAsync();
+            var transactionList = _mapper.Map<List<Transaction>>(dbList);
+            return transactionList;
+        }
+
+
         async public Task<Transaction?> GetByIdAsync(Guid id)
         {
             var dbTransaction = await _client.Transactions.FindAsync(id);
@@ -55,5 +65,7 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
         }
 
         async public Task SaveChangesAsync() => await _client.SaveChangesAsync();
+
+        
     }
 }
