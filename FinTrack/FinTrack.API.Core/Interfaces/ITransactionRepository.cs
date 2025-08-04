@@ -66,6 +66,19 @@ namespace FinTrack.API.Core.Interfaces
         Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate);
 
         /// <summary>
+        /// Returns all <see cref="Transaction"/>s between <paramref name="fromDate"/> and <paramref name="toDate"/> inclusive 
+        /// and the <see cref="Transaction.FromAccountId"/> or <see cref="Transaction.ToAccountId"/> of which is contained in <paramref name="accountIds"/>
+        /// </summary>
+        /// <param name="fromDate">start of the range</param>
+        /// <param name="toDate">end of the range</param>
+        /// <param name="accountIds">id of accounts involved in the transaction</param>
+        /// <returns>
+        ///     <see cref="Task"/>.
+        ///     The task result contains a <see cref="IEnumerable{T}"/> with <see cref="Transaction"/> entities
+        /// </returns>
+        Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate, IEnumerable<Guid> accountIds);
+
+        /// <summary>
         /// Asynchronously save all changes maked in repository
         /// </summary>
         /// <returns><see cref="Task"/></returns>

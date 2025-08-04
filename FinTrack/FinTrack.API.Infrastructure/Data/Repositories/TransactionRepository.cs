@@ -50,9 +50,17 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
 
         async public Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate)
         {
-            var fromDateComp = fromDate.Date;
-            var toDateComp = toDate.Date;
-            var query = _client.Transactions.Where(t => DateTime.Compare(t.Date.Date, fromDate) >= 0 && DateTime.Compare(t.Date.Date, toDate) <= 0);
+            var query = _client.Transactions.Where(t => t.Date >= fromDate && t.Date <= toDate);
+            var dbList = await query.ToListAsync();
+            var transactionList = _mapper.Map<List<Transaction>>(dbList);
+            return transactionList;
+        }
+
+        async public Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate, IEnumerable<Guid> accountIds)
+        {
+            var query = _client.Transactions.Where(t => t.Date >= fromDate
+                                                        && t.Date <= toDate 
+                                                        && (accountIds.Contains(t.FromAccountId) || accountIds.Contains(t.ToAccountId)));
             var dbList = await query.ToListAsync();
             var transactionList = _mapper.Map<List<Transaction>>(dbList);
             return transactionList;
@@ -66,6 +74,6 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
 
         async public Task SaveChangesAsync() => await _client.SaveChangesAsync();
 
-        
+       
     }
 }
