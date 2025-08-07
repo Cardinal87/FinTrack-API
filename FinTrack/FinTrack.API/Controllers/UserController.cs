@@ -1,12 +1,13 @@
 ﻿using FinTrack.API.Application.UseCases.Users.CreateUser;
 using FinTrack.API.Application.UseCases.Users.DeleteUser;
 using FinTrack.API.Application.UseCases.Users.GetUser;
-using FinTrack.API.Core.Interfaces;
+using FinTrack.API.Application.Common;
 using FinTrack.API.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
+using FinTrack.API.Core.Common;
 
 namespace FinTrack.API.Controllers
 {
@@ -16,11 +17,10 @@ namespace FinTrack.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IUserRepository _userRepository;
-        public UserController(IMediator mediator, IUserRepository userRepository)
+        public UserController(IMediator mediator)
         {
+
             _mediator = mediator;
-            _userRepository = userRepository;
         }
 
         [AllowAnonymous]
@@ -32,67 +32,100 @@ namespace FinTrack.API.Controllers
                                                 request.Name,
                                                 request.Password);
 
-            var guid = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetUserById), new { id = guid }, new { id = guid });
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess && result.Value != default)
+            {
+                return CreatedAtAction(nameof(GetUserById),
+                                       new { id = result.Value},
+                                       new { id = result.Value});
+            }
+            return HandleFailedResult(result);
+
+
         }
 
         [HttpGet("me")]
         async public Task<IActionResult> GetUserInfo()
         {
-            var sub = User.FindFirst(JwtRegisteredClaimNames.Sub);
-            if (sub != null)
+            var sub = GetCurrentUserGuid();
+            
+
+            var command = new GetUserCommand(sub);
+            var result = await _mediator.Send(command);
+
+                
+            if(result.IsSuccess && result.Value != default)
             {
-                var guid = Guid.Parse(sub.Value);
-                var command = new GetUserCommand(guid);
-                var user = await _mediator.Send(command);
-
-
-                if (user == null) return BadRequest(new { message = $"user with guid {guid} does not exits" });
-
                 return Ok(new
                 {
-                    name = user.Name,
-                    phone = user.Phone,
-                    email = user.Email,
+                    name = result.Value.Name,
+                    phone = result.Value.Phone,
+                    email = result.Value.Email,
                 });
             }
 
-            return BadRequest(new { message = "token does not contatins user id" });
+            return HandleFailedResult(result);
         }
 
-        [HttpGet("{guid}")]
-        async public Task<IActionResult> GetUserById(Guid guid)
+        [HttpGet("{id}")]
+        [Authorize(Roles = UserRoles.Admin)]
+        async public Task<IActionResult> GetUserById(Guid id)
         {
-            var command = new GetUserCommand(guid);
-            var user = await _mediator.Send(command);
+            var command = new GetUserCommand(id);
+            var result = await _mediator.Send(command);
 
-            if (user == null) return BadRequest(new { message = $"user with guid {guid} does not exits" });
-
-            return Ok(new
+            if (result.IsSuccess && result.Value != default)
             {
-                name = user.Name,
-                phone = user.Phone,
-                email = user.Email,
-                hash = user.PasswordHash
-            });
+                return Ok(new
+                {
+                    name = result.Value.Name,
+                    phone = result.Value.Phone,
+                    email = result.Value.Email,
+                    hash = result.Value.PasswordHash
+                });
+            }
+
+            return HandleFailedResult(result);
+
         }
 
         [HttpDelete("me")]
         async public Task<IActionResult> DeleteUser()
         {
-            var sub = User.FindFirst(JwtRegisteredClaimNames.Sub);
-            if (sub != null)
+            var sub = GetCurrentUserGuid();
+            
+
+            var command = new DeleteUserCommand(sub);
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess)
             {
-                var guid = Guid.Parse(sub.Value);
-                var command = new DeleteUserCommand(guid);
-                await _mediator.Send(command);
                 return NoContent();
             }
 
-            return BadRequest(new { message = "token does not contatins user id" });
+            return HandleFailedResult(result);
+            
+
+            
         }
 
-
+        private IActionResult HandleFailedResult(ResultBase result)
+        {
+            switch(result.StatusMessage)
+            {
+                case OperationStatusMessages.BadRequest: return BadRequest();
+                case OperationStatusMessages.Forbidden: return Forbid();
+                case OperationStatusMessages.NotFound: return NotFound();
+                case OperationStatusMessages.Unauthorized: return Unauthorized();
+                default: return StatusCode(500, new { message = "unexpected server error" });
+            }
+            
+        }
+        private Guid GetCurrentUserGuid()
+        {
+            var claim = User.FindFirst(JwtRegisteredClaimNames.Sub);
+            if (claim == null) throw new InvalidOperationException("Id claim was not found");
+            return Guid.Parse(claim.Value);
+        }
     }
 
 }
