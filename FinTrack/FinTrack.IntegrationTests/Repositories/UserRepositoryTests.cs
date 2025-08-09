@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using FinTrack.API.Infrastructure.Mappers;
 using FinTrack.API.Infrastructure.Data.DbEntities;
+using FinTrack.API.Core.Exceptions;
 
 namespace FinTrack.IntegrationTests.Repositories
 {
@@ -60,6 +61,7 @@ namespace FinTrack.IntegrationTests.Repositories
             var user = (await AddValidUsers(1))[0];
 
             var savedUser = await _userRepository.GetByIdAsync(user.Id);
+            
 
             savedUser.Should().NotBeNull();
             savedUser.Email.Should().Be(user.Email);
@@ -67,6 +69,15 @@ namespace FinTrack.IntegrationTests.Repositories
             savedUser.Phone.Should().Be(user.Phone);
             savedUser.PasswordHash.Should().Be(user.PasswordHash);
         }
+
+        [Fact]
+        async public Task GetUserById_RandomGuid_NullResult()
+        {
+            var result = await _userRepository.GetByIdAsync(Guid.NewGuid());
+
+            result.Should().BeNull();
+        }
+
 
         [Fact]
         async public Task UpdateUser_ValidData_Success()
@@ -90,6 +101,21 @@ namespace FinTrack.IntegrationTests.Repositories
             updatedUser.Phone.Should().Be(user.Phone);
             updatedUser.PasswordHash.Should().Be(user.PasswordHash);
             updatedUser.Roles.Should().Contain(UserRoles.Admin);
+        }
+
+
+        [Fact]
+        async public Task UpdateUser_UntrackedUser_ThrowEntityNotFoundException()
+        {
+            var hash = "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=";
+            var email = "test@email.com";
+            var name = "test_user";
+            var phone = "+79998887766";
+            var user = new User(email, phone, name, hash);
+
+            var update = async () => await _userRepository.UpdateAsync(user);
+
+            await update.Should().ThrowAsync<EntityNotFoundException>();
         }
 
         [Fact]
@@ -127,7 +153,38 @@ namespace FinTrack.IntegrationTests.Repositories
             var deletedUser = _client.Users.FirstOrDefault(t => t.Id == user.Id);
             deletedUser.Should().BeNull();
         }
-        
+
+        [Fact]
+        async public Task DeleteUser_RandomGuid_ThrowEntityNotFoundException()
+        {
+            var delete = async () => await _userRepository.DeleteAsync(Guid.NewGuid());
+
+            await delete.Should().ThrowAsync<EntityNotFoundException>();
+        }
+
+        [Fact]
+        async public Task GetUserByEmail_ValidData_Success()
+        {
+            var user = (await AddValidUsers(1))[0];
+
+            var savedUser = await _userRepository.GetByEmailAsync(user.Email);
+
+
+            savedUser.Should().NotBeNull();
+            savedUser.Email.Should().Be(user.Email);
+            savedUser.Name.Should().Be(user.Name);
+            savedUser.Phone.Should().Be(user.Phone);
+            savedUser.PasswordHash.Should().Be(user.PasswordHash);
+        }
+
+        [Fact]
+        async public Task GetUserByEmail_RandomEmail_NullResult()
+        {
+            var result = await _userRepository.GetByEmailAsync("random@gmail.com");
+
+            result.Should().BeNull();
+        }
+
         /// <summary>
         /// Method for add a valid users to databese
         /// </summary>
