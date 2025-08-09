@@ -1,10 +1,12 @@
-﻿using FinTrack.API.Application.UseCases.Accounts.CreateAccount;
+﻿using FinTrack.API.Application.Common;
+using FinTrack.API.Application.UseCases.Accounts.CreateAccount;
 using FinTrack.API.Application.UseCases.Accounts.DebitBalance;
 using FinTrack.API.Application.UseCases.Accounts.DeleteAccount;
 using FinTrack.API.Application.UseCases.Accounts.GetAccount;
 using FinTrack.API.Application.UseCases.Accounts.TopUpBalance;
 using FinTrack.API.Application.UseCases.Users.GetUser;
 using FinTrack.API.Core.Common;
+using FinTrack.API.Core.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,36 +32,38 @@ namespace FinTrack.API.Controllers
         [HttpPost()]
         async public Task<IActionResult> CreateAccount()
         {
-            var sub = User.FindFirst(JwtRegisteredClaimNames.Sub);
-            if (sub == null)
+            var sub = GetCurrentUserGuid();
+            var command = new CreateAccountCommand(sub);
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess && result.Value != default)
             {
-                return BadRequest(new { message = "jwt token does not contains user id" });
+                return CreatedAtAction(nameof(GetAccountById), new { guid = result.Value }, new { id = result.Value });
             }
-            var guid = Guid.Parse(sub.Value);
-            var command = new CreateAccountCommand(guid);
-            var accountGuid = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetAccountById), new { guid = accountGuid }, new {id = accountGuid});
-
+            return HandleFailedResult(result);
         }
 
         [HttpGet("{guid}")]
         async public Task<IActionResult> GetAccountById(Guid guid)
         {
             var userGuid = GetCurrentUserGuid();
-            if (userGuid == null) return BadRequest(new { message = "jwt token does not contains user id" });
 
             var roles = GetCurrentUserRoles();
 
-            var getAccountCommand = new GetAccountCommand(userGuid.Value, roles, guid);
-            var account = await _mediator.Send(getAccountCommand);
-            if (account == null) return NotFound(new { message = $"account with id {guid} does not exist" });
+            var getAccountCommand = new GetAccountCommand(userGuid, roles.AsReadOnly(), guid);
+            var result = await _mediator.Send(getAccountCommand);
             
-            return Ok(new
+            if (result.IsSuccess && result.Value != default)
             {
-                id = guid,
-                balance = account.Balance,
-                user_id = account.UserId
-            });
+                return Ok(new
+                {
+                    id = guid,
+                    balance = result.Value.Balance,
+                    user_id = result.Value.UserId
+                });
+            }
+            return HandleFailedResult(result);
+
+            
         }
        
 
@@ -68,13 +72,16 @@ namespace FinTrack.API.Controllers
         async public Task<IActionResult> DeleteAccount(Guid guid)
         {
             var userGuid = GetCurrentUserGuid();
-            if (userGuid == null) return BadRequest(new { message = "jwt token does not contains user id" });
 
             var roles = GetCurrentUserRoles();
 
-            var command = new DeleteAccountCommand(userGuid.Value, roles, guid);
-            await _mediator.Send(command);
-            return NoContent();
+            var command = new DeleteAccountCommand(userGuid, roles, guid);
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess)
+            {
+                return NoContent();
+            }
+            return HandleFailedResult(result);
         }
 
 
@@ -82,8 +89,12 @@ namespace FinTrack.API.Controllers
         [HttpPost("{guid}/topup")]
         async public Task<IActionResult> TopUpAccountBalance(Guid guid, [FromQuery] int amount){
             var command = new TopUpBalanceCommand(guid, amount);
-            var balance = await _mediator.Send(command);
-            return Ok(new {balance});
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess && result.Value != default)
+            {
+                return Ok(new { result.Value });
+            }
+            return HandleFailedResult(result);
 
         }
 
@@ -92,15 +103,30 @@ namespace FinTrack.API.Controllers
         async public Task<IActionResult> DebitAccountBalance(Guid guid, [FromQuery] int amount)
         {
             var command = new DebitBalanceCommand(guid, amount);
-            var balance = await _mediator.Send(command);
-            return Ok(new { balance });
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess && result.Value != default)
+            {
+                return Ok(new { result.Value });
+            }
+            return HandleFailedResult(result);
 
         }
 
-        private Guid? GetCurrentUserGuid()
+        private IActionResult HandleFailedResult(ResultBase result)
+        {
+            switch (result.StatusMessage)
+            {
+                case OperationStatusMessages.BadRequest: return BadRequest();
+                case OperationStatusMessages.Forbidden: return Forbid();
+                case OperationStatusMessages.NotFound: return NotFound();
+                case OperationStatusMessages.Unauthorized: return Unauthorized();
+                default: return StatusCode(500, new { message = "unexpected server error" });
+            }
+        }
+        private Guid GetCurrentUserGuid()
         {
             var claim = User.FindFirst(JwtRegisteredClaimNames.Sub);
-            if (claim == null) return null;
+            if (claim == null) throw new InvalidOperationException("Id claim was not found");
             return Guid.Parse(claim.Value);
         }
 
