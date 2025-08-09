@@ -1,4 +1,5 @@
-﻿using FinTrack.API.Application.Interfaces;
+﻿using FinTrack.API.Application.Common;
+using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Application.UseCases.Users.AuthUser;
 using FinTrack.API.DTO;
 using MediatR;
@@ -24,13 +25,13 @@ namespace FinTrack.API.Controllers
         async public Task<IActionResult> GetJwtToken([FromBody] LoginRequest loginRequest)
         {
             var request = new AuthUserCommand(loginRequest.Login, loginRequest.Password);
-            var authUser = await _mediator.Send(request);
-            if (authUser == null)
+            var result = await _mediator.Send(request);
+            if (result.IsSuccess && result.Value != default)
             {
-                return Unauthorized(new { message = "invalid credentials" });
+                var token = _jwtTokenService.GenerateToken(result.Value);
+                return Ok(new { token });
             }
-            var token = _jwtTokenService.GenerateToken(authUser);
-            return Ok(new {token});
+            return HandleFailedResult(result);
         }
 
 
@@ -39,6 +40,20 @@ namespace FinTrack.API.Controllers
         public IActionResult GetJwtStatus()
         {
             return Ok(new { status = "token is valid" });
+        }
+
+
+        private IActionResult HandleFailedResult(ResultBase result)
+        {
+            switch (result.StatusMessage)
+            {
+                case OperationStatusMessages.BadRequest: return BadRequest();
+                case OperationStatusMessages.Forbidden: return Forbid();
+                case OperationStatusMessages.NotFound: return NotFound();
+                case OperationStatusMessages.Unauthorized: return Unauthorized();
+                default: return StatusCode(500, new { message = "unexpected server error" });
+            }
+
         }
     }
 }
