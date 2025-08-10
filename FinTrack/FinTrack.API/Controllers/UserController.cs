@@ -1,20 +1,19 @@
 ﻿using FinTrack.API.Application.UseCases.Users.CreateUser;
 using FinTrack.API.Application.UseCases.Users.DeleteUser;
 using FinTrack.API.Application.UseCases.Users.GetUser;
-using FinTrack.API.Application.Common;
 using FinTrack.API.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
 using FinTrack.API.Core.Common;
+using FinTrack.API.Controllers.Base;
 
 namespace FinTrack.API.Controllers
 {
     [Authorize]
     [Route("api/users")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : AuthorizeFinTrackControllerBase
     {
         private readonly IMediator _mediator;
         public UserController(IMediator mediator)
@@ -47,10 +46,9 @@ namespace FinTrack.API.Controllers
         [HttpGet("me")]
         async public Task<IActionResult> GetUserInfo()
         {
-            var sub = GetCurrentUserGuid();
             
 
-            var command = new GetUserCommand(sub);
+            var command = new GetUserCommand(UserId);
             var result = await _mediator.Send(command);
 
                 
@@ -68,7 +66,7 @@ namespace FinTrack.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = UserRoles.Admin)]
+        [Authorize(Roles = Core.Common.UserRoles.Admin)]
         async public Task<IActionResult> GetUserById(Guid id)
         {
             var command = new GetUserCommand(id);
@@ -92,10 +90,7 @@ namespace FinTrack.API.Controllers
         [HttpDelete("me")]
         async public Task<IActionResult> DeleteUser()
         {
-            var sub = GetCurrentUserGuid();
-            
-
-            var command = new DeleteUserCommand(sub);
+            var command = new DeleteUserCommand(UserId);
             var result = await _mediator.Send(command);
             if (result.IsSuccess)
             {
@@ -104,28 +99,8 @@ namespace FinTrack.API.Controllers
 
             return HandleFailedResult(result);
             
-
-            
         }
 
-        private IActionResult HandleFailedResult(ResultBase result)
-        {
-            switch(result.StatusMessage)
-            {
-                case OperationStatusMessages.BadRequest: return BadRequest();
-                case OperationStatusMessages.Forbidden: return Forbid();
-                case OperationStatusMessages.NotFound: return NotFound();
-                case OperationStatusMessages.Unauthorized: return Unauthorized();
-                default: return StatusCode(500, new { message = "unexpected server error" });
-            }
-            
-        }
-        private Guid GetCurrentUserGuid()
-        {
-            var claim = User.FindFirst(JwtRegisteredClaimNames.Sub);
-            if (claim == null) throw new InvalidOperationException("Id claim was not found");
-            return Guid.Parse(claim.Value);
-        }
     }
 
 }

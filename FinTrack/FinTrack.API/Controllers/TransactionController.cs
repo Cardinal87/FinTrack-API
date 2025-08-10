@@ -4,6 +4,7 @@ using FinTrack.API.Application.UseCases.Transactions.GetAccountTransactions;
 using FinTrack.API.Application.UseCases.Transactions.GetTransactionById;
 using FinTrack.API.Application.UseCases.Transactions.GetTransactionsByDate;
 using FinTrack.API.Application.UseCases.Transactions.GetTransactionsByTimeInterval;
+using FinTrack.API.Controllers.Base;
 using FinTrack.API.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +17,7 @@ namespace FinTrack.API.Controllers
     [ApiController]
     [Authorize]
     [Route("api/transactions")]
-    public class TransactionController : ControllerBase
+    public class TransactionController : AuthorizeFinTrackControllerBase
     {
         private readonly IMediator _mediator;
 
@@ -47,10 +48,9 @@ namespace FinTrack.API.Controllers
         [HttpGet("{id}")]
         async public Task<IActionResult> GetTransactionById(Guid id)
         {
-            var userId = GetCurrentUserGuid();
-            var roles = GetCurrentUserRoles();
+            
 
-            var getTransactionsCommand = new GetTransactionByIdCommand(userId, roles, id);
+            var getTransactionsCommand = new GetTransactionByIdCommand(UserId, UserRoles, id);
             var result = await _mediator.Send(getTransactionsCommand);
 
             if (result.IsSuccess && result.Value != default)
@@ -70,10 +70,8 @@ namespace FinTrack.API.Controllers
         [HttpGet("date/{date}")]
         async public Task<IActionResult> GetTransactionsByDate(DateOnly date)
         {
-            var userId = GetCurrentUserGuid();
-            var roles = GetCurrentUserRoles();
 
-            var getTransactionByDateCommand = new GetTransactionsByDateCommand(userId, roles, date);
+            var getTransactionByDateCommand = new GetTransactionsByDateCommand(UserId, UserRoles, date);
             var result = await _mediator.Send(getTransactionByDateCommand);
 
             if (result.IsSuccess && result.Value != default)
@@ -90,11 +88,9 @@ namespace FinTrack.API.Controllers
         async public Task<IActionResult> GetTransactionsByInterval([FromQuery] DateTime start,
                                                                    [FromQuery] DateTime end)
         {
-            var userId = GetCurrentUserGuid();
-            var roles = GetCurrentUserRoles();
 
-            var getTransactionByIntervalCommand = new GetTransactionsByTimeIntervalCommand(userId,
-                                                                                           roles,
+            var getTransactionByIntervalCommand = new GetTransactionsByTimeIntervalCommand(UserId,
+                                                                                           UserRoles,
                                                                                            start,
                                                                                            end);
             var result = await _mediator.Send(getTransactionByIntervalCommand);
@@ -111,10 +107,8 @@ namespace FinTrack.API.Controllers
         [HttpGet("account/{id}")]
         async public Task<IActionResult> GetAccountTransactions(Guid id)
         {
-            var userId = GetCurrentUserGuid();
-            var roles = GetCurrentUserRoles();
 
-            var getAccountTransactionCommand = new GetAccountTransactionsCommand(userId, roles, id);
+            var getAccountTransactionCommand = new GetAccountTransactionsCommand(UserId, UserRoles, id);
             var result = await _mediator.Send(getAccountTransactionCommand);
 
             if (result.IsSuccess && result.Value != default)
@@ -127,32 +121,7 @@ namespace FinTrack.API.Controllers
             return HandleFailedResult(result);
         }
 
-        private IActionResult HandleFailedResult(ResultBase result)
-        {
-            switch (result.StatusMessage)
-            {
-                case OperationStatusMessages.BadRequest: return BadRequest();
-                case OperationStatusMessages.Forbidden: return Forbid();
-                case OperationStatusMessages.NotFound: return NotFound();
-                case OperationStatusMessages.Unauthorized: return Unauthorized();
-                default: return StatusCode(500, new { message = "unexpected server error" });
-            }
+        
 
-        }
-
-        private List<string> GetCurrentUserRoles()
-        {
-            return User.Claims
-                .Where(c => c.Type == ClaimTypes.Role)
-                .Select(c => c.Value)
-                .ToList();
-        }
-
-        private Guid GetCurrentUserGuid()
-        {
-            var claim = User.FindFirst(JwtRegisteredClaimNames.Sub);
-            if (claim == null) throw new InvalidOperationException("Id claim was not found");
-            return Guid.Parse(claim.Value);
-        }
     }
 }

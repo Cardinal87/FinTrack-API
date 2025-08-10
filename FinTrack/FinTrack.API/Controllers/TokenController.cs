@@ -1,6 +1,7 @@
 ﻿using FinTrack.API.Application.Common;
 using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Application.UseCases.Users.AuthUser;
+using FinTrack.API.Controllers.Base;
 using FinTrack.API.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +11,7 @@ namespace FinTrack.API.Controllers
 {
     [Route("api/auth")]
     [ApiController]
-    public class TokenController : ControllerBase
+    public class TokenController : FinTrackContollerBase
     {
         private readonly IMediator _mediator;
         private readonly IJwtTokenService _jwtTokenService;
@@ -43,17 +44,6 @@ namespace FinTrack.API.Controllers
         }
 
 
-        private IActionResult HandleFailedResult(ResultBase result)
-        {
-            switch (result.StatusMessage)
-            {
-                case OperationStatusMessages.BadRequest: return BadRequest();
-                case OperationStatusMessages.Forbidden: return Forbid();
-                case OperationStatusMessages.NotFound: return NotFound();
-                case OperationStatusMessages.Unauthorized: return Unauthorized();
-                default: return StatusCode(500, new { message = "unexpected server error" });
-            }
-
-        }
+        
     }
 }

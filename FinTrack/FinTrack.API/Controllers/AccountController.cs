@@ -5,6 +5,7 @@ using FinTrack.API.Application.UseCases.Accounts.DeleteAccount;
 using FinTrack.API.Application.UseCases.Accounts.GetAccount;
 using FinTrack.API.Application.UseCases.Accounts.TopUpBalance;
 using FinTrack.API.Application.UseCases.Users.GetUser;
+using FinTrack.API.Controllers.Base;
 using FinTrack.API.Core.Common;
 using FinTrack.API.Core.Entities;
 using MediatR;
@@ -19,7 +20,7 @@ namespace FinTrack.API.Controllers
     [ApiController]
     [Authorize]
     [Route("api/accounts")]
-    public class AccountController : ControllerBase
+    public class AccountController : AuthorizeFinTrackControllerBase
     {
 
         private readonly IMediator _mediator;
@@ -32,8 +33,7 @@ namespace FinTrack.API.Controllers
         [HttpPost()]
         async public Task<IActionResult> CreateAccount()
         {
-            var sub = GetCurrentUserGuid();
-            var command = new CreateAccountCommand(sub);
+            var command = new CreateAccountCommand(UserId);
             var result = await _mediator.Send(command);
             if (result.IsSuccess && result.Value != default)
             {
@@ -45,11 +45,7 @@ namespace FinTrack.API.Controllers
         [HttpGet("{guid}")]
         async public Task<IActionResult> GetAccountById(Guid guid)
         {
-            var userGuid = GetCurrentUserGuid();
-
-            var roles = GetCurrentUserRoles();
-
-            var getAccountCommand = new GetAccountCommand(userGuid, roles.AsReadOnly(), guid);
+            var getAccountCommand = new GetAccountCommand(UserId, UserRoles, guid);
             var result = await _mediator.Send(getAccountCommand);
             
             if (result.IsSuccess && result.Value != default)
@@ -71,11 +67,7 @@ namespace FinTrack.API.Controllers
         [HttpDelete("{guid}")]
         async public Task<IActionResult> DeleteAccount(Guid guid)
         {
-            var userGuid = GetCurrentUserGuid();
-
-            var roles = GetCurrentUserRoles();
-
-            var command = new DeleteAccountCommand(userGuid, roles, guid);
+            var command = new DeleteAccountCommand(UserId, UserRoles, guid);
             var result = await _mediator.Send(command);
             if (result.IsSuccess)
             {
@@ -85,7 +77,7 @@ namespace FinTrack.API.Controllers
         }
 
 
-        [Authorize(Roles = UserRoles.Admin)]
+        [Authorize(Roles = Core.Common.UserRoles.Admin)]
         [HttpPost("{guid}/topup")]
         async public Task<IActionResult> TopUpAccountBalance(Guid guid, [FromQuery] int amount){
             var command = new TopUpBalanceCommand(guid, amount);
@@ -98,7 +90,7 @@ namespace FinTrack.API.Controllers
 
         }
 
-        [Authorize(Roles = UserRoles.Admin)]
+        [Authorize(Roles = Core.Common.UserRoles.Admin)]
         [HttpPost("{guid}/debit")]
         async public Task<IActionResult> DebitAccountBalance(Guid guid, [FromQuery] int amount)
         {
@@ -112,30 +104,6 @@ namespace FinTrack.API.Controllers
 
         }
 
-        private IActionResult HandleFailedResult(ResultBase result)
-        {
-            switch (result.StatusMessage)
-            {
-                case OperationStatusMessages.BadRequest: return BadRequest();
-                case OperationStatusMessages.Forbidden: return Forbid();
-                case OperationStatusMessages.NotFound: return NotFound();
-                case OperationStatusMessages.Unauthorized: return Unauthorized();
-                default: return StatusCode(500, new { message = "unexpected server error" });
-            }
-        }
-        private Guid GetCurrentUserGuid()
-        {
-            var claim = User.FindFirst(JwtRegisteredClaimNames.Sub);
-            if (claim == null) throw new InvalidOperationException("Id claim was not found");
-            return Guid.Parse(claim.Value);
-        }
-
-        private List<string> GetCurrentUserRoles()
-        {
-            return User.Claims
-                .Where(c => c.Type == ClaimTypes.Role)
-                .Select(c => c.Value)
-                .ToList();
-        }
+        
     }
 }
