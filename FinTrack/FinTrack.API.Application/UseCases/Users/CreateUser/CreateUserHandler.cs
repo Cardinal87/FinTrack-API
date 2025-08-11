@@ -1,6 +1,7 @@
 ﻿
 
 using FinTrack.API.Application.Common;
+using FinTrack.API.Core.Common;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
 using MediatR;
@@ -28,6 +29,7 @@ namespace FinTrack.API.Application.UseCases.Users.CreateUser
                                 request.phone,
                                 request.name,
                                 hash);
+            user.AssignRole(UserRoles.User);
 
             _userRepository.Add(user);
             await _userRepository.SaveChangesAsync();

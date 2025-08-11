@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 
 namespace FinTrack.API.Infrastructure.Services
 {
-    class PBKDF2PasswordHasher : IPasswordHasher
+    public class PBKDF2PasswordHasher : IPasswordHasher
     {
         private const int saltSize = 16;
         private const int keySize = 32;
@@ -29,7 +29,7 @@ namespace FinTrack.API.Infrastructure.Services
 
         public bool VerifyPassword(string hashedPassword, string password)
         {
-            string[] segmetns = hashedPassword.Split();
+            string[] segmetns = hashedPassword.Split('.');
             byte[] salt = Convert.FromBase64String(segmetns[2]);
             byte[] originHash = Convert.FromBase64String(segmetns[3]);
             var hashBytes = Rfc2898DeriveBytes.Pbkdf2(password,
