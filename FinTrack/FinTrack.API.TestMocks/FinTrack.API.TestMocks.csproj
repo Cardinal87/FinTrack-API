@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FinTrack.API.Core\FinTrack.API.Core.csproj" />
+  </ItemGroup>
+
 </Project>
