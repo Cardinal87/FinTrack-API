@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using FinTrack.API.Core.Entities;
 using FluentAssertions;
 using FinTrack.IntegrationTests.Common;
 using FinTrack.API.Infrastructure.Data.DbEntities;

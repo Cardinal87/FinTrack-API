@@ -48,6 +48,7 @@ namespace FinTrack.API
             app.Run();
         }
 
+        
 
         private static void ConfigureServices(IServiceCollection services, IConfiguration config)
         {
@@ -141,4 +142,5 @@ namespace FinTrack.API
             });
         }
     }
+    public partial class Program() { }
 }
