@@ -4,6 +4,7 @@ using FinTrack.API.Core.Interfaces;
 using FinTrack.API.Infrastructure.Data.DbEntities;
 using FinTrack.API.Infrastructure.Data.Repositories;
 using FinTrack.API.Infrastructure.Mappers;
+using FinTrack.API.TestMocks.Builders;
 using FinTrack.IntegrationTests.Common;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -26,13 +27,7 @@ namespace FinTrack.IntegrationTests.Repositories
             IMapper mapper = config.CreateMapper();
 
             _transactionRepository = new TransactionRepository(_client, mapper);
-            var user = new UserDb()
-            {
-                Email = "test@email.com",
-                Phone = "+79998887766",
-                Name = "test_user",
-                PasswordHash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01"
-            };
+            var user = new UserBuilder().BuildDbUser();
 
             _client.Users.Add(user);
             await _client.SaveChangesAsync();

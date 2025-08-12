@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FinTrack.API.Core\FinTrack.API.Core.csproj" />
+    <ProjectReference Include="..\FinTrack.API.Infrastructure\FinTrack.API.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

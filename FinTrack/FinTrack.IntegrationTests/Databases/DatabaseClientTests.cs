@@ -2,6 +2,8 @@
 using FluentAssertions;
 using FinTrack.IntegrationTests.Common;
 using FinTrack.API.Infrastructure.Data.DbEntities;
+using FinTrack.API.TestMocks.Builders;
+using FinTrack.API.Core.Entities;
 
 namespace FinTrack.IntegrationTests.Databases
 {
@@ -11,18 +13,12 @@ namespace FinTrack.IntegrationTests.Databases
         [Fact]
         async public Task AddUser_WithExistingEmail_ThrownException()
         {
-            var user = await CreateDefaultUser();
+            var user = new UserBuilder().BuildDbUser();
+            
+            _client.Users.Add(user);
+            await _client.SaveChangesAsync();
 
-            var newName = "new_name";
-            var newPhone = "+79998886677";
-
-            var sameEmailUser = new UserDb()
-            {
-                Email = user.Email,
-                Phone = newPhone,
-                Name = newName,
-                PasswordHash = user.PasswordHash
-            };
+            var sameEmailUser = new UserBuilder().WithEmail(user.Email).BuildDbUser();
 
             _client.Users.Add(sameEmailUser);
             var func = async () => await _client.SaveChangesAsync();
@@ -32,18 +28,12 @@ namespace FinTrack.IntegrationTests.Databases
         [Fact]
         async public Task AddUser_WithExistingPhone_ThrownException()
         {
-            var user = await CreateDefaultUser();
+            var user = new UserBuilder().BuildDbUser();
 
-            var newName = "new_name";
-            var newEmail = "new@email.com";
+            _client.Users.Add(user);
+            await _client.SaveChangesAsync();
 
-            var samePhoneUser = new UserDb()
-            {
-                Email = newEmail,
-                Phone = user.Phone,
-                Name = newName,
-                PasswordHash = user.PasswordHash
-            };
+            var samePhoneUser = new UserBuilder().WithPhone(user.Phone).BuildDbUser();
 
             _client.Users.Add(samePhoneUser);
             var func = async () => await _client.SaveChangesAsync();
@@ -53,18 +43,12 @@ namespace FinTrack.IntegrationTests.Databases
         [Fact]
         async public Task AddUser_WithExistingName_ThrownException()
         {
-            var user = await CreateDefaultUser();
+            var user = new UserBuilder().BuildDbUser();
 
-            var newPhone = "+79998886677";
-            var newEmail = "new@email.com";
+            _client.Users.Add(user);
+            await _client.SaveChangesAsync();
 
-            var sameNameUser = new UserDb()
-            {
-                Email = newEmail,
-                Phone = newPhone,
-                Name = user.Name,
-                PasswordHash = user.PasswordHash
-            };
+            var sameNameUser = new UserBuilder().WithName(user.Name).BuildDbUser();
 
             _client.Users.Add(sameNameUser);
             var func = async () => await _client.SaveChangesAsync();
@@ -74,7 +58,10 @@ namespace FinTrack.IntegrationTests.Databases
         [Fact]
         async public Task DeleteUser_ValidData_DeleteAccount()
         {
-            var user = await CreateDefaultUser();
+            var user = new UserBuilder().BuildDbUser();
+            _client.Users.Add(user);
+            await _client.SaveChangesAsync();
+
 
             var firstAccount = new AccountDb()
             {
@@ -99,26 +86,5 @@ namespace FinTrack.IntegrationTests.Databases
 
         }
         
-
-
-        async private Task<UserDb> CreateDefaultUser()
-        {
-            var hash = "10a6e6cc8311a3e2bcc09bf6c199adecd5dd59408c343e926b129c4914f3cb01";
-            var email = "test@email.com";
-            var name = "test_user";
-            var phone = "+79998887766";
-            var user = new UserDb()
-            {
-                Email = email,
-                Phone = phone,
-                Name = name,
-                PasswordHash = hash
-            };
-
-            _client.Users.Add(user);
-            await _client.SaveChangesAsync();
-
-            return user;
-        }
     }
 }
