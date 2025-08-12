@@ -45,9 +45,6 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             var token = tokenHandler.CreateToken(descriptor);
 
             return tokenHandler.WriteToken(token);
-
-
-
         }
     }
 }

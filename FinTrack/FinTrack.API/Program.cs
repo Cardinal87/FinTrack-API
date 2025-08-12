@@ -15,7 +15,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 namespace FinTrack.API
 {
-    public class Program
+    public partial class Program
     {
         public static void Main(string[] args)
         {

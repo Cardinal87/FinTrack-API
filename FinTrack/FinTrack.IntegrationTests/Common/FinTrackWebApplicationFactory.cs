@@ -29,6 +29,11 @@ namespace FinTrack.IntegrationTests.Common
                 services.AddSingleton<IAccountRepository, AccountRepositoryMock>();
                 services.AddSingleton<ITransactionRepository, TransactionRepositoryMock>();
             });
+
+            builder.ConfigureAppConfiguration(cfg =>
+            {
+
+            });
         }
     }
 }
