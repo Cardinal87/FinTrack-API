@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using FinTrack.API.Core.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using FinTrack.API.Middleware;
 using Serilog;
 namespace FinTrack.API
 {
@@ -43,6 +44,7 @@ namespace FinTrack.API
 
                 var app = builder.Build();
 
+                app.UseExceptionHandler();
                 if (app.Environment.IsDevelopment())
                 {
                     app.UseSwagger();
@@ -63,8 +65,6 @@ namespace FinTrack.API
 
                 app.UseAuthentication();
                 app.UseAuthorization();
-
-                
 
                 app.MapControllers();
 
@@ -172,6 +172,10 @@ namespace FinTrack.API
                     .AllowCredentials();
                 });
             });
+
+            //Exception handlers
+            services.AddExceptionHandler<GlobalExceptionHandler>();
+            services.AddProblemDetails();
         }
     }
     public partial class Program() { }
