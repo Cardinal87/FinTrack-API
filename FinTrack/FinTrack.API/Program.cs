@@ -13,39 +13,71 @@ using Microsoft.IdentityModel.Tokens;
 using FinTrack.API.Core.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Serilog;
 namespace FinTrack.API
 {
     public partial class Program
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
-
-            builder.Configuration
-                .AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"))
-                .Build();
-
-            ConfigureServices(builder.Services, builder.Configuration);
-
-
-            var app = builder.Build();
-
-            if (app.Environment.IsDevelopment())
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .Enrich.FromLogContext()
+                .CreateBootstrapLogger();
+            try
             {
-                app.UseSwagger();
-                app.UseSwaggerUI(c =>
+                var builder = WebApplication.CreateBuilder(args);
+
+                builder.Configuration
+                    .AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"))
+                    .Build();
+
+                builder.Host.UseSerilog((ctx, services, lc) =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FinTrack API v1");
+                    lc.ReadFrom.Configuration(builder.Configuration).
+                   ReadFrom.Services(services);
                 });
-                app.UseCors("DevPolicy");
+
+                ConfigureServices(builder.Services, builder.Configuration);
+
+
+                var app = builder.Build();
+
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseSwagger();
+                    app.UseSwaggerUI(c =>
+                    {
+                        c.SwaggerEndpoint("/swagger/v1/swagger.json", "FinTrack API v1");
+                    });
+                    app.UseCors("DevPolicy");
+                }
+                app.UseSerilogRequestLogging(options =>
+                {
+                    options.EnrichDiagnosticContext = (dc, ctx) =>
+                    {
+                        dc.Set("ClientIP", ctx.Connection.RemoteIpAddress?.ToString() ?? "undefined");
+                        dc.Set("UserAgent", ctx.Request.Headers.UserAgent.ToString());
+                    };
+                });
+
+                app.UseAuthentication();
+                app.UseAuthorization();
+
+                
+
+                app.MapControllers();
+
+                app.Run();
             }
-            
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-            app.MapControllers();
-
-            app.Run();
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Host terminated unexpectly");
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         
