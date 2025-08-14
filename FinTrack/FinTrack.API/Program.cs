@@ -14,6 +14,7 @@ using FinTrack.API.Core.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using FinTrack.API.Middleware;
+using FinTrack.API.Infrastructure.Decorators;
 using Serilog;
 namespace FinTrack.API
 {
@@ -108,7 +109,6 @@ namespace FinTrack.API
                     
                 };
                 opt.MapInboundClaims = false;
-
             });
             
             //MedidtR
@@ -176,6 +176,9 @@ namespace FinTrack.API
             //Exception handlers
             services.AddExceptionHandler<GlobalExceptionHandler>();
             services.AddProblemDetails();
+
+            //Decorators
+            services.Decorate<IJwtTokenService, LoggingJwtTokenServiceDecorator>();
         }
     }
     public partial class Program() { }
