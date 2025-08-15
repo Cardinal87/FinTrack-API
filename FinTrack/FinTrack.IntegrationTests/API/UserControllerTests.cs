@@ -73,12 +73,7 @@ namespace FinTrack.IntegrationTests.API
         [Fact]
         async public Task GetMe_ValidToken_Return200()
         {
-            var loginRequest = new LoginRequest
-            {
-                Password = "pwd",
-                Login = _user.Email
-            };
-            var token = await AuthHelper.GetToken(_client, loginRequest);
+            var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, "/api/users/me");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -109,12 +104,7 @@ namespace FinTrack.IntegrationTests.API
         [Fact]
         async public Task GetUserById_WithAdminToken_Return200()
         {
-            var loginRequest = new LoginRequest
-            {
-                Password = "pwd",
-                Login = _admin.Email
-            };
-            var token = await AuthHelper.GetToken(_client, loginRequest);
+            var token = await AuthHelper.GetToken(_client, _admin.Email, "pwd");
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{_user.Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -135,12 +125,7 @@ namespace FinTrack.IntegrationTests.API
         [Fact]
         async public Task GetUserById_RandomGuid_Return404()
         {
-            var loginRequest = new LoginRequest
-            {
-                Password = "pwd",
-                Login = _admin.Email
-            };
-            var token = await AuthHelper.GetToken(_client, loginRequest);
+            var token = await AuthHelper.GetToken(_client, _admin.Email, "pwd");
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{Guid.NewGuid()}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -153,12 +138,7 @@ namespace FinTrack.IntegrationTests.API
         [Fact]
         async public Task GetUserById_WithSimpleUserToken_Return403()
         {
-            var loginRequest = new LoginRequest
-            {
-                Password = "pwd",
-                Login = _user.Email
-            };
-            var token = await AuthHelper.GetToken(_client, loginRequest);
+            var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{_admin.Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -171,7 +151,6 @@ namespace FinTrack.IntegrationTests.API
         [Fact]
         async public Task GetUserById_WithoutToken_Return401()
         {
-            
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{_user.Id}");
 
             var response = await _client.SendAsync(httpRequest);
@@ -182,12 +161,7 @@ namespace FinTrack.IntegrationTests.API
         [Fact]
         async public Task DeleteMe_ValidData_Return204()
         {
-            var loginRequest = new LoginRequest
-            {
-                Password = "pwd",
-                Login = _user.Email
-            };
-            var token = await AuthHelper.GetToken(_client, loginRequest);
+            var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/users/me");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
@@ -213,12 +187,7 @@ namespace FinTrack.IntegrationTests.API
         [Fact]
         async public Task DeleteMe_WhenAlreadyDeleted_Return404()
         {
-            var loginRequest = new LoginRequest
-            {
-                Password = "pwd",
-                Login = _user.Email
-            };
-            var token = await AuthHelper.GetToken(_client, loginRequest);
+            var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
             var httpRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/users/me");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             await _client.SendAsync(httpRequest);

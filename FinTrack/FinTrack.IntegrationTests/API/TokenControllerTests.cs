@@ -96,12 +96,7 @@ namespace FinTrack.IntegrationTests.API
         [Fact]
         async public Task GetJwtStatus_ValidToken_Returns200()
         {
-            var request = new LoginRequest
-            {
-                Login = "test@email.com",
-                Password = "pwd",
-            };
-            var token = await AuthHelper.GetToken(_client, request);
+            var token = await AuthHelper.GetToken(_client, "test@email.com", "pwd");
             
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, "/api/auth/token/status");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
