@@ -1,13 +1,8 @@
-﻿using Azure;
-using FinTrack.API;
-using FinTrack.API.Core.Common;
+﻿using FinTrack.API;
 using FinTrack.API.Core.Entities;
-using FinTrack.API.Core.Interfaces;
 using FinTrack.API.DTO;
-using FinTrack.API.TestMocks.Builders;
 using FinTrack.IntegrationTests.Common;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -26,28 +21,7 @@ namespace FinTrack.IntegrationTests.API
         {
             _client = factory.CreateClient();
             _factory = factory;
-            using (var scope = factory.Services.CreateScope())
-            {
-                var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
-
-
-                var admin = new UserBuilder().WithPassword("pwd", hasher)
-                    .WithEmail("admin@email.com")
-                    .WithRoles(UserRoles.Admin, UserRoles.User)
-                    .Build();
-
-                var simpleUser = new UserBuilder().WithPassword("pwd", hasher)
-                    .WithEmail("user@email.com")
-                    .WithRoles(UserRoles.Admin, UserRoles.User)
-                    .Build();
-
-                
-                _factory.UserRepositoryMock.Add(admin);
-                _factory.UserRepositoryMock.Add(simpleUser);
-
-                _admin = admin;
-                _user = simpleUser;
-            }
+            (_user, _admin) = _factory.CreateBaseUsers();
         }
 
         public void Dispose()

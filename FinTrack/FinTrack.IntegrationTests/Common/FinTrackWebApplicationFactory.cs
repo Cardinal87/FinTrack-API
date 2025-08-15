@@ -1,5 +1,9 @@
 ﻿
+using Docker.DotNet.Models;
+using FinTrack.API.Core.Common;
+using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
+using FinTrack.API.TestMocks.Builders;
 using FinTrack.API.TestMocks.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -39,6 +43,35 @@ namespace FinTrack.IntegrationTests.Common
             UserRepositoryMock.Reset();
             AccountRepositoryMock.Reset();
             TransactionRepositoryMock.Reset();
+        }
+
+        public (User, User) CreateBaseUsers()
+        {
+            using (var scope = Services.CreateScope())
+            {
+                var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+
+
+                var admin = new UserBuilder().WithPassword("pwd", hasher)
+                    .WithEmail("admin@email.com")
+                    .WithRoles(UserRoles.Admin, UserRoles.User)
+                    .Build();
+
+                var user = new UserBuilder().WithPassword("pwd", hasher)
+                    .WithEmail("user@email.com")
+                    .WithRoles(UserRoles.Admin, UserRoles.User)
+                    .Build();
+
+
+                var userAccount = new Account(user.Id);
+                var adminAccount = new Account(admin.Id);
+
+                UserRepositoryMock.Add(admin);
+                UserRepositoryMock.Add(user);
+
+                return (user, admin);
+
+            }
         }
     }
 }
