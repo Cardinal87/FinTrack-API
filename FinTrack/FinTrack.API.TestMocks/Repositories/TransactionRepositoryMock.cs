@@ -50,5 +50,10 @@ namespace FinTrack.API.TestMocks.Repositories
         {
             return Task.CompletedTask;
         }
+
+        public void Reset()
+        {
+            _transactions.Clear();
+        }
     }
 }

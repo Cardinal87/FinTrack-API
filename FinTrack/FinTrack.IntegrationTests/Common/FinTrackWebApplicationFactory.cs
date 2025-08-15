@@ -6,13 +6,16 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Identity.Client;
 
 namespace FinTrack.IntegrationTests.Common
 {
     public class FinTrackWebApplicationFactory<TProgram>
         : WebApplicationFactory<TProgram> where TProgram : class
     {
-
+        public UserRepositoryMock UserRepositoryMock { get;private set; } = new();
+        public AccountRepositoryMock AccountRepositoryMock { get; private set; } = new();
+        public TransactionRepositoryMock TransactionRepositoryMock { get; private set; } = new();
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.ConfigureServices(services =>
@@ -25,15 +28,17 @@ namespace FinTrack.IntegrationTests.Common
                 services.RemoveAll<ITransactionRepository>();
 
                 //Add mocks to imitate database
-                services.AddSingleton<IUserRepository, UserRepositoryMock>();
-                services.AddSingleton<IAccountRepository, AccountRepositoryMock>();
-                services.AddSingleton<ITransactionRepository, TransactionRepositoryMock>();
+                services.AddSingleton<IUserRepository>(UserRepositoryMock);
+                services.AddSingleton<IAccountRepository>(AccountRepositoryMock);
+                services.AddSingleton<ITransactionRepository>(TransactionRepositoryMock);
             });
 
-            builder.ConfigureAppConfiguration(cfg =>
-            {
-
-            });
+        }
+        public void ResetMocks()
+        {
+            UserRepositoryMock.Reset();
+            AccountRepositoryMock.Reset();
+            TransactionRepositoryMock.Reset();
         }
     }
 }

@@ -3,6 +3,7 @@ using FinTrack.API.Core.Common;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
 using FinTrack.API.DTO;
+using FinTrack.API.TestMocks.Builders;
 using FinTrack.IntegrationTests.Common;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -13,7 +14,7 @@ using System.Net.Http.Json;
 
 namespace FinTrack.IntegrationTests.API
 {
-    public class TokenControllerTests : IClassFixture<FinTrackWebApplicationFactory<Program>>
+    public class TokenControllerTests : IClassFixture<FinTrackWebApplicationFactory<Program>>, IDisposable
     {
         private readonly HttpClient _client;
         private readonly FinTrackWebApplicationFactory<Program> _factory;
@@ -24,18 +25,14 @@ namespace FinTrack.IntegrationTests.API
             _factory = factory;
             using (var scope = factory.Services.CreateScope())
             {
-                var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepository>();
                 var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
 
-                var hash = hasher.GetHash("pwd");
-                var email = "test@email.com";
-                var name = "test_user";
-                var phone = "+79998887766";
-                var user = new User(email, phone, name, hash);
-                user.AssignRole(UserRoles.Admin);
-                user.AssignRole(UserRoles.User);
+                var user = new UserBuilder().WithPassword("pwd", hasher)
+                    .WithEmail("test@email.com")
+                    .WithRoles(UserRoles.Admin, UserRoles.User)
+                    .Build();
 
-                userRepo.Add(user);
+                _factory.UserRepositoryMock.Add(user);
             }
         }
         [Fact]
@@ -74,7 +71,7 @@ namespace FinTrack.IntegrationTests.API
         {
             var request = new LoginRequest
             {
-                Password = "password",
+                Password = "pwd",
             };
 
             var response = await _client.PostAsJsonAsync("/api/auth/token", request);
@@ -122,6 +119,9 @@ namespace FinTrack.IntegrationTests.API
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
-        
+        public void Dispose()
+        {
+            _factory.ResetMocks();
+        }
     }
 }

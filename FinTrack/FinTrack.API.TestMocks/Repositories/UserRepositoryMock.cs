@@ -55,5 +55,10 @@ namespace FinTrack.API.TestMocks.Repositories
             _users[index] = user;
             return Task.CompletedTask;
         }
+
+        public void Reset()
+        {
+            _users.Clear();
+        }
     }
 }
