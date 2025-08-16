@@ -105,7 +105,7 @@ namespace FinTrack.API
                     ValidateIssuerSigningKey = true,
 
                     NameClaimType = JwtRegisteredClaimNames.Sub,
-                    RoleClaimType = ClaimTypes.Role
+                    RoleClaimType = "role"
                     
                 };
                 opt.MapInboundClaims = false;

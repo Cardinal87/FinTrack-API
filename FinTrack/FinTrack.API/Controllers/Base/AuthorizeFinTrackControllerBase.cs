@@ -20,7 +20,7 @@ namespace FinTrack.API.Controllers.Base
         private List<string> GetCurrentUserRoles()
         {
             return User.Claims
-                .Where(c => c.Type == ClaimTypes.Role)
+                .Where(c => c.Type == "role")
                 .Select(c => c.Value)
                 .ToList();
         }
