@@ -46,12 +46,6 @@ namespace FinTrack.API.TestMocks.Repositories
 
         public Task UpdateAsync(Account account)
         {
-            var index = _accounts.IndexOf(account);
-            if (index == -1)
-            {
-                throw new EntityNotFoundException("user with provided id not exists");
-            }
-            _accounts[index] = account;
             return Task.CompletedTask;
         }
 

@@ -59,7 +59,7 @@ namespace FinTrack.IntegrationTests.Common
 
                 var user = new UserBuilder().WithPassword("pwd", hasher)
                     .WithEmail("user@email.com")
-                    .WithRoles(UserRoles.Admin, UserRoles.User)
+                    .WithRoles(UserRoles.User)
                     .Build();
 
 
