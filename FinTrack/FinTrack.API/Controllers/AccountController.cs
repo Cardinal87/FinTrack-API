@@ -84,7 +84,7 @@ namespace FinTrack.API.Controllers
             var result = await _mediator.Send(command);
             if (result.IsSuccess && result.Value != default)
             {
-                return Ok(new { result.Value });
+                return Ok(new { balance = result.Value });
             }
             return HandleFailedResult(result);
 
@@ -96,9 +96,9 @@ namespace FinTrack.API.Controllers
         {
             var command = new DebitBalanceCommand(guid, amount);
             var result = await _mediator.Send(command);
-            if (result.IsSuccess && result.Value != default)
+            if (result.IsSuccess)
             {
-                return Ok(new { result.Value });
+                return Ok(new { balance = result.Value });
             }
             return HandleFailedResult(result);
 
