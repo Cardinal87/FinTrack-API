@@ -67,6 +67,8 @@ namespace FinTrack.API
                 app.UseAuthentication();
                 app.UseAuthorization();
 
+                app.UseMiddleware<UserExistenceMiddleware>();
+
                 app.MapControllers();
 
                 app.Run();

@@ -26,16 +26,12 @@ namespace FinTrack.API.Application.UseCases.Transactions.GetTransactionsByTimeIn
 
         async public Task<ValueResult<IReadOnlyCollection<Transaction>>> Handle(GetTransactionsByTimeIntervalCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(request.userId);
-            if (user == null) return ValueResult<IReadOnlyCollection<Transaction>>.Fail(OperationStatusMessages.NotFound);
-
-
             if (request.roles.Contains(UserRoles.Admin))
             {
                 var transactions = await _transactionRepository.GetFromToDateAsync(request.from, request.to);
                 return ValueResult<IReadOnlyCollection<Transaction>>.Ok(transactions.ToList().AsReadOnly(), OperationStatusMessages.Ok);
             }
-            var userAccoutsIds = await _accountRepository.GetAccountIdsByUserIdAsync(user.Id);
+            var userAccoutsIds = await _accountRepository.GetAccountIdsByUserIdAsync(request.userId);
 
             var allowed = await _transactionRepository.GetFromToDateAsync(request.from, request.to, userAccoutsIds);
             return ValueResult<IReadOnlyCollection<Transaction>>.Ok(allowed.ToList().AsReadOnly(), OperationStatusMessages.Ok);

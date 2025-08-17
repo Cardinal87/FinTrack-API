@@ -81,7 +81,7 @@ namespace FinTrack.IntegrationTests.API
         }
 
         [Fact]
-        async public Task CreateAccount_ForNonExistentUser_Return404()
+        async public Task CreateAccount_ForNonExistentUser_Return401()
         {
             var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
 
@@ -93,7 +93,7 @@ namespace FinTrack.IntegrationTests.API
             var response = await _client.SendAsync(httpRequest);
 
             
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
 
