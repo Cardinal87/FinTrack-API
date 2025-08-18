@@ -10,19 +10,15 @@ namespace FinTrack.API.Middleware
     public class UserExistenceMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IUserRepository _userRepository;
-        private readonly ILogger<UserExistenceMiddleware> _logger;
 
-        public UserExistenceMiddleware(RequestDelegate next,
-                                       IUserRepository userRepository,
-                                       ILogger<UserExistenceMiddleware> logger)
+        public UserExistenceMiddleware(RequestDelegate next)
         {
             _next = next;
-            _userRepository = userRepository;
-            _logger = logger;
         }
 
-        async public Task InvokeAsync(HttpContext context)
+        async public Task InvokeAsync(HttpContext context,
+                                      IUserRepository userRepository,
+                                      ILogger<UserExistenceMiddleware> logger)
         {
             if (context.User.Identity?.IsAuthenticated == true)
             {
@@ -36,7 +32,7 @@ namespace FinTrack.API.Middleware
                         Detail = "Invalid token format"
                     };
 
-                    _logger.LogWarning("Attempt to access with incorrect token format without user id. Token id: {Jti}",
+                    logger.LogWarning("Attempt to access with incorrect token format without user id. Token id: {Jti}",
                                        jti);
 
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -53,7 +49,7 @@ namespace FinTrack.API.Middleware
                         Detail = "Invalid token format"
                     };
 
-                    _logger.LogWarning("Incorrect userId format: {Sub}. Token id: {Jti}",
+                    logger.LogWarning("Incorrect userId format: {Sub}. Token id: {Jti}",
                                        jti,
                                        idClaimValue);
 
@@ -63,7 +59,7 @@ namespace FinTrack.API.Middleware
                 }
 
 
-                var user = await _userRepository.GetByIdAsync(userId);
+                var user = await userRepository.GetByIdAsync(userId);
 
                 if (user == null)
                 {
@@ -73,7 +69,7 @@ namespace FinTrack.API.Middleware
                         Detail = "User not found"
                     };
 
-                    _logger.LogWarning("Attempt to access by non-existent user with id {UserId}. Token id: {Jti}",
+                    logger.LogWarning("Attempt to access by non-existent user with id {UserId}. Token id: {Jti}",
                                            userId,
                                            jti);
 
