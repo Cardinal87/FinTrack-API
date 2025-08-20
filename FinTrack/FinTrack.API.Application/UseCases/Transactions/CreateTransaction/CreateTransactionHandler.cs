@@ -34,10 +34,15 @@ namespace FinTrack.API.Application.UseCases.Transactions.CreateTransaction
             {
                 return ValueResult<Guid>.Fail(OperationStatusMessages.BadRequest);
             }
+            catch (InsufficientFundsException)
+            {
+                return ValueResult<Guid>.Fail(OperationStatusMessages.BadRequest);
+            }
             catch (EntityNotFoundException)
             {
                 return ValueResult<Guid>.Fail(OperationStatusMessages.NotFound);
             }
+            
         }
     }
 }
