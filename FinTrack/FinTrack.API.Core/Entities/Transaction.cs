@@ -24,11 +24,11 @@ namespace FinTrack.API.Core.Entities
         /// <param name="amount">amount of the transaction</param>
         /// <param name="fromAccountId">source account id</param>
         /// <param name="toAccountId">destination account id</param>
-        /// <param name="time">date of the transaction</param>
+        /// <param name="date">date of the transaction</param>
         /// <exception cref="InvalidTransactionException">
         /// Thrown when:
         /// <list type="bullet">
-        /// <item><paramref name="time"/> is later than <see cref="DateTime.UtcNow"/></item>
+        /// <item><paramref name="date"/> is later than <see cref="DateTime.UtcNow"/></item>
         /// <item><paramref name="fromAccountId"/>is equal to <paramref name="toAccountId"/></item>
         /// </list>
         /// </exception>
@@ -39,7 +39,7 @@ namespace FinTrack.API.Core.Entities
         /// </list>
         /// </exception> 
 
-        public Transaction(decimal amount, Guid fromAccountId, Guid toAccountId, DateTime time)
+        public Transaction(decimal amount, Guid fromAccountId, Guid toAccountId, DateTime date)
         {
             if (amount <= 0)
             {
@@ -49,14 +49,14 @@ namespace FinTrack.API.Core.Entities
             {
                 throw new InvalidTransactionException("The destination account ID is the same as the source account ID");
             }
-            if (time > DateTime.UtcNow)
+            if (date > DateTime.UtcNow)
             {
                 throw new InvalidTransactionException("Incorrect date of transaction");
             }
             Amount = amount;
             FromAccountId = fromAccountId;
             ToAccountId = toAccountId;
-            Date = time;
+            Date = date;
         }
 
         /// <summary>
