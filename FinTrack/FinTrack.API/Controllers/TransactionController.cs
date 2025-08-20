@@ -89,7 +89,7 @@ namespace FinTrack.API.Controllers
         /// <response code="404">transaction with <paramref name="id"/> not found</response>
         [HttpGet("{id}")]
         [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -140,7 +140,7 @@ namespace FinTrack.API.Controllers
         /// <response code="400">invalid request data</response>
         [HttpGet("date/{date}")]
         [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         async public Task<IActionResult> GetTransactionsByDate(DateOnly date)
         {
@@ -186,7 +186,7 @@ namespace FinTrack.API.Controllers
         /// <response code="400">invalid request data</response>
         [HttpGet("interval")]
         [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         async public Task<IActionResult> GetTransactionsByInterval([FromQuery] DateTime start,
                                                                    [FromQuery] DateTime end)
