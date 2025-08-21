@@ -9,6 +9,9 @@ namespace FinTrack.API.Application.UseCases.Transactions.CreateTransaction
     /// Represents MediatR command for creating transaction.
     /// Returns <see cref="ValueResult{T}"/> with <see cref="Guid"/> of created transaction
     /// </summary>
+    /// <param name="userId">
+    /// Id of the user that creates the transaction
+    /// </param>
     /// <param name="amount">
     /// Amount of the transaction.
     /// Must be positive
@@ -21,6 +24,6 @@ namespace FinTrack.API.Application.UseCases.Transactions.CreateTransaction
     /// Destination account id.
     /// Must not match with <paramref name="fromAccountId"/>
     /// </param>
-    public record CreateTransactionCommand(decimal amount, Guid fromAccountId, Guid toAccountId) : IRequest<ValueResult<Guid>>;
+    public record CreateTransactionCommand(Guid userId, decimal amount, Guid fromAccountId, Guid toAccountId) : IRequest<ValueResult<Guid>>;
     
 }

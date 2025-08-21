@@ -1,5 +1,6 @@
 ﻿using FinTrack.API.Application.Common;
 using FinTrack.API.Core.Exceptions;
+using FinTrack.API.Core.Interfaces;
 using FinTrack.API.Core.Services;
 using MediatR;
 namespace FinTrack.API.Application.UseCases.Transactions.CreateTransaction
@@ -14,16 +15,24 @@ namespace FinTrack.API.Application.UseCases.Transactions.CreateTransaction
     internal class CreateTransactionHandler : IRequestHandler<CreateTransactionCommand, ValueResult<Guid>>
     {
         private TransferService _transferService;
+        private IAccountRepository _accountRepository;
 
-        public CreateTransactionHandler(TransferService transferService)
+        public CreateTransactionHandler(TransferService transferService, IAccountRepository accountRepository)
         {
             _transferService = transferService;
+            _accountRepository = accountRepository;
         }
 
         async public Task<ValueResult<Guid>> Handle(CreateTransactionCommand request, CancellationToken cancellationToken)
         {
             try
             {
+                var userAccountIds = await _accountRepository.GetAccountIdsByUserIdAsync(request.userId);
+
+                if (!userAccountIds.Contains(request.fromAccountId))
+                {
+                    return ValueResult<Guid>.Fail(OperationStatusMessages.Forbidden);
+                }
                 var guid = await _transferService.HandleTransactionAsync(request.amount,
                                                               request.toAccountId,
                                                               request.fromAccountId);

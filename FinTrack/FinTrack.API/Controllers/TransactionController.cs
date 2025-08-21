@@ -51,7 +51,8 @@ namespace FinTrack.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         async public Task<IActionResult> CreateTransaction([FromBody] CreateTransactionRequest request)
         {
-            var createTransactionCommand = new CreateTransactionCommand(request.Amount,
+            var createTransactionCommand = new CreateTransactionCommand(UserId,
+                                                                        request.Amount,
                                                                         request.SourceAccountId,
                                                                         request.DestinationAccountId);
             var result = await _mediator.Send(createTransactionCommand);
