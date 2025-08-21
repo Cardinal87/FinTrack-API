@@ -46,7 +46,7 @@ namespace FinTrack.API.Controllers
             var result = await _mediator.Send(command);
             if (result.IsSuccess && result.Value != default)
             {
-                return CreatedAtAction(nameof(GetAccountById), new { guid = result.Value }, new { id = result.Value });
+                return CreatedAtAction(nameof(GetAccountById), new { id = result.Value }, new { id = result.Value });
             }
             return HandleFailedResult(result);
         }

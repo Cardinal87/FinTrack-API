@@ -59,8 +59,8 @@ namespace FinTrack.API.Controllers
             if (result.IsSuccess && result.Value != default)
             {
                 return CreatedAtAction(nameof(GetTransactionById),
-                                       new { guid = result.Value },
-                                       new { guid = result.Value });
+                                       new { id = result.Value },
+                                       new { id = result.Value });
             }
             return HandleFailedResult(result);
         }
