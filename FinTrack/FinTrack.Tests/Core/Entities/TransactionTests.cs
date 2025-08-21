@@ -25,11 +25,11 @@ namespace FinTrack.Tests.Core.Entities
             var toId = Guid.NewGuid();
             var time = DateTime.UtcNow;
 
-            var zeroAmoun = () => new Transaction(0, fromId, toId, time);
+            var zeroAmount = () => new Transaction(0, fromId, toId, time);
             var negativeAmount = () => new Transaction(-100, fromId, toId, time);
 
-            zeroAmoun.Should().Throw<InvalidTransactionException>();
-            negativeAmount.Should().Throw<InvalidTransactionException>();
+            zeroAmount.Should().Throw<IncorrectAmountException>();
+            negativeAmount.Should().Throw<IncorrectAmountException>();
         }
 
         [Fact]

@@ -19,8 +19,8 @@ namespace FinTrack.Tests.Core.Entities
             var top_up_negative_amout = () => account.TopUp(-100);
 
             valid_top_up.Should().NotThrow();
-            top_up_negative_amout.Should().Throw<ArgumentException>();
-            top_up_zero_amount.Should().Throw<ArgumentException>();
+            top_up_negative_amout.Should().Throw<IncorrectAmountException>();
+            top_up_zero_amount.Should().Throw<IncorrectAmountException>();
             account.Balance.Should().Be(500);
         }
 
@@ -38,8 +38,8 @@ namespace FinTrack.Tests.Core.Entities
 
             valid_debit.Should().NotThrow();
             debit_greater_than_current_balance.Should().Throw<InsufficientFundsException>();
-            debit_negative.Should().Throw<ArgumentException>();
-            debit_zero.Should().Throw<ArgumentException>();
+            debit_negative.Should().Throw<IncorrectAmountException>();
+            debit_zero.Should().Throw<IncorrectAmountException>();
             account.Balance.Should().Be(500);
         }
 
