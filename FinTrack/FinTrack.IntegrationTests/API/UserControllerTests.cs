@@ -185,7 +185,7 @@ namespace FinTrack.IntegrationTests.API
         }
 
         [Fact]
-        async public Task DeleteMe_WhenAlreadyDeleted_Return404()
+        async public Task DeleteMe_WhenAlreadyDeleted_Return401()
         {
             var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
             var httpRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/users/me");
@@ -196,7 +196,7 @@ namespace FinTrack.IntegrationTests.API
             nextRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await _client.SendAsync(nextRequest);
 
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
 
         
