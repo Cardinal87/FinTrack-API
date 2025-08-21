@@ -13,7 +13,6 @@ namespace FinTrack.API.Core.Exceptions
     /// <list type="bullet">
     /// <item>date of transaction is greater than <see cref="DateTime.UtcNow"/></item>
     /// <item>Trasaction.FromAccountId == Transaction.ToAccountId</item>
-    /// <item>Amount of transaction is less than zero</item>
     /// </list>
     /// </para>
     /// </remarks>

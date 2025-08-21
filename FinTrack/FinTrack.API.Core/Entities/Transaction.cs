@@ -12,7 +12,6 @@ namespace FinTrack.API.Core.Entities
     /// Responsibilities:
     /// <list type="bullet">
     /// <item>Stores all transaction info</item>
-    /// <item>Emmutable</item>
     /// </list>
     /// transaction must be immutable
     /// </remarks>
@@ -65,17 +64,17 @@ namespace FinTrack.API.Core.Entities
         /// <remarks>
         /// Must be positive and must not be equal to zero 
         /// </remarks>
-        public decimal Amount { get; }
+        public decimal Amount { get; init; }
 
         /// <summary>
         /// Source account ID
         /// </summary>
-        public Guid FromAccountId { get;}
+        public Guid FromAccountId { get; init; }
 
         /// <summary>
         /// Destination account ID
         /// </summary>
-        public Guid ToAccountId { get;}
+        public Guid ToAccountId { get; init; }
 
         /// <summary>
         /// Transaction timestamp in UTC
@@ -83,7 +82,7 @@ namespace FinTrack.API.Core.Entities
         /// <remarks>
         /// Must be less or equal to <see cref="DateTime.UtcNow"/>
         /// </remarks>
-        public DateTime Date { get; }
+        public DateTime Date { get; init; }
 
     }
 }
