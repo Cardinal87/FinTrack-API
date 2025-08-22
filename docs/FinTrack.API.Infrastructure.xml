@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FinTrack.API.Infrastructure</name>
+    </assembly>
+    <members>
+        <member name="T:FinTrack.API.Infrastructure.Migrations.InitialCreate">
+            <inheritdoc />
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:FinTrack.API.Infrastructure.Migrations.CreateUserRoles">
+            <inheritdoc />
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Migrations.CreateUserRoles.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Migrations.CreateUserRoles.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Migrations.CreateUserRoles.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:FinTrack.API.Infrastructure.Migrations.ChangeUserHashLength">
+            <inheritdoc />
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Migrations.ChangeUserHashLength.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Migrations.ChangeUserHashLength.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Migrations.ChangeUserHashLength.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

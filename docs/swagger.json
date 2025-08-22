@@ -1,0 +1,838 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "FinTrack API",
+    "description": "an ASP.NET Core banking system prototype API",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/accounts": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Creates account for user",
+        "description": "Request example:\r\nPOST /api/accounts\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"id\": \"CREATED_ACCOUNT_ID\"\r\n}",
+        "responses": {
+          "201": {
+            "description": "account created successfully"
+          }
+        }
+      }
+    },
+    "/api/accounts/{id}": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Returns info abount account by id",
+        "description": "Request example:\r\nGET /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\r\n    \"balance\": 300,\r\n    \"user_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\"\r\n}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of the existing account",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "account with id not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user has not access to account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "successfull request"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Deletes account by id",
+        "description": "Request example:\r\nDELETE /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of the existing account",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "account delete sucessfully"
+          },
+          "400": {
+            "description": "invalid request data",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "account with id not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user has not access to account",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accounts/{id}/topup": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Top ups account balance",
+        "description": "Request example:\r\nPOST /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66/topup?amount=300\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"balance\": 300,\r\n}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of the existing account",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "amount",
+            "in": "query",
+            "description": "top up amount",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "account with id not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user has not access to endpoint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "account topped up successfully"
+          }
+        }
+      }
+    },
+    "/api/accounts/{id}/debit": {
+      "post": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Debits account balance",
+        "description": "Request example:\r\nPOST /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66/debit?amount=300\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"balance\": 0,\r\n}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of the existing account",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "amount",
+            "in": "query",
+            "description": "debit amount",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "account with id not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user has not access to endpoint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "account debited successfully"
+          }
+        }
+      }
+    },
+    "/api/auth/token": {
+      "post": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Creates access JWT-token for user",
+        "description": "Request example:\r\nPOST /api/auth/token\r\n{\r\n    \"login\": \"mylogin\",\r\n    \"password\": \"mypassword\"\r\n}\r\n\r\nResponse example:\r\n{\r\n    \"token\": YOUR_ACCESS_TOKEN\r\n}",
+        "requestBody": {
+          "description": "user credentials",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/token/status": {
+      "get": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Returns status of provided JWT-token",
+        "description": "Request example:\r\nGET /api/auth/token/status\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transactions": {
+      "post": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Creates transaction between accounts",
+        "description": "Request example:\r\nPOST /api/transactions\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n{\r\n    \"amount\": \"300\",\r\n    \"source_account_id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\r\n    \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\r\n}\r\n\r\nResponse example:\r\n{\r\n    \"id\": \"CREATED_Transaction_ID\"\r\n}",
+        "requestBody": {
+          "description": "data for creating transaction",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransactionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transactions/{id}": {
+      "get": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Returns transaction by id",
+        "description": "Request example:\r\nGET /api/transactions/30dd879c-ee2f-11db-8314-0800200c9a66\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\r\n    \"amount\": 300,\r\n    \"source_account_id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\r\n    \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\r\n    \r\n}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of the existing transaction",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfull request"
+          },
+          "400": {
+            "description": "invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user has not access to transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "transaction with id not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transactions/date/{date}": {
+      "get": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Returns transaction by date",
+        "description": "Request example:\r\nGET /api/transactions/date/2025-08-19\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    [    \r\n        {\r\n            \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\r\n            \"amount\": 300,\r\n            \"source_account_id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\r\n            \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\r\n        },\r\n        ...\r\n    ]\r\n    \r\n}",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "description": "date of the transaction",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfull request"
+          },
+          "400": {
+            "description": "invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transactions/interval": {
+      "get": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Returns transaction by time interval",
+        "description": "Request example:\r\nGET /api/transactions/interval?start=2025-08-10&end=2025-08-13\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    [    \r\n        {\r\n            \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\r\n            \"amount\": 300,\r\n            \"source_account_id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\r\n            \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\r\n        },\r\n        ...\r\n    ]\r\n    \r\n}",
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "description": "start of the interval",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "description": "end of the interval",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfull request"
+          },
+          "400": {
+            "description": "invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transactions/account/{id}": {
+      "get": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Returns all transactions of specified account",
+        "description": "Request example:\r\nGET /api/transactions/account/30dd879c-ee2f-11db-8314-0800200c9a66\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    [    \r\n        {\r\n            \"id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\r\n            \"amount\": 300,\r\n            \"source_account_id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\r\n            \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\r\n        },\r\n        ...\r\n    ]\r\n    \r\n}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of the existing account",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfull request"
+          },
+          "400": {
+            "description": "invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user has not access to transactions of this account",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "account with id not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Creates new user",
+        "description": "Request example:\r\nPOST /api/users\r\n{\r\n    \"name\": \"myname\",\r\n    \"email\": \"example@gmail.com\",\r\n    \"phone\": \"+79998886655\",\r\n    \"password\": \"pwd\"\r\n}\r\n\r\nResponse example:\r\n{\r\n    \"id\": \"CREATED_USER_ID\"\r\n}",
+        "requestBody": {
+          "description": "data for creating new user",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Returns info about current user",
+        "description": "Request example:\r\nGET /api/users/me\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"name\": \"myname\",\r\n    \"phone\": \"+79996668877\",\r\n    \"email\": \"exmaple@gmail.com\"\r\n}",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Deletes current user",
+        "description": "Request example:\r\nDELETE /api/users/me\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Returns user info by id",
+        "description": "Requets example:\r\nGET /api/users/30dd879c-ee2f-11db-8314-0800200c9a66\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"name\": \"myname\",\r\n    \"phone\": \"+79996668877\",\r\n    \"email\": \"exmaple@gmail.com\"\r\n    \"hash\": \"SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=\"\r\n}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the user",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "sourceAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "destinationAccountId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateUserRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "nullable": true
+          },
+          "login": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      }
+    }
+  }
+}

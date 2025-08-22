@@ -1,0 +1,456 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FinTrack.API.Application</name>
+    </assembly>
+    <members>
+        <member name="T:FinTrack.API.Application.Interfaces.IJwtTokenService">
+            <summary>
+            Represents service for generating JWT tokens
+            </summary>
+        </member>
+        <member name="M:FinTrack.API.Application.Interfaces.IJwtTokenService.GenerateToken(FinTrack.API.Core.Entities.User)">
+            <summary>
+            Generates JWT token based on user data
+            </summary>
+            <param name="user">User domain model</param>
+            <returns>JWT token in base64 format</returns>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Accounts.CreateAccount.CreateAccountCommand">
+            <summary>
+            Represents MediatR command to create account.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with id of the created account
+            </summary>
+            <param name="userId">
+            the ID of the user for whom the account will be created
+            </param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Accounts.CreateAccount.CreateAccountCommand.#ctor(System.Guid)">
+            <summary>
+            Represents MediatR command to create account.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with id of the created account
+            </summary>
+            <param name="userId">
+            the ID of the user for whom the account will be created
+            </param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Accounts.CreateAccount.CreateAccountCommand.userId">
+            <summary>
+            the ID of the user for whom the account will be created
+            </summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Accounts.DebitBalance.DebitBalanceCommand">
+            <summary>
+            Represents MediatR command to debit balance.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with balance of the account
+            </summary>
+            <param name="accountId">Source account id</param>
+            <param name="amount">
+            Debit amount.
+            Must be positive
+            </param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Accounts.DebitBalance.DebitBalanceCommand.#ctor(System.Guid,System.Decimal)">
+            <summary>
+            Represents MediatR command to debit balance.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with balance of the account
+            </summary>
+            <param name="accountId">Source account id</param>
+            <param name="amount">
+            Debit amount.
+            Must be positive
+            </param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Accounts.DebitBalance.DebitBalanceCommand.accountId">
+            <summary>Source account id</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Accounts.DebitBalance.DebitBalanceCommand.amount">
+            <summary>
+            Debit amount.
+            Must be positive
+            </summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Accounts.DeleteAccount.DeleteAccountCommand">
+            <summary>
+            Represents MediatR command for deleting account.
+            </summary>
+            <param name="accountId">
+            Id of the existing account
+            </param>
+            <param name="userGuid">
+            Id of the user that invokes command
+            </param>
+            <param name="roles">
+            User roles
+            </param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Accounts.DeleteAccount.DeleteAccountCommand.#ctor(System.Guid,System.Collections.Generic.IReadOnlyCollection{System.String},System.Guid)">
+            <summary>
+            Represents MediatR command for deleting account.
+            </summary>
+            <param name="accountId">
+            Id of the existing account
+            </param>
+            <param name="userGuid">
+            Id of the user that invokes command
+            </param>
+            <param name="roles">
+            User roles
+            </param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Accounts.DeleteAccount.DeleteAccountCommand.roles">
+            <summary>
+            User roles
+            </summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Accounts.DeleteAccount.DeleteAccountCommand.accountId">
+            <summary>
+            Id of the existing account
+            </summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Accounts.GetAccount.GetAccountCommand">
+            <summary>
+            Represents MediatR command for getting account by id.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with <see cref="T:FinTrack.API.Core.Entities.Account"/> if it exists and
+            user has permission to get it
+            else returns <see langword="null"/>.
+            </summary>
+            <param name="accountId">Account id</param>
+            <param name="userId">Id of the user that invokes command</param>
+            <param name="roles">User roles</param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Accounts.GetAccount.GetAccountCommand.#ctor(System.Guid,System.Collections.Generic.IReadOnlyCollection{System.String},System.Guid)">
+            <summary>
+            Represents MediatR command for getting account by id.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with <see cref="T:FinTrack.API.Core.Entities.Account"/> if it exists and
+            user has permission to get it
+            else returns <see langword="null"/>.
+            </summary>
+            <param name="accountId">Account id</param>
+            <param name="userId">Id of the user that invokes command</param>
+            <param name="roles">User roles</param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Accounts.GetAccount.GetAccountCommand.userId">
+            <summary>Id of the user that invokes command</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Accounts.GetAccount.GetAccountCommand.roles">
+            <summary>User roles</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Accounts.GetAccount.GetAccountCommand.accountId">
+            <summary>Account id</summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Accounts.TopUpBalance.TopUpBalanceCommand">
+            <summary>
+            Represents MediatR command to top up balance.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with balance of the account
+            </summary>
+            <param name="accountId">Destination account id</param>
+            <param name="amount">
+            Deposit amount.
+            Must be positive
+            </param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Accounts.TopUpBalance.TopUpBalanceCommand.#ctor(System.Guid,System.Decimal)">
+            <summary>
+            Represents MediatR command to top up balance.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with balance of the account
+            </summary>
+            <param name="accountId">Destination account id</param>
+            <param name="amount">
+            Deposit amount.
+            Must be positive
+            </param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Accounts.TopUpBalance.TopUpBalanceCommand.accountId">
+            <summary>Destination account id</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Accounts.TopUpBalance.TopUpBalanceCommand.amount">
+            <summary>
+            Deposit amount.
+            Must be positive
+            </summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Transactions.CreateTransaction.CreateTransactionCommand">
+            <summary>
+            Represents MediatR command for creating transaction.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with <see cref="T:System.Guid"/> of created transaction
+            </summary>
+            <param name="userId">
+            Id of the user that creates the transaction
+            </param>
+            <param name="amount">
+            Amount of the transaction.
+            Must be positive
+            </param>
+            <param name="fromAccountId">
+            Source account id.
+            Must not match with <paramref name="toAccountId"/> 
+            </param>
+            <param name="toAccountId">
+            Destination account id.
+            Must not match with <paramref name="fromAccountId"/>
+            </param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Transactions.CreateTransaction.CreateTransactionCommand.#ctor(System.Guid,System.Decimal,System.Guid,System.Guid)">
+            <summary>
+            Represents MediatR command for creating transaction.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with <see cref="T:System.Guid"/> of created transaction
+            </summary>
+            <param name="userId">
+            Id of the user that creates the transaction
+            </param>
+            <param name="amount">
+            Amount of the transaction.
+            Must be positive
+            </param>
+            <param name="fromAccountId">
+            Source account id.
+            Must not match with <paramref name="toAccountId"/> 
+            </param>
+            <param name="toAccountId">
+            Destination account id.
+            Must not match with <paramref name="fromAccountId"/>
+            </param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.CreateTransaction.CreateTransactionCommand.userId">
+            <summary>
+            Id of the user that creates the transaction
+            </summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.CreateTransaction.CreateTransactionCommand.amount">
+            <summary>
+            Amount of the transaction.
+            Must be positive
+            </summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.CreateTransaction.CreateTransactionCommand.fromAccountId">
+            <summary>
+            Source account id.
+            Must not match with <paramref name="toAccountId"/> 
+            </summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.CreateTransaction.CreateTransactionCommand.toAccountId">
+            <summary>
+            Destination account id.
+            Must not match with <paramref name="fromAccountId"/>
+            </summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Transactions.CreateTransaction.CreateTransactionHandler">
+            <summary>
+            Handles trasaction between accounts
+            </summary>
+            <remarks>
+            Use core service for handle transaction
+            </remarks>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Transactions.GetAccountTransactions.GetAccountTransactionsCommand">
+            <summary>
+            Represents MediatR command for getting all account transactions.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> constains <see cref="T:System.Collections.Generic.IReadOnlyCollection`1"/> 
+            with <see cref="T:FinTrack.API.Core.Entities.Transaction"/>s
+            </summary>
+            <param name="accountId">Account id</param>
+            <param name="userId">Id of the user that invokes command</param>
+            <param name="roles">User roles</param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Transactions.GetAccountTransactions.GetAccountTransactionsCommand.#ctor(System.Guid,System.Collections.Generic.IReadOnlyCollection{System.String},System.Guid)">
+            <summary>
+            Represents MediatR command for getting all account transactions.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> constains <see cref="T:System.Collections.Generic.IReadOnlyCollection`1"/> 
+            with <see cref="T:FinTrack.API.Core.Entities.Transaction"/>s
+            </summary>
+            <param name="accountId">Account id</param>
+            <param name="userId">Id of the user that invokes command</param>
+            <param name="roles">User roles</param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.GetAccountTransactions.GetAccountTransactionsCommand.userId">
+            <summary>Id of the user that invokes command</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.GetAccountTransactions.GetAccountTransactionsCommand.roles">
+            <summary>User roles</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.GetAccountTransactions.GetAccountTransactionsCommand.accountId">
+            <summary>Account id</summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Transactions.GetTransactionById.GetTransactionByIdCommand">
+            <summary>
+            Represents MediatR command for getting transaction by id.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> if it exists and
+            user has permission to get it
+            else returns <see langword="null"/>.
+            </summary>
+            <param name="transactionId">Transaction id</param>
+            <param name="accountId">Id of the </param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Transactions.GetTransactionById.GetTransactionByIdCommand.#ctor(System.Guid,System.Collections.Generic.IReadOnlyCollection{System.String},System.Guid)">
+            <summary>
+            Represents MediatR command for getting transaction by id.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> if it exists and
+            user has permission to get it
+            else returns <see langword="null"/>.
+            </summary>
+            <param name="transactionId">Transaction id</param>
+            <param name="accountId">Id of the </param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.GetTransactionById.GetTransactionByIdCommand.transactionId">
+            <summary>Transaction id</summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Transactions.GetTransactionsByDate.GetTransactionsByDateCommand">
+            <summary>
+            Represents MediatR command for getting all transactions by specified date.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> constains <see cref="T:System.Collections.Generic.IReadOnlyCollection`1"/> 
+            with <see cref="T:FinTrack.API.Core.Entities.Transaction"/>s
+            </summary>
+            <param name="userId">User id</param>
+            <param name="roles">User roles</param>
+            <param name="date">Date of transaction</param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Transactions.GetTransactionsByDate.GetTransactionsByDateCommand.#ctor(System.Guid,System.Collections.Generic.IReadOnlyCollection{System.String},System.DateOnly)">
+            <summary>
+            Represents MediatR command for getting all transactions by specified date.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> constains <see cref="T:System.Collections.Generic.IReadOnlyCollection`1"/> 
+            with <see cref="T:FinTrack.API.Core.Entities.Transaction"/>s
+            </summary>
+            <param name="userId">User id</param>
+            <param name="roles">User roles</param>
+            <param name="date">Date of transaction</param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.GetTransactionsByDate.GetTransactionsByDateCommand.userId">
+            <summary>User id</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.GetTransactionsByDate.GetTransactionsByDateCommand.roles">
+            <summary>User roles</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.GetTransactionsByDate.GetTransactionsByDateCommand.date">
+            <summary>Date of transaction</summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Transactions.GetTransactionsByTimeInterval.GetTransactionsByTimeIntervalCommand">
+            <summary>
+            Represents MediatR command to get transactions by time interval.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> constains <see cref="T:System.Collections.Generic.IReadOnlyCollection`1"/> 
+            with <see cref="T:FinTrack.API.Core.Entities.Transaction"/>s
+            </summary>
+            <param name="userId">User id</param>
+            <param name="roles">User roles</param>
+            <param name="from">start of the interval</param>
+            <param name="to">end of the interval</param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Transactions.GetTransactionsByTimeInterval.GetTransactionsByTimeIntervalCommand.#ctor(System.Guid,System.Collections.Generic.IEnumerable{System.String},System.DateTime,System.DateTime)">
+            <summary>
+            Represents MediatR command to get transactions by time interval.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> constains <see cref="T:System.Collections.Generic.IReadOnlyCollection`1"/> 
+            with <see cref="T:FinTrack.API.Core.Entities.Transaction"/>s
+            </summary>
+            <param name="userId">User id</param>
+            <param name="roles">User roles</param>
+            <param name="from">start of the interval</param>
+            <param name="to">end of the interval</param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.GetTransactionsByTimeInterval.GetTransactionsByTimeIntervalCommand.userId">
+            <summary>User id</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.GetTransactionsByTimeInterval.GetTransactionsByTimeIntervalCommand.roles">
+            <summary>User roles</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.GetTransactionsByTimeInterval.GetTransactionsByTimeIntervalCommand.from">
+            <summary>start of the interval</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Transactions.GetTransactionsByTimeInterval.GetTransactionsByTimeIntervalCommand.to">
+            <summary>end of the interval</summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Users.AuthUser.AuthUserCommand">
+            <summary>
+            Represents MediatR command for checking if the user exists
+            and are the credentials correct.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with <see cref="T:FinTrack.API.Core.Entities.User"/> if it exists and credentials are correct
+            else returns <see langword="null"/>.
+            </summary>
+            <param name="login">User's login</param>
+            <param name="password">User's password</param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Users.AuthUser.AuthUserCommand.#ctor(System.String,System.String)">
+            <summary>
+            Represents MediatR command for checking if the user exists
+            and are the credentials correct.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with <see cref="T:FinTrack.API.Core.Entities.User"/> if it exists and credentials are correct
+            else returns <see langword="null"/>.
+            </summary>
+            <param name="login">User's login</param>
+            <param name="password">User's password</param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Users.AuthUser.AuthUserCommand.login">
+            <summary>User's login</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Users.AuthUser.AuthUserCommand.password">
+            <summary>User's password</summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Users.CreateUser.CreateUserCommand">
+            <summary>
+            Represents MediatR command for creating new user.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with id of the created user
+            </summary>
+            <param name="phone">phone number inc E.164 format</param>
+            <param name="email">valid email address</param>
+            <param name="name">full name (1-100 characters)</param>
+            <param name="password">valid password string</param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Users.CreateUser.CreateUserCommand.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Represents MediatR command for creating new user.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with id of the created user
+            </summary>
+            <param name="phone">phone number inc E.164 format</param>
+            <param name="email">valid email address</param>
+            <param name="name">full name (1-100 characters)</param>
+            <param name="password">valid password string</param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Users.CreateUser.CreateUserCommand.phone">
+            <summary>phone number inc E.164 format</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Users.CreateUser.CreateUserCommand.email">
+            <summary>valid email address</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Users.CreateUser.CreateUserCommand.name">
+            <summary>full name (1-100 characters)</summary>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Users.CreateUser.CreateUserCommand.password">
+            <summary>valid password string</summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Users.DeleteUser.DeleteUserCommand">
+            <summary>
+            Represents MediatR command for deleting existing user.
+            Returns <see cref="T:FinTrack.API.Application.Common.Result"/> with operation status
+            </summary>
+            <param name="id">id of the existing user to delete</param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Users.DeleteUser.DeleteUserCommand.#ctor(System.Guid)">
+            <summary>
+            Represents MediatR command for deleting existing user.
+            Returns <see cref="T:FinTrack.API.Application.Common.Result"/> with operation status
+            </summary>
+            <param name="id">id of the existing user to delete</param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Users.DeleteUser.DeleteUserCommand.id">
+            <summary>id of the existing user to delete</summary>
+        </member>
+        <member name="T:FinTrack.API.Application.UseCases.Users.GetUser.GetUserCommand">
+            <summary>
+            Represents MediatR command for getting user by id.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with <see cref="T:FinTrack.API.Core.Entities.User"/> if it exists
+            else returns <see langword="null"/>.
+            </summary>
+            <param name="guid">User id</param>
+        </member>
+        <member name="M:FinTrack.API.Application.UseCases.Users.GetUser.GetUserCommand.#ctor(System.Guid)">
+            <summary>
+            Represents MediatR command for getting user by id.
+            Returns <see cref="T:FinTrack.API.Application.Common.ValueResult`1"/> with <see cref="T:FinTrack.API.Core.Entities.User"/> if it exists
+            else returns <see langword="null"/>.
+            </summary>
+            <param name="guid">User id</param>
+        </member>
+        <member name="P:FinTrack.API.Application.UseCases.Users.GetUser.GetUserCommand.guid">
+            <summary>User id</summary>
+        </member>
+    </members>
+</doc>

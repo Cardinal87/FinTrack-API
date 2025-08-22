@@ -1,0 +1,347 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FinTrack.API</name>
+    </assembly>
+    <members>
+        <member name="M:FinTrack.API.Controllers.AccountController.CreateAccount">
+            <summary>
+            Creates account for user
+            </summary>
+            <remarks>
+            Request example:
+            POST /api/accounts
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            
+            Response example:
+            {
+                "id": "CREATED_ACCOUNT_ID"
+            }
+            </remarks>
+            <response code="201">account created successfully</response>
+        </member>
+        <member name="M:FinTrack.API.Controllers.AccountController.GetAccountById(System.Guid)">
+            <summary>
+            Returns info abount account by id
+            </summary>
+            <param name="id"> id of the existing account</param>
+            <remarks>
+            Request example:
+            GET /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            
+            Response example:
+            {
+                "id": "30dd879c-ee2f-11db-8314-0800200c9a66",
+                "balance": 300,
+                "user_id": "3b7c138f-fc68-42b8-a705-31417bb4cb56"
+            }
+            </remarks>
+            <response code="200">successfull request</response>
+            <response code="400">invalid request data</response>
+            <response code="403">user has not access to account</response>
+            <response code="404">account with <paramref name="id"/> not found</response>
+        </member>
+        <member name="M:FinTrack.API.Controllers.AccountController.DeleteAccount(System.Guid)">
+            <summary>
+            Deletes account by id
+            </summary>
+            <param name="id"> id of the existing account</param>
+            <remarks>
+            Request example:
+            DELETE /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            
+            </remarks>
+            <response code="204">account delete sucessfully</response>
+            <response code="400">invalid request data</response>
+            <response code="403">user has not access to account</response>
+            <response code="404">account with <paramref name="id"/> not found</response>
+        </member>
+        <member name="M:FinTrack.API.Controllers.AccountController.TopUpAccountBalance(System.Guid,System.Int32)">
+            <summary>
+            Top ups account balance
+            </summary>
+            <param name="id"> id of the existing account</param>
+            <param name="amount">top up amount</param>
+            <remarks>
+            Request example:
+            POST /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66/topup?amount=300
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            
+            Response example:
+            {
+                "balance": 300,
+            }
+            </remarks>
+            <response code="204">account topped up successfully</response>
+            <response code="400">invalid request data</response>
+            <response code="403">user has not access to endpoint</response>
+            <response code="404">account with <paramref name="id"/> not found</response>
+        </member>
+        <member name="M:FinTrack.API.Controllers.AccountController.DebitAccountBalance(System.Guid,System.Int32)">
+            <summary>
+            Debits account balance
+            </summary>
+            <param name="id"> id of the existing account</param>
+            <param name="amount">debit amount</param>
+            <remarks>
+            Request example:
+            POST /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66/debit?amount=300
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            
+            Response example:
+            {
+                "balance": 0,
+            }
+            </remarks>
+            <response code="204">account debited successfully</response>
+            <response code="400">invalid request data</response>
+            <response code="403">user has not access to endpoint</response>
+            <response code="404">account with <paramref name="id"/> not found</response>
+        </member>
+        <member name="M:FinTrack.API.Controllers.TokenController.GetJwtToken(FinTrack.API.DTO.LoginRequest)">
+            <summary>
+            Creates access JWT-token for user
+            </summary>
+            <param name="loginRequest">user credentials</param>
+            <remarks>
+            Request example:
+            POST /api/auth/token
+            {
+                "login": "mylogin",
+                "password": "mypassword"
+            }
+            
+            Response example:
+            {
+                "token": YOUR_ACCESS_TOKEN
+            }
+            </remarks>
+            <responce code="200">token created</responce>
+            <responce code="401">provided credentials are invalid or user does not exists</responce>
+        </member>
+        <member name="M:FinTrack.API.Controllers.TokenController.GetJwtStatus">
+            <summary>
+            Returns status of provided JWT-token
+            </summary>
+            <remarks>
+            Request example:
+            GET /api/auth/token/status
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            </remarks>
+            <responce code="200">token is valid</responce>
+            <responce code="401">token invalid or does not provided</responce>
+        </member>
+        <member name="M:FinTrack.API.Controllers.TransactionController.CreateTransaction(FinTrack.API.DTO.CreateTransactionRequest)">
+            <summary>
+            Creates transaction between accounts
+            </summary>
+            <param name="request">data for creating transaction</param>
+            <remarks>
+            Request example:
+            POST /api/transactions
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            {
+                "amount": "300",
+                "source_account_id": "30dd879c-ee2f-11db-8314-0800200c9a66",
+                "destination_account_id": "3b7c138f-fc68-42b8-a705-31417bb4cb56",
+            }
+            
+            Response example:
+            {
+                "id": "CREATED_Transaction_ID"
+            }
+            </remarks>
+            <responce code="201">transaction created successfully</responce>
+            <responce code="400">invalid request data</responce>
+        </member>
+        <member name="M:FinTrack.API.Controllers.TransactionController.GetTransactionById(System.Guid)">
+            <summary>
+            Returns transaction by id
+            </summary>
+            <param name="id">id of the existing transaction</param>
+            <remarks>
+            Request example:
+            GET /api/transactions/30dd879c-ee2f-11db-8314-0800200c9a66
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            
+            Response example:
+            {
+                "id": "30dd879c-ee2f-11db-8314-0800200c9a66",
+                "amount": 300,
+                "source_account_id": "85cb33aa-f7a5-4940-9bf2-7c50850925aa",
+                "destination_account_id": "3b7c138f-fc68-42b8-a705-31417bb4cb56",
+                
+            }
+            </remarks>
+            <response code="200">successfull request</response>
+            <response code="400">invalid request data</response>
+            <response code="403">user has not access to transaction</response>
+            <response code="404">transaction with <paramref name="id"/> not found</response>
+        </member>
+        <member name="M:FinTrack.API.Controllers.TransactionController.GetTransactionsByDate(System.DateOnly)">
+            <summary>
+            Returns transaction by date
+            </summary>
+            <param name="date">date of the transaction</param>
+            <remarks>
+            Request example:
+            GET /api/transactions/date/2025-08-19
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            
+            Response example:
+            {
+                [    
+                    {
+                        "id": "30dd879c-ee2f-11db-8314-0800200c9a66",
+                        "amount": 300,
+                        "source_account_id": "85cb33aa-f7a5-4940-9bf2-7c50850925aa",
+                        "destination_account_id": "3b7c138f-fc68-42b8-a705-31417bb4cb56",
+                    },
+                    ...
+                ]
+                
+            }
+            </remarks>
+            <response code="200">successfull request</response>
+            <response code="400">invalid request data</response>
+        </member>
+        <member name="M:FinTrack.API.Controllers.TransactionController.GetTransactionsByInterval(System.DateTime,System.DateTime)">
+            <summary>
+            Returns transaction by time interval
+            </summary>
+            <param name="start">start of the interval</param>
+            <param name="end">end of the interval</param>
+            <remarks>
+            Request example:
+            GET /api/transactions/interval?start=2025-08-10&amp;end=2025-08-13
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            
+            Response example:
+            {
+                [    
+                    {
+                        "id": "30dd879c-ee2f-11db-8314-0800200c9a66",
+                        "amount": 300,
+                        "source_account_id": "85cb33aa-f7a5-4940-9bf2-7c50850925aa",
+                        "destination_account_id": "3b7c138f-fc68-42b8-a705-31417bb4cb56",
+                    },
+                    ...
+                ]
+                
+            }
+            </remarks>
+            <response code="200">successfull request</response>
+            <response code="400">invalid request data</response>
+        </member>
+        <member name="M:FinTrack.API.Controllers.TransactionController.GetAccountTransactions(System.Guid)">
+            <summary>
+            Returns all transactions of specified account
+            </summary>
+            <param name="id">id of the existing account</param>
+            <remarks>
+            Request example:
+            GET /api/transactions/account/30dd879c-ee2f-11db-8314-0800200c9a66
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            
+            Response example:
+            {
+                [    
+                    {
+                        "id": "85cb33aa-f7a5-4940-9bf2-7c50850925aa",
+                        "amount": 300,
+                        "source_account_id": "30dd879c-ee2f-11db-8314-0800200c9a66",
+                        "destination_account_id": "3b7c138f-fc68-42b8-a705-31417bb4cb56",
+                    },
+                    ...
+                ]
+                
+            }
+            </remarks>
+            <response code="200">successfull request</response>
+            <response code="400">invalid request data</response>
+            <response code="403">user has not access to transactions of this account</response>
+            <response code="404">account with <paramref name="id"/> not found</response>
+        </member>
+        <member name="M:FinTrack.API.Controllers.UserController.CreateUser(FinTrack.API.DTO.CreateUserRequest)">
+            <summary>
+            Creates new user
+            </summary>
+            <param name="request">data for creating new user</param>
+            <remarks>
+            Request example:
+            POST /api/users
+            {
+                "name": "myname",
+                "email": "example@gmail.com",
+                "phone": "+79998886655",
+                "password": "pwd"
+            }
+            
+            Response example:
+            {
+                "id": "CREATED_USER_ID"
+            }
+            </remarks>
+            <responce code="201">user created successfully</responce>
+            <responce code="400">invalid request data</responce>
+        </member>
+        <member name="M:FinTrack.API.Controllers.UserController.GetUserInfo">
+            <summary>
+            Returns info about current user
+            </summary>
+            <remarks>
+            Request example:
+            GET /api/users/me
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            
+            Response example:
+            {
+                "name": "myname",
+                "phone": "+79996668877",
+                "email": "exmaple@gmail.com"
+            }
+            </remarks>
+            <responce code="200">successfull request</responce>
+            <responce code="401">access token is missing or invalid</responce>
+            <responce code="404">user not found</responce>
+        </member>
+        <member name="M:FinTrack.API.Controllers.UserController.GetUserById(System.Guid)">
+            <summary>
+            Returns user info by id
+            </summary>
+            <param name="id">Id of the user</param>
+            <remarks>
+            Requets example:
+            GET /api/users/30dd879c-ee2f-11db-8314-0800200c9a66
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            
+            Response example:
+            {
+                "name": "myname",
+                "phone": "+79996668877",
+                "email": "exmaple@gmail.com"
+                "hash": "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="
+            }
+            </remarks>
+            <responce code="200">successfull request</responce>
+            <responce code="401">access token is missing or invalid</responce>
+            <responce code="403">user does not has access</responce>
+            <responce code="404">user not found</responce>
+        </member>
+        <member name="M:FinTrack.API.Controllers.UserController.DeleteUser">
+            <summary>
+            Deletes current user
+            </summary>
+            <remarks>
+            Request example:
+            DELETE /api/users/me
+            -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+            </remarks>
+            <responce code="204">user deleted successfully</responce>
+            <responce code="401">access token is missing or invalid</responce>
+            <responce code="404">user not found</responce>
+        </member>
+    </members>
+</doc>
