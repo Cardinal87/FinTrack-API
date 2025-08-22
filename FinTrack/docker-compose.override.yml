@@ -1,0 +1,6 @@
+services:
+  fintrack.api:
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+    ports:
+      - "8080"

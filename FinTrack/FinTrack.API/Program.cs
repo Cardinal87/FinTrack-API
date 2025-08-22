@@ -45,6 +45,20 @@ namespace FinTrack.API
 
                 var app = builder.Build();
 
+                using (var scope = app.Services.CreateScope())
+                {
+                    try
+                    {
+                        var db = scope.ServiceProvider.GetRequiredService<DatabaseClient>();
+                        db.Database.Migrate();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Logger.Fatal(ex, "Failed to migrate database");
+                        return;
+                    }
+                }
+
                 app.UseExceptionHandler();
                 if (app.Environment.IsDevelopment())
                 {
@@ -139,7 +153,9 @@ namespace FinTrack.API
                     ?? throw new InvalidOperationException("connection string was not found");
                 connectionString = connectionString
                                     .Replace("{DB_USER}", Environment.GetEnvironmentVariable("POSTGRES_USERNAME") ?? "")
-                                    .Replace("{DB_PASSWORD}", Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? "");
+                                    .Replace("{DB_PASSWORD}", Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? "")
+                                    .Replace("{DB_PORT}", Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? "")
+                                    .Replace("{DB_HOST}", Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "");
 
                 opt.UseNpgsql(connectionString);
             });

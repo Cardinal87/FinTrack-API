@@ -1,0 +1,36 @@
+services:
+  fintrack.api:
+    image: cardinal87/fintrack:1.0.0
+    ports:
+    - 8080:8080
+    volumes:
+    - api_logs:/app/logs
+    environment:
+    - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_USERNAME=${POSTGRES_USER}
+    - POSTGRES_HOST=${POSTGRES_HOST}
+    - POSTGRES_PORT=${POSTGRES_PORT}
+    depends_on:
+    - bd
+    networks:
+    - fintrack-api-network
+  bd:
+   image: postgres:latest
+   volumes:
+   - postgres_data:/var/lib/postgresql/data
+   environment:
+   - POSTGRES_USER=${POSTGRES_USER}
+   - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+   - POSTGRES_DB=FinTrackDb
+   networks:
+   - fintrack-api-network
+
+volumes:
+  api_logs:
+  postgres_data:
+
+networks:
+  fintrack-api-network:
+    driver: bridge
+ 
