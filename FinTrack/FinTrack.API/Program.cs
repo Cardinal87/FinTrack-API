@@ -37,9 +37,8 @@ namespace FinTrack.API
                 builder.Host.UseSerilog((ctx, services, lc) =>
                 {
                     lc.ReadFrom.Configuration(builder.Configuration).
-                   ReadFrom.Services(services);
+                       ReadFrom.Services(services);
                 });
-
                 ConfigureServices(builder.Services, builder.Configuration);
 
 
