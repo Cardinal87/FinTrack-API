@@ -1,24 +1,26 @@
 services:
   fintrack.api:
-    image: cardinal87/fintrack:1.0.0
+    image: fintrack:latest
     ports:
     - 8080:8080
     volumes:
-    - api_logs:/app/logs
+    - fintrack-logs:/app/logs
     environment:
     - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     - POSTGRES_USERNAME=${POSTGRES_USER}
     - POSTGRES_HOST=${POSTGRES_HOST}
     - POSTGRES_PORT=${POSTGRES_PORT}
+    - Serilog__WriteTo__2__Args__uri=${LOKI_URI}
     depends_on:
-    - bd
+    - db
+    - loki
     networks:
     - fintrack-api-network
-  bd:
+  db:
    image: postgres:latest
    volumes:
-   - postgres_data:/var/lib/postgresql/data
+   - postgres-data:/var/lib/postgresql/data
    environment:
    - POSTGRES_USER=${POSTGRES_USER}
    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -26,9 +28,32 @@ services:
    networks:
    - fintrack-api-network
 
+   
+  loki:
+    image: grafana/loki:latest
+    volumes:
+    - loki-data:/loki
+    networks:
+    - fintrack-api-network
+
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+    - 3000:3000
+    volumes:
+    - grafana-data:/var/lib/grafana
+    environment:
+    - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+    - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    networks:
+    - fintrack-api-network
+
 volumes:
-  api_logs:
-  postgres_data:
+  fintrack-logs:
+  postgres-data:
+  loki-data:
+  grafana-data:
 
 networks:
   fintrack-api-network:

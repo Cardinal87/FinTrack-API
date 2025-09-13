@@ -32,6 +32,7 @@ namespace FinTrack.API
 
                 builder.Configuration
                     .AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"))
+                    .AddEnvironmentVariables()
                     .Build();
 
                 builder.Host.UseSerilog((ctx, services, lc) =>

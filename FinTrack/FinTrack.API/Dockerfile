@@ -11,10 +11,10 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["FinTrack.API/FinTrack.API.csproj", "FinTrack.API/"]
-COPY ["FinTrack.API.Application/FinTrack.API.Application.csproj", "FinTrack.API.Application/"]
-COPY ["FinTrack.API.Core/FinTrack.API.Core.csproj", "FinTrack.API.Core/"]
-COPY ["FinTrack.API.Infrastructure/FinTrack.API.Infrastructure.csproj", "FinTrack.API.Infrastructure/"]
+COPY ["./FinTrack.API/FinTrack.API.csproj", "FinTrack.API/"]
+COPY ["./FinTrack.API.Application/FinTrack.API.Application.csproj", "FinTrack.API.Application/"]
+COPY ["./FinTrack.API.Core/FinTrack.API.Core.csproj", "FinTrack.API.Core/"]
+COPY ["./FinTrack.API.Infrastructure/FinTrack.API.Infrastructure.csproj", "FinTrack.API.Infrastructure/"]
 RUN dotnet restore "./FinTrack.API/FinTrack.API.csproj"
 COPY . .
 WORKDIR "/src/FinTrack.API"
