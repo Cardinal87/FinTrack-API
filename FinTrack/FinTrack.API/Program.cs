@@ -12,14 +12,20 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using FinTrack.API.Core.Services;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using FinTrack.API.Middleware;
 using FinTrack.API.Infrastructure.Decorators;
 using Serilog;
+using OpenTelemetry.Resources;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
 namespace FinTrack.API
 {
     public partial class Program
     {
+        private static string serviceName = "FinTrack-API";
+        private static string serviceVersion = "1.1.0";
+        private static string environment = "development";
+
         public static void Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
@@ -29,6 +35,8 @@ namespace FinTrack.API
             try
             {
                 var builder = WebApplication.CreateBuilder(args);
+                serviceName = builder.Environment.ApplicationName;
+                environment = builder.Environment.EnvironmentName;
 
                 builder.Configuration
                     .AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"))
@@ -44,6 +52,8 @@ namespace FinTrack.API
 
 
                 var app = builder.Build();
+
+                app.MapPrometheusScrapingEndpoint();
 
                 using (var scope = app.Services.CreateScope())
                 {
@@ -198,6 +208,19 @@ namespace FinTrack.API
 
             //Decorators
             services.Decorate<IJwtTokenService, LoggingJwtTokenServiceDecorator>();
+
+            //Telemetry
+            services.AddOpenTelemetry()
+                .ConfigureResource(resources => resources
+                    .AddService(serviceName: serviceName)
+                    .AddAttributes(new Dictionary<string, object> { ["environment"] = environment }))
+                .WithMetrics(metrics => metrics
+                    .AddAspNetCoreInstrumentation()
+                    .AddRuntimeInstrumentation()
+                    .AddMeter("Microsoft.AspNetCore.Hosting")
+                    .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+                    .AddMeter("System.Net.Http")
+                    .AddPrometheusExporter());
         }
     }
     public partial class Program() { }
