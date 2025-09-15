@@ -49,11 +49,22 @@ services:
     networks:
     - fintrack-api-network
 
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+    - 9090:9090
+    volumes:
+    - prometheus-data:/prometheus
+    - ../configs/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+    - fintrack-api-network
+
 volumes:
   fintrack-logs:
   postgres-data:
   loki-data:
   grafana-data:
+  prometheus-data:
 
 networks:
   fintrack-api-network:
