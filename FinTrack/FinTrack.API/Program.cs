@@ -55,17 +55,20 @@ namespace FinTrack.API
 
                 app.MapPrometheusScrapingEndpoint();
 
-                using (var scope = app.Services.CreateScope())
+                if (!app.Environment.IsEnvironment("Testing"))
                 {
-                    try
+                    using (var scope = app.Services.CreateScope())
                     {
-                        var db = scope.ServiceProvider.GetRequiredService<DatabaseClient>();
-                        db.Database.Migrate();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Logger.Fatal(ex, "Failed to migrate database");
-                        return;
+                        try
+                        {
+                            var db = scope.ServiceProvider.GetRequiredService<DatabaseClient>();
+                            db.Database.Migrate();
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Logger.Fatal(ex, "Failed to migrate database");
+                            return;
+                        }
                     }
                 }
 

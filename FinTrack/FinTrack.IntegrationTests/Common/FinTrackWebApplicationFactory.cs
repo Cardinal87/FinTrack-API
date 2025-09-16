@@ -22,6 +22,7 @@ namespace FinTrack.IntegrationTests.Common
         public TransactionRepositoryMock TransactionRepositoryMock { get; private set; } = new();
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
+            builder.UseEnvironment("Testing");
             builder.ConfigureServices(services =>
             {
                 //Remove all services to work with database
