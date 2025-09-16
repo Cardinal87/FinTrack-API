@@ -14,6 +14,12 @@ namespace FinTrack.API.Application.UseCases.Transactions.GetTransactionsByDate
     /// <param name="userId">User id</param>
     /// <param name="roles">User roles</param>
     /// <param name="date">Date of transaction</param>
-    public record GetTransactionsByDateCommand(Guid userId, IReadOnlyCollection<string> roles, DateOnly date) : IRequest<ValueResult<IReadOnlyCollection<Transaction>>>;
+    /// <param name="pageNumber">page number of the paginated result</param>
+    /// <param name="pageSize">page size of the paginated result</param>
+    public record GetTransactionsByDateCommand(Guid userId,
+                                               IReadOnlyCollection<string> roles,
+                                               DateOnly date,
+                                               int pageNumber,
+                                               int pageSize) : IRequest<ValueResult<IReadOnlyCollection<Transaction>>>;
    
 }

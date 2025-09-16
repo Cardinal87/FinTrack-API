@@ -27,22 +27,36 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             _client.Users.Remove(user);
         }
 
-        async public Task<IEnumerable<User>> GetAllAsync()
+        async public Task<IEnumerable<User>> GetAllAsync(int pageNumber = 1, int pageSize = 50)
         {
-            var dbList = await _client.Users.ToListAsync();
-            var userList = _mapper.Map<List<User>>(dbList);
-            return userList;
+            if (pageSize > 1000)
+            {
+                throw new ArgumentException($"Page size is too large - {pageSize}");
+            }
+            var skip = (pageNumber - 1) * pageSize;
+            var pagedData = await _client.Users
+                .OrderBy(t => t.Id)
+                .AsNoTracking()
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+            var userList = _mapper.Map<List<User>>(pagedData);
+            return userList.AsReadOnly();
         }
 
         async public Task<User?> GetByIdAsync(Guid id)
         {
-            var dbUser = await _client.Users.FindAsync(id);
+            var dbUser = await _client.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id);
             var user = _mapper.Map<User>(dbUser);
             return user;
         }
         public async Task<User?> GetByEmailAsync(string email)
         {
-            var dbUser = await _client.Users.FirstOrDefaultAsync(t => t.Email == email);
+            var dbUser = await _client.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Email == email);
             var user = _mapper.Map<User>(dbUser);
             return user;
         }

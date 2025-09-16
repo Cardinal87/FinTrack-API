@@ -11,15 +11,12 @@ namespace FinTrack.API.Application.UseCases.Transactions.GetTransactionsByDate
         : IRequestHandler<GetTransactionsByDateCommand, ValueResult<IReadOnlyCollection<Transaction>>>
     {
         private readonly ITransactionRepository _transactionRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IAccountRepository _accountRepository;
 
         public GetTransactionsByDateHandler(ITransactionRepository transactionRepository,
-                                            IUserRepository userRepository,
                                             IAccountRepository accountRepository)
         {
             _transactionRepository = transactionRepository;
-            _userRepository = userRepository;
             _accountRepository = accountRepository;
         }
 
@@ -27,13 +24,13 @@ namespace FinTrack.API.Application.UseCases.Transactions.GetTransactionsByDate
         {
             if (request.roles.Contains(UserRoles.Admin))
             {
-                var transactions = await _transactionRepository.GetByDateAsync(request.date);
-                return ValueResult<IReadOnlyCollection<Transaction>>.Ok(transactions.ToList().AsReadOnly(), OperationStatusMessages.Ok);
+                var transactions = await _transactionRepository.GetByDateAsync(request.date, request.pageNumber, request.pageSize);
+                return ValueResult<IReadOnlyCollection<Transaction>>.Ok(transactions.ToList(), OperationStatusMessages.Ok);
             }
             var userAccoutsIds = await _accountRepository.GetAccountIdsByUserIdAsync(request.userId);
 
-            var allowed = await _transactionRepository.GetByDateAsync(request.date, userAccoutsIds);
-            return ValueResult<IReadOnlyCollection<Transaction>>.Ok(allowed.ToList().AsReadOnly(), OperationStatusMessages.Ok);
+            var allowed = await _transactionRepository.GetByDateAsync(request.date, userAccoutsIds, request.pageNumber, request.pageSize);
+            return ValueResult<IReadOnlyCollection<Transaction>>.Ok(allowed.ToList(), OperationStatusMessages.Ok);
         }
     }
 }

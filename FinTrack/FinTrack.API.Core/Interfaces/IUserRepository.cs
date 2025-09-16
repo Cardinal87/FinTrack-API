@@ -29,11 +29,13 @@ namespace FinTrack.API.Core.Interfaces
         /// <summary>
         /// Returns all entities asynchronously
         /// </summary>
+        /// <param name="pageNumber">page number of the paginated result (default: 1)</param>
+        /// <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
         /// <returns>
         ///     <see cref="Task"/>.
-        ///     The task result contains a <see cref="IEnumerable{T}"/> with <see cref="User"/> entities
+        ///     The task result contains a <see cref="IEnumerable{T}"/> size of <paramref name="pageSize"/> with <see cref="User"/> entities
         /// </returns>
-        Task<IEnumerable<User>> GetAllAsync();
+        Task<IEnumerable<User>> GetAllAsync(int pageNumber = 1, int pageSize = 50);
 
         /// <summary>
         /// Returns entity with given id asynchronously
@@ -51,7 +53,7 @@ namespace FinTrack.API.Core.Interfaces
         /// <param name="email">email of the entity</param>
         /// <returns>
         ///     <see cref="Task"/>.
-        ///     The task result contains a <see cref="User"/> with given <paramref name="id"/> or <see langword="null"/> if 
+        ///     The task result contains a <see cref="User"/> with given <paramref name="email"/> or <see langword="null"/> if 
         ///     entity with given email does not exist 
         /// </returns>
         Task<User?> GetByEmailAsync(string email);

@@ -15,9 +15,13 @@ namespace FinTrack.API.Application.UseCases.Transactions.GetTransactionsByTimeIn
     /// <param name="roles">User roles</param>
     /// <param name="from">start of the interval</param>
     /// <param name="to">end of the interval</param>
+    /// <param name="pageNumber">page number of the paginated result</param>
+    /// <param name="pageSize">page size of the paginated result</param>
     public record GetTransactionsByTimeIntervalCommand(Guid userId,
                                                        IEnumerable<string> roles,
                                                        DateTime from,
-                                                       DateTime to) : IRequest<ValueResult<IReadOnlyCollection<Transaction>>>;
+                                                       DateTime to,
+                                                       int pageNumber,
+                                                       int pageSize) : IRequest<ValueResult<IReadOnlyCollection<Transaction>>>;
     
 }

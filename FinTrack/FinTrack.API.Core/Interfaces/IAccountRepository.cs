@@ -29,11 +29,13 @@ namespace FinTrack.API.Core.Interfaces
         /// <summary>
         /// Returns all entities asynchronously
         /// </summary>
+        /// <param name="pageNumber">page number of the paginated result (default: 1)</param>
+        /// <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
         /// <returns>
         ///     <see cref="Task"/>.
-        ///     The task result contains a <see cref="IEnumerable{T}"/> with <see cref="Transaction"/> entities
+        ///     The task result contains a <see cref="IEnumerable{T}"/> size of <paramref name="pageSize"/> with <see cref="Transaction"/> entities
         /// </returns>
-        Task<IEnumerable<Account>> GetAllAsync();
+        Task<IEnumerable<Account>> GetAllAsync(int pageNumber = 1, int pageSize = 50);
 
         /// <summary>
         /// Returns ids of all user accounts

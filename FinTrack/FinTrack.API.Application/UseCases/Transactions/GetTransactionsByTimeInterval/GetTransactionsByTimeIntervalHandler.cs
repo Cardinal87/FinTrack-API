@@ -12,15 +12,12 @@ namespace FinTrack.API.Application.UseCases.Transactions.GetTransactionsByTimeIn
     {
 
         private readonly ITransactionRepository _transactionRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IAccountRepository _accountRepository;
 
         public GetTransactionsByTimeIntervalHandler(ITransactionRepository transactionRepository,
-                                            IUserRepository userRepository,
                                             IAccountRepository accountRepository)
         {
             _transactionRepository = transactionRepository;
-            _userRepository = userRepository;
             _accountRepository = accountRepository;
         }
 
@@ -28,12 +25,12 @@ namespace FinTrack.API.Application.UseCases.Transactions.GetTransactionsByTimeIn
         {
             if (request.roles.Contains(UserRoles.Admin))
             {
-                var transactions = await _transactionRepository.GetFromToDateAsync(request.from, request.to);
+                var transactions = await _transactionRepository.GetFromToDateAsync(request.from, request.to, request.pageNumber, request.pageSize);
                 return ValueResult<IReadOnlyCollection<Transaction>>.Ok(transactions.ToList().AsReadOnly(), OperationStatusMessages.Ok);
             }
             var userAccoutsIds = await _accountRepository.GetAccountIdsByUserIdAsync(request.userId);
 
-            var allowed = await _transactionRepository.GetFromToDateAsync(request.from, request.to, userAccoutsIds);
+            var allowed = await _transactionRepository.GetFromToDateAsync(request.from, request.to, userAccoutsIds, request.pageNumber, request.pageSize);
             return ValueResult<IReadOnlyCollection<Transaction>>.Ok(allowed.ToList().AsReadOnly(), OperationStatusMessages.Ok);
         }
     }

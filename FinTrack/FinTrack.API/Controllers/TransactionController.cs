@@ -118,9 +118,11 @@ namespace FinTrack.API.Controllers
         /// Returns transaction by date
         /// </summary>
         /// <param name="date">date of the transaction</param>
+        /// <param name="page_num">page number of the paginated result (default: 1)</param>
+        /// <param name="page_size">page size of the paginated result, maximum size is 1000 (default: 50)</param>
         /// <remarks>
         /// Request example:
-        /// GET /api/transactions/date/2025-08-19
+        /// GET /api/transactions/date/2025-08-19?page_num=2&amp;page_size=75
         /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
         /// 
         /// Response example:
@@ -143,10 +145,10 @@ namespace FinTrack.API.Controllers
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        async public Task<IActionResult> GetTransactionsByDate(DateOnly date)
+        async public Task<IActionResult> GetTransactionsByDate(DateOnly date, [FromQuery] int page_num = 1, [FromQuery] int page_size = 50)
         {
 
-            var getTransactionByDateCommand = new GetTransactionsByDateCommand(UserId, UserRoles, date);
+            var getTransactionByDateCommand = new GetTransactionsByDateCommand(UserId, UserRoles, date, page_num, page_size);
             var result = await _mediator.Send(getTransactionByDateCommand);
 
             if (result.IsSuccess && result.Value != default)
@@ -164,9 +166,11 @@ namespace FinTrack.API.Controllers
         /// </summary>
         /// <param name="start">start of the interval</param>
         /// <param name="end">end of the interval</param>
+        /// <param name="page_num">page number of the paginated result (default: 1)</param>
+        /// <param name="page_size">page size of the paginated result, maximum size is 1000 (default: 50)</param>
         /// <remarks>
         /// Request example:
-        /// GET /api/transactions/interval?start=2025-08-10&amp;end=2025-08-13
+        /// GET /api/transactions/interval?start=2025-08-10&amp;end=2025-08-13&amp;page_num=2&amp;page_size=75
         /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
         /// 
         /// Response example:
@@ -190,13 +194,17 @@ namespace FinTrack.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         async public Task<IActionResult> GetTransactionsByInterval([FromQuery] DateTime start,
-                                                                   [FromQuery] DateTime end)
+                                                                   [FromQuery] DateTime end,
+                                                                   [FromQuery] int page_num = 1,
+                                                                   [FromQuery] int page_size = 50)
         {
 
             var getTransactionByIntervalCommand = new GetTransactionsByTimeIntervalCommand(UserId,
                                                                                            UserRoles,
                                                                                            start,
-                                                                                           end);
+                                                                                           end,
+                                                                                           page_num,
+                                                                                           page_size);
             var result = await _mediator.Send(getTransactionByIntervalCommand);
             if (result.IsSuccess && result.Value != default)
             {
@@ -212,9 +220,11 @@ namespace FinTrack.API.Controllers
         /// Returns all transactions of specified account
         /// </summary>
         /// <param name="id">id of the existing account</param>
+        /// <param name="page_num">page number of the paginated result (default: 1)</param>
+        /// <param name="page_size">page size of the paginated result, maximum size is 1000 (default: 50)</param>
         /// <remarks>
         /// Request example:
-        /// GET /api/transactions/account/30dd879c-ee2f-11db-8314-0800200c9a66
+        /// GET /api/transactions/account/30dd879c-ee2f-11db-8314-0800200c9a66?page_num=2&amp;page_size=75
         /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
         /// 
         /// Response example:
@@ -241,10 +251,14 @@ namespace FinTrack.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        async public Task<IActionResult> GetAccountTransactions(Guid id)
+        async public Task<IActionResult> GetAccountTransactions(Guid id, [FromQuery] int page_num = 1, [FromQuery] int page_size = 50)
         {
 
-            var getAccountTransactionCommand = new GetAccountTransactionsCommand(UserId, UserRoles, id);
+            var getAccountTransactionCommand = new GetAccountTransactionsCommand(UserId,
+                                                                                 UserRoles,
+                                                                                 id,
+                                                                                 page_num,
+                                                                                 page_size);
             var result = await _mediator.Send(getAccountTransactionCommand);
 
             if (result.IsSuccess && result.Value != default)

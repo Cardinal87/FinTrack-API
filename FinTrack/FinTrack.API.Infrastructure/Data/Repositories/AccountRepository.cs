@@ -28,16 +28,28 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             _client.Accounts.Remove(account);
         }
 
-        async public Task<IEnumerable<Account>> GetAllAsync()
+        async public Task<IEnumerable<Account>> GetAllAsync(int pageNumber = 1, int pageSize = 50)
         {
-            var dbList = await _client.Accounts.ToListAsync();
-            var accountList = _mapper.Map<List<Account>>(dbList);
+            if (pageSize > 1000)
+            {
+                throw new ArgumentException($"Page size is too large - {pageSize}");
+            }
+            var skip = (pageNumber - 1) * pageSize;
+            var pagedData = await _client.Accounts
+                .AsNoTracking()
+                .OrderBy(t => t.Id)
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+            var accountList = _mapper.Map<List<Account>>(pagedData);
             return accountList;
         }
 
         async public Task<Account?> GetByIdAsync(Guid id)
         {
-            var dbAccount = await _client.Accounts.FindAsync(id);
+            var dbAccount = await _client.Accounts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id);
             var account = _mapper.Map<Account>(dbAccount);
             return account;
         }
@@ -60,8 +72,11 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
 
         public async Task<IEnumerable<Guid>> GetAccountIdsByUserIdAsync(Guid id)
         {
-            var accountIds = await _client.Accounts.Where(x => x.UserId == id)
-                                                   .Select(x => x.Id).ToListAsync();
+            var accountIds = await _client.Accounts
+                .Where(x => x.UserId == id)
+                .AsNoTracking()
+                .Select(x => x.Id)
+                .ToListAsync();
 
             return accountIds;
         }

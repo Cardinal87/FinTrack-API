@@ -29,7 +29,7 @@ namespace FinTrack.API.TestMocks.Repositories
             return Task.FromResult(_accounts.Where(t => t.UserId == id).Select(t => t.Id));
         }
 
-        public Task<IEnumerable<Account>> GetAllAsync()
+        public Task<IEnumerable<Account>> GetAllAsync(int pageNumber = 1, int pageSize = 50)
         {
             return Task.FromResult(_accounts.AsEnumerable());
         }

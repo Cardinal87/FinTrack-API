@@ -14,11 +14,13 @@ namespace FinTrack.API.Core.Interfaces
         /// <summary>
         /// Returns all entities asynchronously
         /// </summary>
+        /// <param name="pageNumber">page number of the paginated result (default: 1)</param>
+        /// <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
         /// <returns>
         ///     <see cref="Task"/>.
-        ///     The task result contains a <see cref="IEnumerable{T}"/> with <see cref="Transaction"/> entities
+        ///     The task result contains a <see cref="IEnumerable{T}"/> size of <paramref name="pageSize"/> with <see cref="Transaction"/> entities
         /// </returns>
-        Task<IEnumerable<Transaction>> GetAllAsync();
+        Task<IEnumerable<Transaction>> GetAllAsync(int pageNumber = 1, int pageSize = 50);
 
         /// <summary>
         /// Returns entity with given id asynchronously
@@ -34,11 +36,13 @@ namespace FinTrack.API.Core.Interfaces
         /// Returns the <see cref="Transaction"/> with given <see cref="DateOnly"/>
         /// </summary>
         /// <param name="date">date of the transaction</param>
+        /// <param name="pageNumber">page number of the paginated result (default: 1)</param>
+        /// <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
         /// <returns>
         ///     <see cref="Task"/>.
-        ///      The task result contains a <see cref="IEnumerable{T}"/> with <see cref="Transaction"/> entities
+        ///      The task result contains a <see cref="IEnumerable{T}"/> size of <paramref name="pageSize"/> with <see cref="Transaction"/> entities
         /// </returns>
-        Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date);
+        Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date, int pageNumber = 1, int pageSize = 50);
 
         /// <summary>
         /// Returns the <see cref="Transaction"/>s with given <paramref name="date"/>
@@ -47,11 +51,13 @@ namespace FinTrack.API.Core.Interfaces
         /// </summary>
         /// <param name="date">date of the transaction</param>
         /// <param name="accountIds">id of accounts involved in the transaction</param>
+        /// <param name="pageNumber">page number of the paginated result (default: 1)</param>
+        /// <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
         /// <returns>
         ///     <see cref="Task"/>.
-        ///      The task result contains a <see cref="IEnumerable{T}"/> with <see cref="Transaction"/> entities
+        ///      The task result contains a <see cref="IEnumerable{T}"/> size of <paramref name="pageSize"/>  with <see cref="Transaction"/> entities
         /// </returns>
-        Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date, IEnumerable<Guid> accountIds);
+        Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date, IEnumerable<Guid> accountIds, int pageNumber = 1, int pageSize = 50);
 
 
         /// <summary>
@@ -59,11 +65,13 @@ namespace FinTrack.API.Core.Interfaces
         /// </summary>
         /// <param name="fromDate">start of the range</param>
         /// <param name="toDate">end of the range</param>
+        /// <param name="pageNumber">page number of the paginated result (default: 1)</param>
+        /// <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
         /// <returns>
         ///     <see cref="Task"/>.
-        ///     The task result contains a <see cref="IEnumerable{T}"/> with <see cref="Transaction"/> entities
+        ///     The task result contains a <see cref="IEnumerable{T}"/> size of <paramref name="pageSize"/> with <see cref="Transaction"/> entities
         /// </returns>
-        Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate);
+        Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate, int pageNumber = 1, int pageSize = 50);
 
         /// <summary>
         /// Returns all <see cref="Transaction"/>s between <paramref name="fromDate"/> and <paramref name="toDate"/> inclusive 
@@ -72,11 +80,13 @@ namespace FinTrack.API.Core.Interfaces
         /// <param name="fromDate">start of the range</param>
         /// <param name="toDate">end of the range</param>
         /// <param name="accountIds">id of accounts involved in the transaction</param>
+        /// <param name="pageNumber">page number of the paginated result (default: 1)</param>
+        /// <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
         /// <returns>
         ///     <see cref="Task"/>.
-        ///     The task result contains a <see cref="IEnumerable{T}"/> with <see cref="Transaction"/> entities
+        ///     The task result contains a <see cref="IEnumerable{T}"/> size of <paramref name="pageSize"/> with <see cref="Transaction"/> entities
         /// </returns>
-        Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate, IEnumerable<Guid> accountIds);
+        Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate, IEnumerable<Guid> accountIds, int pageNumber = 1, int pageSize = 50);
 
         /// <summary>
         /// Asynchronously save all changes maked in repository

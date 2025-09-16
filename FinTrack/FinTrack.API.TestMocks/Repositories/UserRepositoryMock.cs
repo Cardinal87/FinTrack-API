@@ -25,7 +25,7 @@ namespace FinTrack.API.TestMocks.Repositories
             return Task.CompletedTask;
         }
 
-        public Task<IEnumerable<User>> GetAllAsync()
+        public Task<IEnumerable<User>> GetAllAsync(int pageNumber = 1, int pageSize = 50)
         {
             return Task.FromResult(_users.AsEnumerable());
         }

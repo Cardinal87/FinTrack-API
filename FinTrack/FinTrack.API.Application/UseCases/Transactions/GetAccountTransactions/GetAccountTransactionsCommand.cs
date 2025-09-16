@@ -13,7 +13,11 @@ namespace FinTrack.API.Application.UseCases.Transactions.GetAccountTransactions
     /// <param name="accountId">Account id</param>
     /// <param name="userId">Id of the user that invokes command</param>
     /// <param name="roles">User roles</param>
+    /// <param name="pageNumber">page number of the paginated result</param>
+    /// <param name="pageSize">page size of the paginated result</param>
     public record GetAccountTransactionsCommand(Guid userId,
                                                 IReadOnlyCollection<string> roles,
-                                                Guid accountId) : IRequest<ValueResult<IReadOnlyCollection<Transaction>>>;
+                                                Guid accountId,
+                                                int pageNumber,
+                                                int pageSize) : IRequest<ValueResult<IReadOnlyCollection<Transaction>>>;
 }

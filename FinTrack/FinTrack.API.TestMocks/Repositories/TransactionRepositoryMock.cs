@@ -12,17 +12,17 @@ namespace FinTrack.API.TestMocks.Repositories
             _transactions.Add(transaction);
         }
 
-        public Task<IEnumerable<Transaction>> GetAllAsync()
+        public Task<IEnumerable<Transaction>> GetAllAsync(int pageNumber = 1, int pageSize = 50)
         {
             return Task.FromResult(_transactions.AsEnumerable());
         }
 
-        public Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date)
+        public Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date, int pageNumber = 1, int pageSize = 50)
         {
             return Task.FromResult(_transactions.Where(t => DateOnly.FromDateTime(t.Date) == date));
         }
 
-        public Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date, IEnumerable<Guid> accountIds)
+        public Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date, IEnumerable<Guid> accountIds, int pageNumber = 1, int pageSize = 50)
         {
             return Task.FromResult(_transactions.Where(t => DateOnly.FromDateTime(t.Date) == date
             && (accountIds.Contains(t.ToAccountId) || accountIds.Contains(t.FromAccountId))));
@@ -33,13 +33,13 @@ namespace FinTrack.API.TestMocks.Repositories
             return Task.FromResult(_transactions.FirstOrDefault(t => t.Id == id));
         }
 
-        public Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate)
+        public Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate, int pageNumber = 1, int pageSize = 50)
         {
             return Task.FromResult(_transactions.Where(t => t.Date >= fromDate
                                                         && t.Date <= toDate));
         }
 
-        public Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate, IEnumerable<Guid> accountIds)
+        public Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate, IEnumerable<Guid> accountIds, int pageNumber = 1, int pageSize = 50)
         {
             return Task.FromResult(_transactions.Where(t => t.Date >= fromDate
                                                         && t.Date <= toDate

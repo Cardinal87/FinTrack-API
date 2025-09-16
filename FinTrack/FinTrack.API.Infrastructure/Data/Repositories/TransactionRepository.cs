@@ -17,52 +17,109 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             _mapper = mapper;
         }
 
-        async public Task<IEnumerable<Transaction>> GetAllAsync()
+        async public Task<IEnumerable<Transaction>> GetAllAsync(int pageNumber = 1, int pageSize = 50)
         {
-            var dbList = await _client.Transactions.ToListAsync();
-            var transactionList = _mapper.Map<List<Transaction>>(dbList);
+            if (pageSize > 1000)
+            {
+                throw new ArgumentException($"Page size is too large - {pageSize}");
+            }
+            var skip = (pageNumber - 1) * pageSize;
+            var pagedData = await _client.Transactions
+                .OrderBy(t => t.Id)
+                .AsNoTracking()
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+            var transactionList = _mapper.Map<List<Transaction>>(pagedData);
             return transactionList;
         }
 
-        async public Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date)
+        async public Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date, int pageNumber = 1, int pageSize = 50)
         {
-            var dbList = await _client.Transactions.Where(t => DateOnly.FromDateTime(t.Date) == date).ToListAsync();
-            var transactionList = _mapper.Map<List<Transaction>>(dbList);
+            if (pageSize > 1000)
+            {
+                throw new ArgumentException($"Page size is too large - {pageSize}");
+            }
+            var skip = (pageNumber - 1) * pageSize;
+            var pagedData = await _client.Transactions
+                .Where(t => DateOnly.FromDateTime(t.Date) == date)
+                .OrderBy(t => t.Id)
+                .AsNoTracking()
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+            var transactionList = _mapper.Map<List<Transaction>>(pagedData);
             return transactionList;
         }
 
-        async public Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date, IEnumerable<Guid> accountIds)
+        async public Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date, IEnumerable<Guid> accountIds, int pageNumber = 1, int pageSize = 50)
         {
-            var dbList = await _client.Transactions.Where(t => DateOnly.FromDateTime(t.Date) == date
-                                                               && (accountIds.Contains(t.FromAccountId)
-                                                               || accountIds.Contains(t.ToAccountId))).ToListAsync();
-            var transactionList = _mapper.Map<List<Transaction>>(dbList);
+            if (pageSize > 1000)
+            {
+                throw new ArgumentException($"Page size is too large - {pageSize}");
+            }
+            var skip = (pageNumber - 1) * pageSize;
+
+            var pagedData = await _client.Transactions
+                .Where(t => DateOnly.FromDateTime(t.Date) == date
+                                                && (accountIds.Contains(t.FromAccountId)
+                                                || accountIds.Contains(t.ToAccountId)))
+                .OrderBy(t => t.Id)
+                .AsNoTracking()
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+            var transactionList = _mapper.Map<List<Transaction>>(pagedData);
             return transactionList;
         }
 
 
         async public Task<Transaction?> GetByIdAsync(Guid id)
         {
-            var dbTransaction = await _client.Transactions.FindAsync(id);
+            var dbTransaction = await _client.Transactions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id);
             var transaction = _mapper.Map<Transaction>(dbTransaction);
             return transaction;
         }
 
-        async public Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate)
+        async public Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate, int pageNumber = 1, int pageSize = 50)
         {
-            var query = _client.Transactions.Where(t => t.Date >= fromDate && t.Date <= toDate);
-            var dbList = await query.ToListAsync();
-            var transactionList = _mapper.Map<List<Transaction>>(dbList);
+            if (pageSize > 1000)
+            {
+                throw new ArgumentException($"Page size is too large - {pageSize}");
+            }
+            var skip = (pageNumber - 1) * pageSize;
+
+            var pagedData = await _client.Transactions
+                .Where(t => t.Date >= fromDate && t.Date <= toDate)
+                .OrderBy(t => t.Id)
+                .AsNoTracking()
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+            var transactionList = _mapper.Map<List<Transaction>>(pagedData);
             return transactionList;
         }
 
-        async public Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate, IEnumerable<Guid> accountIds)
+        async public Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate, IEnumerable<Guid> accountIds, int pageNumber = 1, int pageSize = 50)
         {
-            var query = _client.Transactions.Where(t => t.Date >= fromDate
-                                                        && t.Date <= toDate 
-                                                        && (accountIds.Contains(t.FromAccountId) || accountIds.Contains(t.ToAccountId)));
-            var dbList = await query.ToListAsync();
-            var transactionList = _mapper.Map<List<Transaction>>(dbList);
+            if (pageSize > 1000)
+            {
+                throw new ArgumentException($"Page size is too large - {pageSize}");
+            }
+            var skip = (pageNumber - 1) * pageSize;
+
+            var pagedData = await _client.Transactions
+                .Where(t => t.Date >= fromDate
+                       && t.Date <= toDate
+                       && (accountIds.Contains(t.FromAccountId) || accountIds.Contains(t.ToAccountId)))
+                .OrderBy(t => t.Id)
+                .AsNoTracking()
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+            var transactionList = _mapper.Map<List<Transaction>>(pagedData);
             return transactionList;
         }
 
