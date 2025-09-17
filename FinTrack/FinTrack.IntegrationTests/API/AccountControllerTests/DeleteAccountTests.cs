@@ -7,7 +7,7 @@ using System.Net.Http.Headers;
 
 namespace FinTrack.IntegrationTests.API.AccountControllerTests
 {
-    public class AccountControllerTests : IClassFixture<FinTrackWebApplicationFactory<Program>>, IDisposable
+    public class DeleteAccountTests : IClassFixture<FinTrackWebApplicationFactory<Program>>, IDisposable
     {
         private readonly HttpClient _client;
         private readonly FinTrackWebApplicationFactory<Program> _factory;
@@ -17,7 +17,7 @@ namespace FinTrack.IntegrationTests.API.AccountControllerTests
         private readonly Account _userAccount;
         private readonly Account _adminAccount;
 
-        public AccountControllerTests(FinTrackWebApplicationFactory<Program> factory)
+        public DeleteAccountTests(FinTrackWebApplicationFactory<Program> factory)
         {
             _client = factory.CreateClient();
             _factory = factory;
