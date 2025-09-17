@@ -1,6 +1,6 @@
-﻿using FinTrack.API.Application.UseCases.Users.CreateUser;
-using FinTrack.API.Application.UseCases.Users.DeleteUser;
-using FinTrack.API.Application.UseCases.Users.GetUser;
+﻿using FinTrack.API.Application.UseCases.Users.Commands.CreateUser;
+using FinTrack.API.Application.UseCases.Users.Commands.DeleteUser;
+using FinTrack.API.Application.UseCases.Users.Queries.GetUser;
 using FinTrack.API.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -95,7 +95,7 @@ namespace FinTrack.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         async public Task<IActionResult> GetUserInfo()
         {
-            var command = new GetUserCommand(UserId);
+            var command = new GetUserQuery(UserId);
             var result = await _mediator.Send(command);
 
                 
@@ -143,7 +143,7 @@ namespace FinTrack.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         async public Task<IActionResult> GetUserById(Guid id)
         {
-            var command = new GetUserCommand(id);
+            var command = new GetUserQuery(id);
             var result = await _mediator.Send(command);
 
             if (result.IsSuccess && result.Value != default)

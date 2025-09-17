@@ -1,8 +1,8 @@
-﻿using FinTrack.API.Application.UseCases.Accounts.CreateAccount;
-using FinTrack.API.Application.UseCases.Accounts.DebitBalance;
-using FinTrack.API.Application.UseCases.Accounts.DeleteAccount;
-using FinTrack.API.Application.UseCases.Accounts.GetAccount;
-using FinTrack.API.Application.UseCases.Accounts.TopUpBalance;
+﻿using FinTrack.API.Application.UseCases.Accounts.Commands.CreateAccount;
+using FinTrack.API.Application.UseCases.Accounts.Commands.DebitBalance;
+using FinTrack.API.Application.UseCases.Accounts.Commands.DeleteAccount;
+using FinTrack.API.Application.UseCases.Accounts.Queries.GetAccount;
+using FinTrack.API.Application.UseCases.Accounts.Commands.TopUpBalance;
 using FinTrack.API.Controllers.Base;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -80,7 +80,7 @@ namespace FinTrack.API.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         async public Task<IActionResult> GetAccountById(Guid id)
         {
-            var getAccountCommand = new GetAccountCommand(UserId, UserRoles, id);
+            var getAccountCommand = new GetAccountQuery(UserId, UserRoles, id);
             var result = await _mediator.Send(getAccountCommand);
             
             if (result.IsSuccess && result.Value != default)

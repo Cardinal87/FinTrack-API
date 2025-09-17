@@ -1,6 +1,6 @@
 ﻿using FinTrack.API.Application.Common;
 using FinTrack.API.Application.Interfaces;
-using FinTrack.API.Application.UseCases.Users.AuthUser;
+using FinTrack.API.Application.UseCases.Users.Commands.AuthUser;
 using FinTrack.API.Controllers.Base;
 using FinTrack.API.DTO;
 using MediatR;

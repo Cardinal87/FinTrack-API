@@ -1,8 +1,8 @@
-﻿using FinTrack.API.Application.UseCases.Transactions.CreateTransaction;
-using FinTrack.API.Application.UseCases.Transactions.GetAccountTransactions;
-using FinTrack.API.Application.UseCases.Transactions.GetTransactionById;
-using FinTrack.API.Application.UseCases.Transactions.GetTransactionsByDate;
-using FinTrack.API.Application.UseCases.Transactions.GetTransactionsByTimeInterval;
+﻿using FinTrack.API.Application.UseCases.Transactions.Commands.CreateTransaction;
+using FinTrack.API.Application.UseCases.Transactions.Queries.GetAccountTransactions;
+using FinTrack.API.Application.UseCases.Transactions.Queries.GetTransactionById;
+using FinTrack.API.Application.UseCases.Transactions.Queries.GetTransactionsByDate;
+using FinTrack.API.Application.UseCases.Transactions.Queries.GetTransactionsByTimeInterval;
 using FinTrack.API.Controllers.Base;
 using FinTrack.API.DTO;
 using MediatR;
@@ -98,7 +98,7 @@ namespace FinTrack.API.Controllers
         {
             
 
-            var getTransactionsCommand = new GetTransactionByIdCommand(UserId, UserRoles, id);
+            var getTransactionsCommand = new GetTransactionByIdQuery(UserId, UserRoles, id);
             var result = await _mediator.Send(getTransactionsCommand);
 
             if (result.IsSuccess && result.Value != default)
@@ -148,7 +148,7 @@ namespace FinTrack.API.Controllers
         async public Task<IActionResult> GetTransactionsByDate(DateOnly date, [FromQuery] int page_num = 1, [FromQuery] int page_size = 50)
         {
 
-            var getTransactionByDateCommand = new GetTransactionsByDateCommand(UserId, UserRoles, date, page_num, page_size);
+            var getTransactionByDateCommand = new GetTransactionsByDateQuery(UserId, UserRoles, date, page_num, page_size);
             var result = await _mediator.Send(getTransactionByDateCommand);
 
             if (result.IsSuccess && result.Value != default)
@@ -199,7 +199,7 @@ namespace FinTrack.API.Controllers
                                                                    [FromQuery] int page_size = 50)
         {
 
-            var getTransactionByIntervalCommand = new GetTransactionsByTimeIntervalCommand(UserId,
+            var getTransactionByIntervalCommand = new GetTransactionsByTimeIntervalQuery(UserId,
                                                                                            UserRoles,
                                                                                            start,
                                                                                            end,
@@ -254,7 +254,7 @@ namespace FinTrack.API.Controllers
         async public Task<IActionResult> GetAccountTransactions(Guid id, [FromQuery] int page_num = 1, [FromQuery] int page_size = 50)
         {
 
-            var getAccountTransactionCommand = new GetAccountTransactionsCommand(UserId,
+            var getAccountTransactionCommand = new GetAccountTransactionsQuery(UserId,
                                                                                  UserRoles,
                                                                                  id,
                                                                                  page_num,
