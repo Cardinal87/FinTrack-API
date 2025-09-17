@@ -12,6 +12,7 @@ namespace FinTrack.API.Application.UseCases.Transactions.Queries.GetTransactionB
     /// else returns <see langword="null"/>.
     /// </summary>
     /// <param name="transactionId">Transaction id</param>
-    /// <param name="accountId">Id of the </param>
+    /// <param name="userId">Id of the user that invokes command</param>
+    /// <param name="roles">User roles</param>
     public record GetTransactionByIdQuery(Guid userId, IReadOnlyCollection<string> roles, Guid transactionId) : IRequest<ValueResult<Transaction>>;
 }
