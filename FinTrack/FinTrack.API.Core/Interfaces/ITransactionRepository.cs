@@ -33,7 +33,20 @@ namespace FinTrack.API.Core.Interfaces
         Task<Transaction?> GetByIdAsync(Guid id);
 
         /// <summary>
-        /// Returns the <see cref="Transaction"/> with given <see cref="DateOnly"/>
+        /// Returns the <see cref="Transaction"/>s where <see cref="Transaction.FromAccountId"/> == <paramref name="accountId"/>
+        /// or <see cref="Transaction.ToAccountId"/> == <paramref name="accountId"/>
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <param name="pageNumber">page number of the paginated result (default: 1)</param>
+        /// <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
+        /// <returns>
+        /// <see cref="Task"/>.
+        ///      The task result contains a <see cref="IEnumerable{T}"/> size of <paramref name="pageSize"/> with <see cref="Transaction"/> entities
+        /// </returns>
+        Task<IEnumerable<Transaction>> GetAccountTransactionsAsync(Guid accountId, int pageNumber = 1, int pageSize = 50);
+
+        /// <summary>
+        /// Returns the <see cref="Transaction"/>s with given <see cref="DateOnly"/>
         /// </summary>
         /// <param name="date">date of the transaction</param>
         /// <param name="pageNumber">page number of the paginated result (default: 1)</param>
