@@ -94,6 +94,20 @@ namespace FinTrack.IntegrationTests.API
         }
 
         [Fact]
+        async public Task GetJwtToken_InvalidLogin_Returns401()
+        {
+            var request = new LoginRequest
+            {
+                Login = "invalid@email.com",
+                Password = "pwd"
+            };
+
+            var response = await _client.PostAsJsonAsync("/api/auth/token", request);
+
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+
+        [Fact]
         async public Task GetJwtStatus_ValidToken_Returns200()
         {
             var token = await AuthHelper.GetToken(_client, "test@email.com", "pwd");
