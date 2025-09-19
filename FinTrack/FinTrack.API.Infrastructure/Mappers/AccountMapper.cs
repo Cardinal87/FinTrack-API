@@ -12,8 +12,8 @@ namespace FinTrack.API.Infrastructure.Mappers
                 .ForMember(t => t.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(t => t.Balance, opt => opt.MapFrom(src => src.Balance))
                 .ForMember(t => t.UserId, opt => opt.MapFrom(src => src.UserId))
-                .ForMember(t => t.OutgoingTransactions, opt => opt.MapFrom(src => src.OutgoingTransactions))
-                .ForMember(t => t.IncomingTransactions, opt => opt.MapFrom(src => src.IncomingTransactions));
+                .ForMember(t => t.OutgoingTransactions, opt => opt.Ignore())
+                .ForMember(t => t.IncomingTransactions, opt => opt.Ignore());
 
 
             CreateMap<AccountDb, Account>()
@@ -25,7 +25,7 @@ namespace FinTrack.API.Infrastructure.Mappers
                 .AfterMap((dbEntity, domainEntity, context) =>
                 {
                     var mapper = context.Mapper;
-                    if (domainEntity.Balance > 0)
+                    if (dbEntity.Balance > 0)
                     {
                         domainEntity.TopUp(dbEntity.Balance);
                     }

@@ -54,14 +54,13 @@ namespace FinTrack.API.Core.Services
             toAccount.TopUp(amount);
             toAccount.AddIncomingTransaction(transaction);
 
-
             _transactionRepository.Add(transaction);
-            await _transactionRepository.SaveChangesAsync();
 
             await _accountRepository.UpdateAsync(toAccount);
             await _accountRepository.UpdateAsync(fromAccount);
 
             await _accountRepository.SaveChangesAsync();
+            await _transactionRepository.SaveChangesAsync();
             return transaction.Id;
         }
     }

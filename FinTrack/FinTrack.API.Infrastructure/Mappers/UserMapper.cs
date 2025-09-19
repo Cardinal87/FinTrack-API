@@ -12,7 +12,7 @@ namespace FinTrack.API.Infrastructure.Mappers
         {
             CreateMap<User, UserDb>()
                 .ForMember(t => t.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(t => t.Accounts, opt => opt.MapFrom(src => src.Accounts))
+                .ForMember(t => t.Accounts, opt => opt.Ignore())
                 .ForMember(t => t.Email, opt => opt.MapFrom(src => src.Email))
                 .ForMember(t => t.Phone, opt => opt.MapFrom(src => src.Phone))
                 .ForMember(t => t.Name, opt => opt.MapFrom(src => src.Name))
