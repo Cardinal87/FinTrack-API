@@ -11,10 +11,12 @@ namespace FinTrack.API.Application.UseCases.Transactions.Queries.GetAccountTrans
         : IRequestHandler<GetAccountTransactionsQuery, ValueResult<IReadOnlyCollection<Transaction>>>
     {
         private readonly IAccountRepository _accountRepository;
+        private readonly ITransactionRepository _transactionRepository;
 
-        public GetAccountTransactionsHandler(IAccountRepository accountRepository)
+        public GetAccountTransactionsHandler(IAccountRepository accountRepository, ITransactionRepository transactionRepository)
         {
             _accountRepository = accountRepository;
+            _transactionRepository = transactionRepository;
         }
         
         
@@ -29,8 +31,8 @@ namespace FinTrack.API.Application.UseCases.Transactions.Queries.GetAccountTrans
             if (request.roles.Contains(UserRoles.Admin)
                 || account.UserId == request.userId)
             {
-                var combined = account.IncomingTransactions.Concat(account.OutgoingTransactions).ToList();
-                return ValueResult<IReadOnlyCollection<Transaction>>.Ok(combined.AsReadOnly(), OperationStatusMessages.Ok);
+                var result = await _transactionRepository.GetAccountTransactionsAsync(account.Id, request.pageNumber, request.pageSize);
+                return ValueResult<IReadOnlyCollection<Transaction>>.Ok(result.ToList().AsReadOnly(), OperationStatusMessages.Ok);
             }
             return ValueResult<IReadOnlyCollection<Transaction>>.Fail(OperationStatusMessages.Forbidden);
         }
