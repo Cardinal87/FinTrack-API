@@ -52,6 +52,25 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             return transactionList;
         }
 
+        async public Task<IEnumerable<Transaction>> GetAccountTransactionsAsync(Guid accountId, int pageNumber = 1, int pageSize = 50)
+        {
+            if (pageSize > 1000)
+            {
+                throw new ArgumentException($"Page size is too large - {pageSize}");
+            }
+            var skip = (pageNumber - 1) * pageSize;
+            var pagedData = await _client.Transactions
+                .Where(t => t.FromAccountId == accountId || t.ToAccountId == accountId)
+                .OrderBy(t => t.Id)
+                .AsNoTracking()
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+            var transactionList = _mapper.Map<List<Transaction>>(pagedData);
+            return transactionList;
+        }
+
+
         async public Task<IEnumerable<Transaction>> GetByDateAsync(DateOnly date, IEnumerable<Guid> accountIds, int pageNumber = 1, int pageSize = 50)
         {
             if (pageSize > 1000)
@@ -131,6 +150,6 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
 
         async public Task SaveChangesAsync() => await _client.SaveChangesAsync();
 
-       
+        
     }
 }
