@@ -28,7 +28,7 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.AuthUser
                 }
                 return ValueResult<User>.Fail(OperationStatusMessages.Unauthorized);
             }
-            return ValueResult<User>.Fail(OperationStatusMessages.NotFound);
+            return ValueResult<User>.Fail(OperationStatusMessages.Unauthorized);
         }
     }
 }
