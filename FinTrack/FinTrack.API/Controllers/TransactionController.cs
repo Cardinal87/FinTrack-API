@@ -1,8 +1,10 @@
 ﻿using FinTrack.API.Application.UseCases.Transactions.Commands.CreateTransaction;
 using FinTrack.API.Application.UseCases.Transactions.Queries.GetAccountTransactions;
+using FinTrack.API.Application.UseCases.Transactions.Queries.GetAllTransactions;
 using FinTrack.API.Application.UseCases.Transactions.Queries.GetTransactionById;
 using FinTrack.API.Application.UseCases.Transactions.Queries.GetTransactionsByDate;
 using FinTrack.API.Application.UseCases.Transactions.Queries.GetTransactionsByTimeInterval;
+using FinTrack.API.Application.UseCases.Users.Queries.GetAllUsers;
 using FinTrack.API.Controllers.Base;
 using FinTrack.API.DTO;
 using MediatR;
@@ -114,6 +116,59 @@ namespace FinTrack.API.Controllers
             return HandleFailedResult(result);
 
         }
+
+        /// <summary>
+        /// Returns all transactions
+        /// </summary>
+        /// <param name="page_num">page number of the paginated result (default: 1)</param>
+        /// <param name="page_size">page size of the paginated result, maximum size is 1000 (default: 50)</param>
+        /// <remarks>
+        /// Requets example:
+        /// GET /api/transactions
+        /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+        /// 
+        /// Response example:
+        /// {
+        ///     "transactions": [    
+        ///                 {
+        ///                     "id": "30dd879c-ee2f-11db-8314-0800200c9a66",
+        ///                     "amount": 300,
+        ///                     "source_account_id": "85cb33aa-f7a5-4940-9bf2-7c50850925aa",
+        ///                     "destination_account_id": "3b7c138f-fc68-42b8-a705-31417bb4cb56",
+        ///                 },
+        ///                 ...
+        ///              ]
+        ///     
+        /// }
+        /// </remarks>
+        /// <responce code="200">successfull request</responce>
+        /// <responce code="401">access token is missing or invalid</responce>
+        /// <responce code="403">user does not has access</responce>
+        [HttpGet()]
+        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        async public Task<IActionResult> GetAllTransactions([FromQuery] int page_num = 1, [FromQuery] int page_size = 50)
+        {
+            var command = new GetAllTransactionsQuery(page_num, page_size);
+            var result = await _mediator.Send(command);
+
+            if (result.IsSuccess && result.Value != default)
+            {
+                return Ok(new
+                {
+                    transactions = result.Value.Select(x => new { x.Id, x.FromAccountId, x.ToAccountId, x.Amount})
+                });
+            }
+
+            return HandleFailedResult(result);
+
+        }
+
+
+
         /// <summary>
         /// Returns transaction by date
         /// </summary>
