@@ -5,9 +5,8 @@ using FinTrack.API.DTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using FinTrack.API.Core.Common;
 using FinTrack.API.Controllers.Base;
-using System.ComponentModel;
+using FinTrack.API.Application.UseCases.Users.Queries.GetAllUsers;
 
 namespace FinTrack.API.Controllers
 {
@@ -89,7 +88,6 @@ namespace FinTrack.API.Controllers
         /// <responce code="404">user not found</responce>
         [HttpGet("me")]
         [Produces("application/json")]
-        [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -136,7 +134,6 @@ namespace FinTrack.API.Controllers
         [HttpGet("{id}")]
         [Authorize(Roles = Core.Common.UserRoles.Admin)]
         [Produces("application/json")]
-        [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -161,6 +158,56 @@ namespace FinTrack.API.Controllers
 
         }
 
+        /// <summary>
+        /// Returns all users
+        /// </summary>
+        /// <param name="page_num">page number of the paginated result (default: 1)</param>
+        /// <param name="page_size">page size of the paginated result, maximum size is 1000 (default: 50)</param>
+        /// <remarks>
+        /// Requets example:
+        /// GET /api/users
+        /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+        /// 
+        /// Response example:
+        /// {
+        ///     "users": [    
+        ///                 {
+        ///                     "id": "30dd879c-ee2f-11db-8314-0800200c9a66",
+        ///                     "name": "myname",
+        ///                     "phone": "+79996668877",
+        ///                     "email": "exmaple@gmail.com"
+        ///                     "hash": "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="
+        ///                 },
+        ///                 ...
+        ///              ]
+        ///     
+        /// }
+        /// </remarks>
+        /// <responce code="200">successfull request</responce>
+        /// <responce code="401">access token is missing or invalid</responce>
+        /// <responce code="403">user does not has access</responce>
+        [HttpGet()]
+        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        async public Task<IActionResult> GetAllUsers([FromQuery] int page_num = 1, [FromQuery] int page_size = 50)
+        {
+            var command = new GetAllUsersQuery(page_num, page_size);
+            var result = await _mediator.Send(command);
+
+            if (result.IsSuccess && result.Value != default)
+            {
+                return Ok(new
+                {
+                    users = result.Value.Select(x => new { x.Id, x.Name, x.Phone, x.Email, x.PasswordHash })
+                });
+            }
+
+            return HandleFailedResult(result);
+
+        }
 
         /// <summary>
         /// Deletes current user
