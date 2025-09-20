@@ -1,8 +1,10 @@
 ﻿using FinTrack.API.Application.UseCases.Accounts.Commands.CreateAccount;
 using FinTrack.API.Application.UseCases.Accounts.Commands.DebitBalance;
 using FinTrack.API.Application.UseCases.Accounts.Commands.DeleteAccount;
-using FinTrack.API.Application.UseCases.Accounts.Queries.GetAccount;
 using FinTrack.API.Application.UseCases.Accounts.Commands.TopUpBalance;
+using FinTrack.API.Application.UseCases.Accounts.Queries.GetAccount;
+using FinTrack.API.Application.UseCases.Accounts.Queries.GetAllAccounts;
+using FinTrack.API.Application.UseCases.Users.Queries.GetAllUsers;
 using FinTrack.API.Controllers.Base;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -97,6 +99,54 @@ namespace FinTrack.API.Controllers
             
         }
 
+        /// <summary>
+        /// Returns all accounts
+        /// </summary>
+        /// <param name="page_num">page number of the paginated result (default: 1)</param>
+        /// <param name="page_size">page size of the paginated result, maximum size is 1000 (default: 50)</param>
+        /// <remarks>
+        /// Requets example:
+        /// GET /api/accounts
+        /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+        /// 
+        /// Response example:
+        /// {
+        ///     "accounts": [    
+        ///                 {
+        ///                     "id": "30dd879c-ee2f-11db-8314-0800200c9a66",
+        ///                     "balance": 300,
+        ///                     "user_id": "3b7c138f-fc68-42b8-a705-31417bb4cb56"
+        ///                 },
+        ///                 ...
+        ///              ]
+        ///     
+        /// }
+        /// </remarks>
+        /// <responce code="200">successfull request</responce>
+        /// <responce code="401">access token is missing or invalid</responce>
+        /// <responce code="403">user does not has access</responce>
+        [HttpGet()]
+        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        async public Task<IActionResult> GetAllAccounts([FromQuery] int page_num = 1, [FromQuery] int page_size = 50)
+        {
+            var command = new GetAllAccountsQuery(page_num, page_size);
+            var result = await _mediator.Send(command);
+
+            if (result.IsSuccess && result.Value != default)
+            {
+                return Ok(new
+                {
+                    accounts = result.Value.Select(x => new { x.Id, x.Balance, x.UserId})
+                });
+            }
+
+            return HandleFailedResult(result);
+
+        }
 
         /// <summary>
         /// Deletes account by id
