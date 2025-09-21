@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using FinTrack.API.Controllers.Base;
 using FinTrack.API.Application.UseCases.Users.Queries.GetAllUsers;
+using FinTrack.API.Application.UseCases.Users.Commands.UpdateUser;
 
 namespace FinTrack.API.Controllers
 {
@@ -66,6 +67,82 @@ namespace FinTrack.API.Controllers
             return HandleFailedResult(result);
 
 
+        }
+
+        /// <summary>
+        /// Updates current user
+        /// </summary>
+        /// <param name="request">data for updating user</param>
+        /// <remarks>
+        /// Requets example:
+        /// PUT /api/users/me
+        /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+        /// {
+        ///     "name": "new_name",
+        ///     "email": "new_example@gmail.com",
+        ///     "phone": "+79998886655"
+        /// }
+        /// 
+        /// </remarks>
+        /// <responce code="204">successfull request</responce>
+        /// <responce code="400">invalid request data</responce>
+        /// <responce code="401">access token is missing or invalid</responce>
+        [Produces("application/json")]
+        [Consumes("application/json")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
+        [HttpPut("me")]
+        async public Task<IActionResult> UpdateMe([FromBody] UpdateUserRequest request)
+        {
+            var command = new UpdateUserCommand(request.Name, request.Email, request.Phone, UserId);
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess)
+            {
+                return NoContent();
+            }
+            return HandleFailedResult(result);
+        }
+
+        /// <summary>
+        /// Updated user by id
+        /// </summary>
+        /// <param name="request">data for updating user</param>
+        /// <param name="id">Id of the user that will be updated</param>
+        /// <remarks>
+        /// Requets example:
+        /// PUT /api/users/30dd879c-ee2f-11db-8314-0800200c9a66
+        /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+        /// {
+        ///     "name": "new_name",
+        ///     "email": "new_example@gmail.com",
+        ///     "phone": "+79998886655"
+        /// }
+        /// 
+        /// </remarks>
+        /// <responce code="204">successfull request</responce>
+        /// <responce code="400">invalid request data</responce>
+        /// <responce code="401">access token is missing or invalid</responce>
+        /// <responce code="403">user does not has access</responce>
+        /// <responce code="404">user with <paramref name="id"/> not found</responce>
+        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Produces("application/json")]
+        [Consumes("application/json")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [HttpPut("{id}")]
+        async public Task<IActionResult> UpdateUserById([FromBody] UpdateUserRequest request, Guid id)
+        {
+            var command = new UpdateUserCommand(request.Name, request.Email, request.Phone, id);
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess)
+            {
+                return NoContent();
+            }
+            return HandleFailedResult(result);
         }
 
         /// <summary>
