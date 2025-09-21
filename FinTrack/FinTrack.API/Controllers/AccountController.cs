@@ -122,9 +122,9 @@ namespace FinTrack.API.Controllers
         ///     
         /// }
         /// </remarks>
-        /// <responce code="200">successfull request</responce>
-        /// <responce code="401">access token is missing or invalid</responce>
-        /// <responce code="403">user does not has access</responce>
+        /// <response code="200">successfull request</response>
+        /// <response code="401">access token is missing or invalid</response>
+        /// <response code="403">user does not has access</response>
         [HttpGet()]
         [Authorize(Roles = Core.Common.UserRoles.Admin)]
         [Produces("application/json")]

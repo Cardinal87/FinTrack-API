@@ -39,8 +39,8 @@ namespace FinTrack.API.Controllers
         ///     "token": YOUR_ACCESS_TOKEN
         /// }
         /// </remarks>
-        /// <responce code="200">token created</responce>
-        /// <responce code="401">provided credentials are invalid or user does not exists</responce>
+        /// <response code="200">token created</response>
+        /// <response code="401">provided credentials are invalid or user does not exists</response>
         [HttpPost("token")]
         [Produces("application/json")]
         [Consumes("application/json")]
@@ -66,8 +66,8 @@ namespace FinTrack.API.Controllers
         /// GET /api/auth/token/status
         /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
         /// </remarks>
-        /// <responce code="200">token is valid</responce>
-        /// <responce code="401">token invalid or does not provided</responce>
+        /// <response code="200">token is valid</response>
+        /// <response code="401">token invalid or does not provided</response>
         [Authorize]
         [HttpGet("token/status")]
         [Consumes("application/json")]

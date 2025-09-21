@@ -42,8 +42,8 @@ namespace FinTrack.API.Controllers
         ///     "id": "CREATED_USER_ID"
         /// }
         /// </remarks>
-        /// <responce code="201">user created successfully</responce>
-        /// <responce code="400">invalid request data</responce>
+        /// <response code="201">user created successfully</response>
+        /// <response code="400">invalid request data</response>
         [AllowAnonymous]
         [HttpPost()]
         [Produces("application/json")]
@@ -84,9 +84,9 @@ namespace FinTrack.API.Controllers
         /// }
         /// 
         /// </remarks>
-        /// <responce code="204">successfull request</responce>
-        /// <responce code="400">invalid request data</responce>
-        /// <responce code="401">access token is missing or invalid</responce>
+        /// <response code="204">successfull request</response>
+        /// <response code="400">invalid request data</response>
+        /// <response code="401">access token is missing or invalid</response>
         [Produces("application/json")]
         [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -120,11 +120,11 @@ namespace FinTrack.API.Controllers
         /// }
         /// 
         /// </remarks>
-        /// <responce code="204">successfull request</responce>
-        /// <responce code="400">invalid request data</responce>
-        /// <responce code="401">access token is missing or invalid</responce>
-        /// <responce code="403">user does not has access</responce>
-        /// <responce code="404">user with <paramref name="id"/> not found</responce>
+        /// <response code="204">successfull request</response>
+        /// <response code="400">invalid request data</response>
+        /// <response code="401">access token is missing or invalid</response>
+        /// <response code="403">user does not has access</response>
+        /// <response code="404">user with <paramref name="id"/> not found</response>
         [Authorize(Roles = Core.Common.UserRoles.Admin)]
         [Produces("application/json")]
         [Consumes("application/json")]
@@ -160,9 +160,9 @@ namespace FinTrack.API.Controllers
         ///     "email": "exmaple@gmail.com"
         /// }
         /// </remarks>
-        /// <responce code="200">successfull request</responce>
-        /// <responce code="401">access token is missing or invalid</responce>
-        /// <responce code="404">user not found</responce>
+        /// <response code="200">successfull request</response>
+        /// <response code="401">access token is missing or invalid</response>
+        /// <response code="404">user not found</response>
         [HttpGet("me")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -204,10 +204,10 @@ namespace FinTrack.API.Controllers
         ///     "hash": "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="
         /// }
         /// </remarks>
-        /// <responce code="200">successfull request</responce>
-        /// <responce code="401">access token is missing or invalid</responce>
-        /// <responce code="403">user does not has access</responce>
-        /// <responce code="404">user not found</responce>
+        /// <response code="200">successfull request</response>
+        /// <response code="401">access token is missing or invalid</response>
+        /// <response code="403">user does not has access</response>
+        /// <response code="404">user not found</response>
         [HttpGet("{id}")]
         [Authorize(Roles = Core.Common.UserRoles.Admin)]
         [Produces("application/json")]
@@ -260,9 +260,9 @@ namespace FinTrack.API.Controllers
         ///     
         /// }
         /// </remarks>
-        /// <responce code="200">successfull request</responce>
-        /// <responce code="401">access token is missing or invalid</responce>
-        /// <responce code="403">user does not has access</responce>
+        /// <response code="200">successfull request</response>
+        /// <response code="401">access token is missing or invalid</response>
+        /// <response code="403">user does not has access</response>
         [HttpGet()]
         [Authorize(Roles = Core.Common.UserRoles.Admin)]
         [Produces("application/json")]
@@ -294,9 +294,9 @@ namespace FinTrack.API.Controllers
         /// DELETE /api/users/me
         /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
         /// </remarks>
-        /// <responce code="204">user deleted successfully</responce>
-        /// <responce code="401">access token is missing or invalid</responce>
-        /// <responce code="404">user not found</responce>
+        /// <response code="204">user deleted successfully</response>
+        /// <response code="401">access token is missing or invalid</response>
+        /// <response code="404">user not found</response>
         [Produces("application/json")]
         [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
