@@ -46,6 +46,12 @@ namespace FinTrack.API.TestMocks.Repositories
                                                         && (accountIds.Contains(t.FromAccountId) || accountIds.Contains(t.ToAccountId))));
         }
 
+        public Task<IEnumerable<Transaction>> GetAccountTransactionsAsync(Guid accountId, int pageNumber = 1, int pageSize = 50)
+        {
+            return Task.FromResult(_transactions.Where(x => x.FromAccountId == accountId
+                                       || x.ToAccountId == accountId));
+        }
+
         public Task SaveChangesAsync()
         {
             return Task.CompletedTask;
@@ -55,5 +61,7 @@ namespace FinTrack.API.TestMocks.Repositories
         {
             _transactions.Clear();
         }
+
+        
     }
 }
