@@ -7,7 +7,7 @@ namespace FinTrack.API.Core.Exceptions
     /// Exception for incorrect operation amount
     /// </summary>
     /// <remarks>
-    /// Must be thrown when amount <= 0
+    /// Must be thrown when amount &lt;= 0
     /// </remarks>
     public class IncorrectAmountException : DomainException
     {

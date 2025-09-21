@@ -9,7 +9,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.Commands.DeleteAccount
     /// <param name="accountId">
     /// Id of the existing account
     /// </param>
-    /// <param name="userGuid">
+    /// <param name="userId">
     /// Id of the user that invokes command
     /// </param>
     /// <param name="roles">

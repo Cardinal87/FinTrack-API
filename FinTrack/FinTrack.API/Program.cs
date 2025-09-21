@@ -215,7 +215,7 @@ namespace FinTrack.API
             //Telemetry
             services.AddOpenTelemetry()
                 .ConfigureResource(resources => resources
-                    .AddService(serviceName: serviceName)
+                    .AddService(serviceName: serviceName, serviceVersion: serviceVersion)
                     .AddAttributes(new Dictionary<string, object> { ["environment"] = environment }))
                 .WithMetrics(metrics => metrics
                     .AddAspNetCoreInstrumentation()
