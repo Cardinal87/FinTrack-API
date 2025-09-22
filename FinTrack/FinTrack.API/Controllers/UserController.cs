@@ -298,7 +298,6 @@ namespace FinTrack.API.Controllers
         /// <response code="401">access token is missing or invalid</response>
         /// <response code="404">user not found</response>
         [Produces("application/json")]
-        [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -314,6 +313,37 @@ namespace FinTrack.API.Controllers
 
             return HandleFailedResult(result);
             
+        }
+
+        /// <summary>
+        /// Deletes user by id
+        /// </summary>
+        /// <remarks>
+        /// Request example:
+        /// DELETE /api/users/30dd879c-ee2f-11db-8314-0800200c9a66
+        /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+        /// </remarks>
+        /// <response code="204">user deleted successfully</response>
+        /// <response code="401">access token is missing or invalid</response>
+        /// <response code="403">user does not has access</response>
+        /// <response code="404">user not found</response>
+        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Produces("application/json")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpDelete("{id}")]
+        async public Task<IActionResult> DeleteUserById(Guid id)
+        {
+            var command = new DeleteUserCommand(id);
+            var result = await _mediator.Send(command);
+            if (result.IsSuccess)
+            {
+                return NoContent();
+            }
+
+            return HandleFailedResult(result);
         }
 
     }
