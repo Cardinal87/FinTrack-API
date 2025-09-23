@@ -1,6 +1,7 @@
 ﻿
 
 using FinTrack.API.Application.Common;
+using FinTrack.API.Core.Exceptions;
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -46,6 +47,11 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.UpdateUser
             catch(ArgumentException ex)
             {
                 _logger.LogWarning(ex, "Data validation for update failed");
+                return Result.Fail(OperationStatusMessages.BadRequest);
+            }
+            catch(UniqueConstraintViolationException ex)
+            {
+                _logger.LogWarning(ex, $"Property {ex.Property} violates unique constraint");
                 return Result.Fail(OperationStatusMessages.BadRequest);
             }
         }

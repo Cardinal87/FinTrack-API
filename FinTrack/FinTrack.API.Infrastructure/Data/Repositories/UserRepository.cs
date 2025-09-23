@@ -4,6 +4,7 @@ using FinTrack.API.Core.Exceptions;
 using FinTrack.API.Core.Interfaces;
 using FinTrack.API.Infrastructure.Data.DbEntities;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace FinTrack.API.Infrastructure.Data.Repositories
 {
@@ -77,7 +78,18 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             _mapper.Map(user, existingUser);
         }
 
-        async public Task SaveChangesAsync() => await _client.SaveChangesAsync();
+        async public Task SaveChangesAsync()
+        {
+            try
+            {
+                await _client.SaveChangesAsync();
+            }
+            catch(DbUpdateException ex) when (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
+            {
+                var property = pgEx.ConstraintName ?? "Unknown";
+                throw new UniqueConstraintViolationException(property);
+            }
+        }
 
         
     }
