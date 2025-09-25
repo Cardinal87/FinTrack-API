@@ -22,7 +22,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.Commands.DeleteAccount
             var account = await _accountRepository.GetByIdAsync(request.accountId);
             if(account == null)
             {
-                return Result.Fail(OperationStatusMessages.NotFound);
+                return Result.Fail(OperationStatusMessages.NotFound, "account was not found");
             }
             if (request.roles.Contains(UserRoles.Admin) ||
                 request.userId == account.UserId)
@@ -31,7 +31,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.Commands.DeleteAccount
                 await _accountRepository.SaveChangesAsync();
                 return Result.Ok(OperationStatusMessages.NoContent);
             }
-            return Result.Fail(OperationStatusMessages.Forbidden);
+            return Result.Fail(OperationStatusMessages.Forbidden, "you do not have permission to delete this account.");
 
 
         }

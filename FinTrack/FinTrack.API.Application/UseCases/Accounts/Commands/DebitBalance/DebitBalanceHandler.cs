@@ -23,7 +23,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.Commands.DebitBalance
                 var account = await _accountRepository.GetByIdAsync(request.accountId);
                 if (account == null)
                 {
-                    return ValueResult<decimal>.Fail(OperationStatusMessages.NotFound);
+                    return ValueResult<decimal>.Fail(OperationStatusMessages.NotFound, "account was not found");
                 }
 
                 account.Debit(request.amount);
@@ -34,11 +34,11 @@ namespace FinTrack.API.Application.UseCases.Accounts.Commands.DebitBalance
             }
             catch (IncorrectAmountException)
             {
-                return ValueResult<decimal>.Fail(OperationStatusMessages.BadRequest);
+                return ValueResult<decimal>.Fail(OperationStatusMessages.BadRequest, "amount is incorrect");
             }
             catch (InsufficientFundsException)
             {
-                return ValueResult<decimal>.Fail(OperationStatusMessages.BadRequest);
+                return ValueResult<decimal>.Fail(OperationStatusMessages.BadRequest, "insufficient funds to debit balance");
             }
         }
     }

@@ -26,7 +26,7 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.DeleteUser
             }
             catch(EntityNotFoundException)
             {
-                return Result.Fail(OperationStatusMessages.NotFound);
+                return Result.Fail(OperationStatusMessages.NotFound, "user is not found");
             }
         }
     }

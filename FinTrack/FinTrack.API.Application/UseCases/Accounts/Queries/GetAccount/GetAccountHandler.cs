@@ -21,7 +21,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.Queries.GetAccount
             var account = await _accountRepository.GetByIdAsync(request.accountId);
             if (account == null)
             {
-                return ValueResult<Account>.Fail(OperationStatusMessages.NotFound);
+                return ValueResult<Account>.Fail(OperationStatusMessages.NotFound, "account was not found");
             }
             if (request.roles.Contains(UserRoles.Admin))
             {
@@ -29,7 +29,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.Queries.GetAccount
             }
             if (request.userId != account?.UserId)
             {
-                return ValueResult<Account>.Fail(OperationStatusMessages.Forbidden);
+                return ValueResult<Account>.Fail(OperationStatusMessages.Forbidden, "you have not got access to this account");
             }
             return ValueResult<Account>.Ok(account, OperationStatusMessages.Ok); ;
             

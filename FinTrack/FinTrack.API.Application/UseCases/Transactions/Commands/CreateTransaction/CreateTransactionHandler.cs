@@ -31,7 +31,7 @@ namespace FinTrack.API.Application.UseCases.Transactions.Commands.CreateTransact
 
                 if (!userAccountIds.Contains(request.fromAccountId))
                 {
-                    return ValueResult<Guid>.Fail(OperationStatusMessages.Forbidden);
+                    return ValueResult<Guid>.Fail(OperationStatusMessages.Forbidden, "you have not got access to this account");
                 }
                 var guid = await _transferService.HandleTransactionAsync(request.amount,
                                                               request.toAccountId,
@@ -41,15 +41,15 @@ namespace FinTrack.API.Application.UseCases.Transactions.Commands.CreateTransact
             }
             catch (IncorrectAmountException)
             {
-                return ValueResult<Guid>.Fail(OperationStatusMessages.BadRequest);
+                return ValueResult<Guid>.Fail(OperationStatusMessages.BadRequest, "amonut is incorrect");
             }
             catch (InsufficientFundsException)
             {
-                return ValueResult<Guid>.Fail(OperationStatusMessages.BadRequest);
+                return ValueResult<Guid>.Fail(OperationStatusMessages.BadRequest, "insufficient funds to create transaction");
             }
             catch (EntityNotFoundException)
             {
-                return ValueResult<Guid>.Fail(OperationStatusMessages.NotFound);
+                return ValueResult<Guid>.Fail(OperationStatusMessages.NotFound, "one of the accounts were not found");
             }
             
         }

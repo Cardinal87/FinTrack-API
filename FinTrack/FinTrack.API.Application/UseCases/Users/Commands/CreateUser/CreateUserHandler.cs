@@ -43,7 +43,7 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.CreateUser
             catch(UniqueConstraintViolationException ex)
             {
                 _logger.LogWarning(ex, $"Property {ex.Property} violates unique constraint");
-                return ValueResult<Guid>.Fail(OperationStatusMessages.BadRequest);
+                return ValueResult<Guid>.Fail(OperationStatusMessages.BadRequest, "username, email or phone is already registered");
             }
         }
     }

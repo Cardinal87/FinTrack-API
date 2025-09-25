@@ -6,13 +6,14 @@ namespace FinTrack.API.Application.Common
     {
 
         protected Result(bool isSuccess,
-                         string statusMessage) : base(isSuccess, statusMessage)
+                         string statusMessage,
+                         string? errorMessage = null) : base(isSuccess, statusMessage, errorMessage)
         {
 
         }
         
 
         public static Result Ok(string statusMessage) => new Result(true, statusMessage);
-        public static Result Fail(string statusMessage) => new Result(false, statusMessage);
+        public static Result Fail(string statusMessage, string errorMessage) => new Result(false, statusMessage, errorMessage);
     }
 }

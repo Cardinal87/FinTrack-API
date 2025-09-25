@@ -26,7 +26,7 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.UpdateUser
                 var user = await _userRepository.GetByIdAsync(request.userId);
                 if (user == null)
                 {
-                    return Result.Fail(OperationStatusMessages.NotFound);
+                    return Result.Fail(OperationStatusMessages.NotFound, "user was not found");
                 }
                 if (request.name != null)
                 {
@@ -47,12 +47,12 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.UpdateUser
             catch(ArgumentException ex)
             {
                 _logger.LogWarning(ex, "Data validation for update failed");
-                return Result.Fail(OperationStatusMessages.BadRequest);
+                return Result.Fail(OperationStatusMessages.BadRequest, "provided data for user updating are incorrect");
             }
             catch(UniqueConstraintViolationException ex)
             {
                 _logger.LogWarning(ex, $"Property {ex.Property} violates unique constraint");
-                return Result.Fail(OperationStatusMessages.BadRequest);
+                return Result.Fail(OperationStatusMessages.BadRequest, "username, email or phone is already registered");
             }
         }
     }

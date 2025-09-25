@@ -26,9 +26,9 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.AuthUser
                 {
                     return ValueResult<User>.Ok(user, OperationStatusMessages.Ok);
                 }
-                return ValueResult<User>.Fail(OperationStatusMessages.Unauthorized);
+                return ValueResult<User>.Fail(OperationStatusMessages.Unauthorized, "login or password is incorrect");
             }
-            return ValueResult<User>.Fail(OperationStatusMessages.Unauthorized);
+            return ValueResult<User>.Fail(OperationStatusMessages.Unauthorized, "login or password is incorrect");
         }
     }
 }

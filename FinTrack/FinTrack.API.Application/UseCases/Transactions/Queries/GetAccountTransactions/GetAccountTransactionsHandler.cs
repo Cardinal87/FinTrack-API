@@ -25,7 +25,7 @@ namespace FinTrack.API.Application.UseCases.Transactions.Queries.GetAccountTrans
             var account = await _accountRepository.GetByIdAsync(request.accountId);
             if (account == null)
             {
-                return ValueResult<IReadOnlyCollection<Transaction>>.Fail(OperationStatusMessages.NotFound);
+                return ValueResult<IReadOnlyCollection<Transaction>>.Fail(OperationStatusMessages.NotFound, "account was not found");
             }
 
             if (request.roles.Contains(UserRoles.Admin)
@@ -34,7 +34,7 @@ namespace FinTrack.API.Application.UseCases.Transactions.Queries.GetAccountTrans
                 var result = await _transactionRepository.GetAccountTransactionsAsync(account.Id, request.pageNumber, request.pageSize);
                 return ValueResult<IReadOnlyCollection<Transaction>>.Ok(result.ToList().AsReadOnly(), OperationStatusMessages.Ok);
             }
-            return ValueResult<IReadOnlyCollection<Transaction>>.Fail(OperationStatusMessages.Forbidden);
+            return ValueResult<IReadOnlyCollection<Transaction>>.Fail(OperationStatusMessages.Forbidden, "you have not got access to this account");
         }
     }
 }

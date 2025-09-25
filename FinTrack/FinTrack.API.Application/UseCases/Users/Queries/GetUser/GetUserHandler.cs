@@ -20,7 +20,7 @@ namespace FinTrack.API.Application.UseCases.Users.Queries.GetUser
             var user = await _userRepository.GetByIdAsync(request.guid);
             if(user == null)
             {
-                return ValueResult<User>.Fail(OperationStatusMessages.NotFound);
+                return ValueResult<User>.Fail(OperationStatusMessages.NotFound, "user is not found");
             }
             return ValueResult<User>.Ok(user, OperationStatusMessages.Ok);
         }

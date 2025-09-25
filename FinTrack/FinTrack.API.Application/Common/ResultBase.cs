@@ -5,11 +5,13 @@ namespace FinTrack.API.Application.Common
     {
         public bool IsSuccess { get; }
         public string StatusMessage { get; }
+        public string? ErrorMessage { get; }
 
-        protected ResultBase(bool isSuccess, string statusMessage)
+        protected ResultBase(bool isSuccess, string statusMessage, string? errorMessage)
         {
             IsSuccess = isSuccess;
             StatusMessage = statusMessage;
+            ErrorMessage = errorMessage;
         }
     }
 }

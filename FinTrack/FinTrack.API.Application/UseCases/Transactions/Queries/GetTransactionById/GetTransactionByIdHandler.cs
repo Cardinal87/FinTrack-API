@@ -22,7 +22,7 @@ namespace FinTrack.API.Application.UseCases.Transactions.Queries.GetTransactionB
             var transaction = await _transactionRepository.GetByIdAsync(request.transactionId);
             if (transaction == null)
             {
-                return ValueResult<Transaction>.Fail(OperationStatusMessages.NotFound);
+                return ValueResult<Transaction>.Fail(OperationStatusMessages.NotFound, "transaction was not found");
             }
             if (request.roles.Contains(UserRoles.Admin))
             {
@@ -37,7 +37,7 @@ namespace FinTrack.API.Application.UseCases.Transactions.Queries.GetTransactionB
             {
                 return ValueResult<Transaction>.Ok(transaction, OperationStatusMessages.Ok);
             }
-            return ValueResult<Transaction>.Fail(OperationStatusMessages.Forbidden);
+            return ValueResult<Transaction>.Fail(OperationStatusMessages.Forbidden, "you have not got access to this transaction");
         }
     }
 }
