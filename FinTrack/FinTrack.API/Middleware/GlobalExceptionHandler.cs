@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using FinTrack.API.Application.Common;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinTrack.API.Middleware
@@ -21,7 +22,10 @@ namespace FinTrack.API.Middleware
             var problemDetail = new ProblemDetails
             {
                 Status = 500,
-                Detail = "Unexpected server error"
+                Detail = "Unexpected server error",
+                Title = OperationStatusMessages.InternalError,
+                Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}",
+                Type = "https://tools.ietf.org/html/rfc9110#section-15.6.1"
             };
 
             await httpContext.Response.WriteAsJsonAsync(problemDetail);

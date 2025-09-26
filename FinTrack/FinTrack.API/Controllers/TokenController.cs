@@ -45,7 +45,7 @@ namespace FinTrack.API.Controllers
         [Produces("application/json")]
         [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> GetJwtToken([FromBody] LoginRequest loginRequest)
         {
             var request = new AuthUserCommand(loginRequest.Login, loginRequest.Password);
@@ -72,7 +72,7 @@ namespace FinTrack.API.Controllers
         [HttpGet("token/status")]
         [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
         public IActionResult GetJwtStatus()
         {
             return Ok(new { status = "token is valid" });

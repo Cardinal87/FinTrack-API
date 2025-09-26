@@ -77,9 +77,9 @@ namespace FinTrack.API.Controllers
         [Produces("application/json")]
         [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> GetAccountById(Guid id)
         {
             var getAccountCommand = new GetAccountQuery(UserId, UserRoles, id);
@@ -129,8 +129,8 @@ namespace FinTrack.API.Controllers
         [Authorize(Roles = Core.Common.UserRoles.Admin)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> GetAllAccounts([FromQuery] int page_num = 1, [FromQuery] int page_size = 50)
         {
             var command = new GetAllAccountsQuery(page_num, page_size);
@@ -164,9 +164,9 @@ namespace FinTrack.API.Controllers
         /// <response code="404">account with <paramref name="id"/> not found</response>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> DeleteAccount(Guid id)
         {
             var command = new DeleteAccountCommand(UserId, UserRoles, id);
@@ -201,9 +201,9 @@ namespace FinTrack.API.Controllers
         [HttpPost("{id}/topup")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> TopUpAccountBalance(Guid id, [FromQuery] int amount){
             var command = new TopUpBalanceCommand(id, amount);
             var result = await _mediator.Send(command);
@@ -239,9 +239,9 @@ namespace FinTrack.API.Controllers
         [HttpPost("{id}/debit")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> DebitAccountBalance(Guid id, [FromQuery] int amount)
         {
             var command = new DebitBalanceCommand(id, amount);

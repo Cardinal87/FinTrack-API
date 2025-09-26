@@ -49,7 +49,7 @@ namespace FinTrack.API.Controllers
         [Produces("application/json")]
         [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
         {
             var command = new CreateUserCommand(request.Phone,
@@ -166,8 +166,8 @@ namespace FinTrack.API.Controllers
         [HttpGet("me")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> GetUserInfo()
         {
             var command = new GetUserQuery(UserId);
@@ -212,9 +212,9 @@ namespace FinTrack.API.Controllers
         [Authorize(Roles = Core.Common.UserRoles.Admin)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> GetUserById(Guid id)
         {
             var command = new GetUserQuery(id);
@@ -267,8 +267,8 @@ namespace FinTrack.API.Controllers
         [Authorize(Roles = Core.Common.UserRoles.Admin)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> GetAllUsers([FromQuery] int page_num = 1, [FromQuery] int page_size = 50)
         {
             var command = new GetAllUsersQuery(page_num, page_size);
@@ -299,8 +299,8 @@ namespace FinTrack.API.Controllers
         /// <response code="404">user not found</response>
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         [HttpDelete("me")]
         async public Task<IActionResult> DeleteUser()
         {
@@ -330,9 +330,9 @@ namespace FinTrack.API.Controllers
         [Authorize(Roles = Core.Common.UserRoles.Admin)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         [HttpDelete("{id}")]
         async public Task<IActionResult> DeleteUserById(Guid id)
         {

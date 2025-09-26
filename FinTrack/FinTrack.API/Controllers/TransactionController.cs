@@ -50,7 +50,7 @@ namespace FinTrack.API.Controllers
         [Produces("application/json")]
         [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> CreateTransaction([FromBody] CreateTransactionRequest request)
         {
             var createTransactionCommand = new CreateTransactionCommand(UserId,
@@ -93,9 +93,9 @@ namespace FinTrack.API.Controllers
         [HttpGet("{id}")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> GetTransactionById(Guid id)
         {
             
@@ -148,8 +148,8 @@ namespace FinTrack.API.Controllers
         [Authorize(Roles = Core.Common.UserRoles.Admin)]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> GetAllTransactions([FromQuery] int page_num = 1, [FromQuery] int page_size = 50)
         {
             var command = new GetAllTransactionsQuery(page_num, page_size);
@@ -199,7 +199,7 @@ namespace FinTrack.API.Controllers
         [HttpGet("date/{date}")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> GetTransactionsByDate(DateOnly date, [FromQuery] int page_num = 1, [FromQuery] int page_size = 50)
         {
 
@@ -247,7 +247,7 @@ namespace FinTrack.API.Controllers
         [HttpGet("interval")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> GetTransactionsByInterval([FromQuery] DateTime start,
                                                                    [FromQuery] DateTime end,
                                                                    [FromQuery] int page_num = 1,
@@ -303,9 +303,9 @@ namespace FinTrack.API.Controllers
         [HttpGet("account/{id}")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         async public Task<IActionResult> GetAccountTransactions(Guid id, [FromQuery] int page_num = 1, [FromQuery] int page_size = 50)
         {
 
