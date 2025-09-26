@@ -40,10 +40,15 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.CreateUser
                 await _userRepository.SaveChangesAsync();
                 return ValueResult<Guid>.Ok(user.Id, OperationStatusMessages.Created);
             }
-            catch(UniqueConstraintViolationException ex)
+            catch (UniqueConstraintViolationException ex)
             {
                 _logger.LogWarning(ex, $"Property {ex.Property} violates unique constraint");
                 return ValueResult<Guid>.Fail(OperationStatusMessages.BadRequest, "username, email or phone is already registered");
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, $"Validation error during creating new user");
+                return ValueResult<Guid>.Fail(OperationStatusMessages.BadRequest, "provided data for creating user is invalid");
             }
         }
     }
