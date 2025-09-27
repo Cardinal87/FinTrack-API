@@ -1,6 +1,6 @@
 services:
   fintrack.api:
-    image: fintrack:latest
+    image: cardinal87/fintrack:latest
     ports:
     - 8080:8080
     volumes:
@@ -33,6 +33,7 @@ services:
     image: grafana/loki:latest
     volumes:
     - loki-data:/loki
+    - ../configs/loki.yaml:/etc/loki/local-config.yaml
     networks:
     - fintrack-api-network
 
