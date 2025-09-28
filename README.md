@@ -4,10 +4,13 @@
 Prototype of the financial system API
 
 ## Features
+* Create and update user
 * User authentication and authorization
 * Create and manage multiple accounts for one user
 * Create transactions between accounts
 * Filter transactions by date/interval/account
+* Collect metrics to prometheus
+* Collect logs to loki
 
 ## Documentation
 ### Code documentation
@@ -30,6 +33,9 @@ Possible options:
 | POSTGRES_USER| PostgreSql username | `postgres`
 | POSTGRES_PASSWORD | PostgreSql password | `password`
 | ASPNETCORE_ENVIRONMENT | runtime environment | `Development`
+| GRAFANA_USERNAME | admin username for grafana | `admin` 
+| GRAFANA_PASSWORD | admin password for grafana | `password`
+| LOKI_URI | uri of the grafana/loki log aggregator | `http://loki:3100`
 
 Then run API with one of two possible ways:
 ### Only API
@@ -49,4 +55,19 @@ curl -O https://github.com/Cardinal87/FinTrack-API/blob/main/FinTrack/docker-com
 then, in the same directory, run docker containers with:
 ```bash
 docker-compose --env-file path/to/.env up -d
+```
+
+
+## Build from source code
+clone repo with the next command
+``` bash
+git clone https://github.com/Cardinal87/FinTrack-API.git
+```
+then change working dir to 
+``` bash
+cd FinTrack.API/FinTrack
+```
+and build docker image
+``` bash
+docker build -f FinTrack.API/Dockerfile -t fintrack:tag .
 ```
