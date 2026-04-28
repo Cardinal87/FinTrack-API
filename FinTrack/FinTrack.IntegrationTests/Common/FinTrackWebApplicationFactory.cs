@@ -1,5 +1,4 @@
 ﻿
-using Docker.DotNet.Models;
 using FinTrack.API.Core.Common;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Identity.Client;
 
 namespace FinTrack.IntegrationTests.Common
 {

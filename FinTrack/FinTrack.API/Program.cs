@@ -19,7 +19,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Metrics;
 namespace FinTrack.API
 {
-    public partial class Program
+    public class Program
     {
         private static string serviceName = "FinTrack-API";
         private static string serviceVersion = "1.1.0";
@@ -225,5 +225,4 @@ namespace FinTrack.API
                     .AddPrometheusExporter());
         }
     }
-    public partial class Program() { }
 }
