@@ -25,12 +25,20 @@ namespace FinTrack.API
         private static string serviceVersion = "1.1.0";
         private static string environment = "development";
 
+
+        private static readonly object _lock = new();
+
         public static void Main(string[] args)
-        {
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .Enrich.FromLogContext()
-                .CreateBootstrapLogger();
+        {   
+
+            lock (_lock){
+                if (Log.Logger == null) {
+                    Log.Logger = new LoggerConfiguration()
+                        .WriteTo.Console()
+                        .Enrich.FromLogContext()
+                        .CreateBootstrapLogger();
+                }
+            }
             try
             {
                 var builder = WebApplication.CreateBuilder(args);
