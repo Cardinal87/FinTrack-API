@@ -16,7 +16,6 @@ using FinTrack.API.Middleware;
 using FinTrack.API.Infrastructure.Decorators;
 using Serilog;
 using OpenTelemetry.Resources;
-using OpenTelemetry;
 using OpenTelemetry.Metrics;
 namespace FinTrack.API
 {
