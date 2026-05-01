@@ -1,6 +1,7 @@
 ﻿using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Infrastructure.Identity.DTO;
+using FinTrack.API.Infrastructure.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,19 +12,17 @@ namespace FinTrack.API.Infrastructure.Identity.Services
     public class JwtTokenService : IJwtTokenService
     {
 
-        private JwtKeyService _keyService;
+        private IJwtSigningService _signingService;
         private JwtOptions _jwtOptions;
 
-        public JwtTokenService(JwtKeyService keyService, IOptions<JwtOptions> jwtOptions)
+        public JwtTokenService(IJwtSigningService signingService, IOptions<JwtOptions> jwtOptions)
         {
-            _keyService = keyService;
+            _signingService = signingService;
             _jwtOptions = jwtOptions.Value;
         }
         
-        public string GenerateToken(User user)
+        public async Task<string> GenerateTokenAsync(User user)
         {
-            var key = new SymmetricSecurityKey(_keyService.GetKey());
-
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
@@ -37,14 +36,16 @@ namespace FinTrack.API.Infrastructure.Identity.Services
                 Issuer = _jwtOptions.Issuer,
                 Audience = _jwtOptions.Audience,
                 Expires = DateTime.UtcNow.Add(_jwtOptions.LifeTime),
-                SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature),
                 Subject = new ClaimsIdentity(claims)
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(descriptor);
+            var token = tokenHandler.CreateJwtSecurityToken(descriptor);
 
-            return tokenHandler.WriteToken(token);
+            string rawToken = $"{token.EncodedHeader}.{token.EncodedPayload}";
+            string signedToken = await _signingService.SignTokenAsync(rawToken);
+
+            return signedToken;
         }
     }
 }

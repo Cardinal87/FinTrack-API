@@ -17,9 +17,9 @@ namespace FinTrack.API.Infrastructure.Decorators
             _logger = logger;
         }
 
-        public string GenerateToken(User user)
+        async public Task<string> GenerateTokenAsync(User user)
         {
-            var token = _innerJwtService.GenerateToken(user);
+            var token = await _innerJwtService.GenerateTokenAsync(user);
 
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var decoded = jwtTokenHandler.ReadJwtToken(token);
