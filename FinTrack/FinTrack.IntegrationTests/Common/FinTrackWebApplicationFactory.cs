@@ -2,6 +2,8 @@
 using FinTrack.API.Core.Common;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
+using FinTrack.API.Infrastructure.Identity.Services;
+using FinTrack.API.Infrastructure.Interfaces;
 using FinTrack.API.TestMocks.Builders;
 using FinTrack.API.TestMocks.Repositories;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using VaultSharp;
 
 namespace FinTrack.IntegrationTests.Common
 {
@@ -29,11 +32,14 @@ namespace FinTrack.IntegrationTests.Common
                 services.RemoveAll<IUserRepository>();
                 services.RemoveAll<IAccountRepository>();
                 services.RemoveAll<ITransactionRepository>();
+                services.RemoveAll<IVaultClient>();
+                services.RemoveAll<IJwtSigningService>();
 
                 //Add mocks to imitate database
                 services.AddSingleton<IUserRepository>(UserRepositoryMock);
                 services.AddSingleton<IAccountRepository>(AccountRepositoryMock);
                 services.AddSingleton<ITransactionRepository>(TransactionRepositoryMock);
+                services.AddSingleton<IJwtSigningService, LocalJwtSigningService>();
             });
 
         }
