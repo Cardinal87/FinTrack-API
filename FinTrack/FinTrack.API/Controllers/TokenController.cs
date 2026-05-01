@@ -52,7 +52,7 @@ namespace FinTrack.API.Controllers
             var result = await _mediator.Send(request);
             if (result.IsSuccess && result.Value != default)
             {
-                var token = _jwtTokenService.GenerateToken(result.Value);
+                var token = await _jwtTokenService.GenerateTokenAsync(result.Value);
                 return Ok(new { token });
             }
             return HandleFailedResult(result);

@@ -16,6 +16,10 @@ using FinTrack.API.Infrastructure.Decorators;
 using Serilog;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Metrics;
+using VaultSharp.V1.AuthMethods.AppRole;
+using VaultSharp;
+using FinTrack.API.Infrastructure.Interfaces;
+using Microsoft.Extensions.Options;
 namespace FinTrack.API
 {
     public class Program
@@ -121,9 +125,6 @@ namespace FinTrack.API
 
         private static void ConfigureServices(IServiceCollection services, IConfiguration config)
         {
-            var keyProvider = new JwtKeyService();
-            
-
             services.AddControllers();
 
             //Authorization and authetication
@@ -134,15 +135,29 @@ namespace FinTrack.API
                 {
                     ValidIssuer = config["JwtOptions:Issuer"],
                     ValidAudience = config["JwtOptions:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(keyProvider.GetKey()),
                     ValidateAudience = true,
                     ValidateIssuer = true,
                     ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
+                    ValidateIssuerSigningKey = false,
 
                     NameClaimType = JwtRegisteredClaimNames.Sub,
                     RoleClaimType = "role"
                     
+                };
+                opt.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var signingService = context.HttpContext.RequestServices.GetRequiredService<IJwtSigningService>();
+                        var token = context.SecurityToken as JwtSecurityToken ?? throw new NullReferenceException("Unable to retrive jwt token");
+
+                        
+                        bool success = await signingService.VerifyTokenAsync(token.RawData);
+                        if (!success)
+                        {
+                            throw new SecurityTokenInvalidSignatureException("Signature was rejected");
+                        }
+                    }
                 };
                 opt.MapInboundClaims = false;
             });
@@ -155,12 +170,23 @@ namespace FinTrack.API
 
             //Configuration
             services.Configure<JwtOptions>(config.GetSection("JwtOptions"));
+            services.Configure<VaultOptions>(config.GetSection("HashicorpVaultOptions"));
 
             //Services
             services.AddScoped<TransferService>();
-            services.AddSingleton<JwtKeyService>(keyProvider);
             services.AddSingleton<IJwtTokenService, JwtTokenService>();
+            services.AddSingleton<IJwtSigningService, JwtSigningService>();
             services.AddSingleton<IPasswordHasher, PBKDF2PasswordHasher>();
+            services.AddScoped<IVaultClient>((service) =>
+            {
+                var options = service.GetRequiredService<IOptions<VaultOptions>>().Value;
+                var authMethod = new AppRoleAuthMethodInfo(options.RoleID, options.SecretID);
+                var vaultClientSettins = new VaultClientSettings(options.VaultAddress, authMethod);
+
+                var vaultClient = new VaultClient(vaultClientSettins);
+                return vaultClient;
+            });
+
 
             //AutoMapper
             services.AddAutoMapper(typeof(Infrastructure.AssemblyReference).Assembly);
