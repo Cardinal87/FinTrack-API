@@ -6,7 +6,6 @@ using FinTrack.API.Core.Interfaces;
 using FinTrack.API.Infrastructure.Data.Repositories;
 using FinTrack.API.Infrastructure.Identity.Services;
 using FinTrack.API.Application.Interfaces;
-using FinTrack.API.Infrastructure.Services;
 using FinTrack.API.Infrastructure.Identity.DTO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
