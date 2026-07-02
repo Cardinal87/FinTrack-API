@@ -1,10 +1,15 @@
-using FinTrack.API.Infrastructure.Interfaces;
-using System.Text.RegularExpressions;
-using Microsoft.Extensions.Options;
 using FinTrack.API.Infrastructure.Identity.DTO;
-using VaultSharp;
-using VaultSharp.V1.SecretsEngines.Transit;
+using FinTrack.API.Infrastructure.Interfaces;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using VaultSharp;
+using VaultSharp.V1.AuthMethods.AppRole;
+using VaultSharp.V1.AuthMethods.Token;
+using VaultSharp.V1.Commons;
+using VaultSharp.V1.SecretsEngines.Transit;
 
 namespace FinTrack.API.Infrastructure.Identity.Services
 {
@@ -13,12 +18,14 @@ namespace FinTrack.API.Infrastructure.Identity.Services
         private const string rawTokenFormat = @"^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$";
         private readonly VaultOptions _options;
         private readonly IVaultClient _client;
+        private readonly ILogger _logger;
 
 
-        public JwtSigningService(IOptions<VaultOptions> options, IVaultClient client)
+        public JwtSigningService(IOptions<VaultOptions> options, IVaultClient client, ILogger<JwtSigningService> logger)
         {
             _client = client;
             _options = options.Value;
+            _logger = logger;
         }
 
 
@@ -30,14 +37,16 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             {
                 throw new ArgumentException("invalid input token format");
             }
-            
+
             byte[] bytes = Encoding.UTF8.GetBytes(rawToken);
             string base64 = Convert.ToBase64String(bytes);
 
+            var token = await _client.V1.Auth.AppRole.LoginAsync(new AppRoleAuthMethodInfo(_options.RoleID, _options.SecretID));
+
+
             var signOptions = new SignRequestOptions
             {
-                Base64EncodedInput = base64,
-                MarshalingAlgorithm = MarshalingAlgorithm.jws
+                Base64EncodedInput = base64
             };
             var signResp = await _client.V1.Secrets.Transit.SignDataAsync(_options.KeyName, signOptions);
 
@@ -60,8 +69,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             var verifyOptions = new VerifyRequestOptions
             {
                 Base64EncodedInput = base64,
-                Signature = $"vault:v1:{sign}",
-                MarshalingAlgorithm = MarshalingAlgorithm.jws,
+                Signature = $"vault:v1:{sign}"
             };
 
             var verifyResp = await _client.V1.Secrets.Transit.VerifySignedDataAsync(_options.KeyName, verifyOptions);

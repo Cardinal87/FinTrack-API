@@ -34,22 +34,20 @@ namespace FinTrack.API
         public static void Main(string[] args)
         {   
 
-            lock (_lock){
-                if (Log.Logger == null) {
-                    Log.Logger = new LoggerConfiguration()
-                        .WriteTo.Console()
-                        .Enrich.FromLogContext()
-                        .CreateBootstrapLogger();
-                }
-            }
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .Enrich.FromLogContext()
+                .CreateBootstrapLogger();
             try
             {
                 var builder = WebApplication.CreateBuilder(args);
                 serviceName = builder.Environment.ApplicationName;
                 environment = builder.Environment.EnvironmentName;
+                var vaultCredsPath = Environment.GetEnvironmentVariable("VAULT_CREDS_PATH") ?? throw new NullReferenceException("Vault credentials path was not set");
 
                 builder.Configuration
                     .AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"))
+                    .AddJsonFile(vaultCredsPath, optional: false)
                     .AddEnvironmentVariables()
                     .Build();
 
@@ -59,12 +57,8 @@ namespace FinTrack.API
                        ReadFrom.Services(services);
                 });
                 ConfigureServices(builder.Services, builder.Configuration);
-
-
                 var app = builder.Build();
-
                 app.MapPrometheusScrapingEndpoint();
-
                 if (!app.Environment.IsEnvironment("Testing"))
                 {
                     using (var scope = app.Services.CreateScope())
@@ -76,12 +70,14 @@ namespace FinTrack.API
                         }
                         catch (Exception ex)
                         {
+                            
                             Log.Logger.Fatal(ex, "Failed to migrate database");
                             return;
                         }
                     }
                 }
-
+                
+                            
                 app.UseExceptionHandler();
                 if (app.Environment.IsDevelopment())
                 {
@@ -174,15 +170,14 @@ namespace FinTrack.API
 
             //Services
             services.AddScoped<TransferService>();
-            services.AddSingleton<IJwtTokenService, JwtTokenService>();
-            services.AddSingleton<IJwtSigningService, JwtSigningService>();
+            services.AddScoped<IJwtTokenService, JwtTokenService>();
+            services.AddScoped<IJwtSigningService, JwtSigningService>();
             services.AddSingleton<IPasswordHasher, PBKDF2PasswordHasher>();
             services.AddScoped<IVaultClient>((service) =>
             {
                 var options = service.GetRequiredService<IOptions<VaultOptions>>().Value;
                 var authMethod = new AppRoleAuthMethodInfo(options.RoleID, options.SecretID);
                 var vaultClientSettins = new VaultClientSettings(options.VaultAddress, authMethod);
-
                 var vaultClient = new VaultClient(vaultClientSettins);
                 return vaultClient;
             });

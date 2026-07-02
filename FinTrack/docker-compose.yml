@@ -1,10 +1,14 @@
 services:
   fintrack.api:
-    image: cardinal87/fintrack:latest
+    #image: cardinal87/fintrack:latest
+    build:
+      context: .
+      dockerfile: Fintrack.Api/Dockerfile
     ports:
     - 8080:8080
     volumes:
     - fintrack-logs:/app/logs
+    - vault-creds:/shared
     environment:
     - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -12,15 +16,24 @@ services:
     - POSTGRES_HOST=${POSTGRES_HOST}
     - POSTGRES_PORT=${POSTGRES_PORT}
     - Serilog__WriteTo__2__Args__uri=${LOKI_URI}
+    - HashicorpVaultOptions__VaultAddress=${VAULT_URI}
+    - VAULT_CREDS_PATH=/shared/vault-creds.json
+    
     depends_on:
-    - db
-    - loki
+      db:
+        condition: service_started  
+      loki:
+        condition: service_started
+      vault-init:
+        condition: service_completed_successfully
     networks:
     - fintrack-api-network
   db:
-   image: postgres:latest
+   image: postgres:18.4
+   ports: 
+   - 5432:5432
    volumes:
-   - postgres-data:/var/lib/postgresql/data
+   - postgres-data:/var/lib/postgresql
    environment:
    - POSTGRES_USER=${POSTGRES_USER}
    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -28,9 +41,36 @@ services:
    networks:
    - fintrack-api-network
 
-   
+  
+  vault:
+    image: hashicorp/vault:2.0.3
+    ports:
+    - 8200:8200
+    volumes: 
+    - vault-data:/vault/file
+    - ../configs/vault.hcl:/vault/config/config.hcl
+    entrypoint: ["vault", "server", "-config=/vault/config/config.hcl"]
+    networks:
+    - fintrack-api-network
+  
+
+
+  vault-init:
+    image: cardinal87/autovault:1.0.0  
+    volumes:
+    - vault-creds:/shared
+    depends_on:
+      - vault
+    environment:
+      - VAULT_ADDR=http://vault:8200
+    networks:
+      - fintrack-api-network
+
+
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:3.7.0
+    ports:
+    - 3100:3100
     volumes:
     - loki-data:/loki
     - ../configs/loki.yaml:/etc/loki/local-config.yaml
@@ -39,7 +79,7 @@ services:
 
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.1.0
     ports:
     - 3000:3000
     volumes:
@@ -51,7 +91,7 @@ services:
     - fintrack-api-network
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.12.0
     ports:
     - 9090:9090
     volumes:
@@ -66,6 +106,8 @@ volumes:
   loki-data:
   grafana-data:
   prometheus-data:
+  vault-data:
+  vault-creds:
 
 networks:
   fintrack-api-network:

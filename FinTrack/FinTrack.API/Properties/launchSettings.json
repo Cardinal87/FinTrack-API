@@ -3,10 +3,14 @@
     "http": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "POSTGRES_HOST": "localhost",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_USER": "postgres",
+        "POSTGRES_PASSWORD": "password"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5242"
+      "applicationUrl": "http://localhost:8080"
     },
     "Container (Dockerfile)": {
       "commandName": "Docker",
