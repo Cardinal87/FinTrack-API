@@ -7,8 +7,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using VaultSharp;
 using VaultSharp.V1.AuthMethods.AppRole;
-using VaultSharp.V1.AuthMethods.Token;
-using VaultSharp.V1.Commons;
 using VaultSharp.V1.SecretsEngines.Transit;
 
 namespace FinTrack.API.Infrastructure.Identity.Services
@@ -18,14 +16,12 @@ namespace FinTrack.API.Infrastructure.Identity.Services
         private const string rawTokenFormat = @"^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$";
         private readonly VaultOptions _options;
         private readonly IVaultClient _client;
-        private readonly ILogger _logger;
 
 
-        public JwtSigningService(IOptions<VaultOptions> options, IVaultClient client, ILogger<JwtSigningService> logger)
+        public JwtSigningService(IOptions<VaultOptions> options, IVaultClient client)
         {
             _client = client;
             _options = options.Value;
-            _logger = logger;
         }
 
 

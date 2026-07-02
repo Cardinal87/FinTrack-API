@@ -10,7 +10,6 @@ using FinTrack.API.Infrastructure.Identity.DTO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using FinTrack.API.Core.Services;
-using System.IdentityModel.Tokens.Jwt;
 using FinTrack.API.Middleware;
 using FinTrack.API.Infrastructure.Decorators;
 using Serilog;
@@ -20,46 +19,60 @@ using VaultSharp.V1.AuthMethods.AppRole;
 using VaultSharp;
 using FinTrack.API.Infrastructure.Interfaces;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
+
 namespace FinTrack.API
 {
     public class Program
     {
+        
         private static string serviceName = "FinTrack-API";
         private static string serviceVersion = "1.1.0";
         private static string environment = "development";
 
 
-        private static readonly object _lock = new();
-
         public static void Main(string[] args)
-        {   
+        {
+            var builder = WebApplication.CreateBuilder(args);
+            bool isTesting = builder.Environment.IsEnvironment("Testing");
 
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .Enrich.FromLogContext()
-                .CreateBootstrapLogger();
+            if (!isTesting)
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .WriteTo.Console()
+                    .Enrich.FromLogContext()
+                    .CreateBootstrapLogger();
+            }
+            
+            
             try
             {
-                var builder = WebApplication.CreateBuilder(args);
+                
                 serviceName = builder.Environment.ApplicationName;
                 environment = builder.Environment.EnvironmentName;
-                var vaultCredsPath = Environment.GetEnvironmentVariable("VAULT_CREDS_PATH") ?? throw new NullReferenceException("Vault credentials path was not set");
 
-                builder.Configuration
-                    .AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"))
-                    .AddJsonFile(vaultCredsPath, optional: false)
-                    .AddEnvironmentVariables()
-                    .Build();
+                var vaultCredsPath = Environment.GetEnvironmentVariable("VAULT_CREDS_PATH");
+                builder.Configuration.AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"));
+
+                if (!String.IsNullOrEmpty(vaultCredsPath)){
+                    builder.Configuration.AddJsonFile(vaultCredsPath, optional: true);
+                }
+
+                builder.Configuration.AddEnvironmentVariables();
 
                 builder.Host.UseSerilog((ctx, services, lc) =>
                 {
                     lc.ReadFrom.Configuration(builder.Configuration).
-                       ReadFrom.Services(services);
-                });
+                        ReadFrom.Services(services);
+                }, preserveStaticLogger: true);
+                
+
+
                 ConfigureServices(builder.Services, builder.Configuration);
                 var app = builder.Build();
                 app.MapPrometheusScrapingEndpoint();
-                if (!app.Environment.IsEnvironment("Testing"))
+
+                if (!isTesting)
                 {
                     using (var scope = app.Services.CreateScope())
                     {
@@ -110,14 +123,19 @@ namespace FinTrack.API
             catch (Exception ex)
             {
                 Log.Fatal(ex, "Host terminated unexpectly");
+                if (isTesting) throw;
             }
             finally
             {
-                Log.CloseAndFlush();
+                if (!isTesting)
+                {
+                    Log.CloseAndFlush();
+                }
             }
         }
 
-        
+
+
 
         private static void ConfigureServices(IServiceCollection services, IConfiguration config)
         {
@@ -134,21 +152,19 @@ namespace FinTrack.API
                     ValidateAudience = true,
                     ValidateIssuer = true,
                     ValidateLifetime = true,
-                    ValidateIssuerSigningKey = false,
+                    SignatureValidator = (token, _) => new JsonWebTokenHandler().ReadJsonWebToken(token),
 
                     NameClaimType = JwtRegisteredClaimNames.Sub,
-                    RoleClaimType = "role"
-                    
+                    RoleClaimType = "role",
+
                 };
                 opt.Events = new JwtBearerEvents
                 {
                     OnTokenValidated = async context =>
-                    {
+                    {                        
                         var signingService = context.HttpContext.RequestServices.GetRequiredService<IJwtSigningService>();
-                        var token = context.SecurityToken as JwtSecurityToken ?? throw new NullReferenceException("Unable to retrive jwt token");
-
-                        
-                        bool success = await signingService.VerifyTokenAsync(token.RawData);
+                        var rawToken = (context.SecurityToken as JsonWebToken ?? throw new NullReferenceException("Unable to retrive jwt token"));
+                        bool success = await signingService.VerifyTokenAsync(rawToken.EncodedToken);
                         if (!success)
                         {
                             throw new SecurityTokenInvalidSignatureException("Signature was rejected");

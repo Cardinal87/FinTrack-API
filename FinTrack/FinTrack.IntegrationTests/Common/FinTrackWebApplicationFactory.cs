@@ -2,6 +2,7 @@
 using FinTrack.API.Core.Common;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
+using FinTrack.API.Infrastructure.Data;
 using FinTrack.API.Infrastructure.Identity.Services;
 using FinTrack.API.Infrastructure.Interfaces;
 using FinTrack.API.TestMocks.Builders;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using VaultSharp;
 
 namespace FinTrack.IntegrationTests.Common
@@ -24,6 +26,7 @@ namespace FinTrack.IntegrationTests.Common
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Testing");
+
             builder.ConfigureServices(services =>
             {
                 //Remove all services to work with database

@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-
 namespace FinTrack.API.Infrastructure.Identity.Services
 {
     public class JwtTokenService : IJwtTokenService
@@ -20,7 +19,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             _signingService = signingService;
             _jwtOptions = jwtOptions.Value;
         }
-        
+
         public async Task<string> GenerateTokenAsync(User user)
         {
             var claims = new List<Claim>
@@ -28,7 +27,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
-            claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            claims.AddRange(user.Roles.Select(role => new Claim("role", role)));
 
 
             var descriptor = new SecurityTokenDescriptor()
@@ -39,13 +38,25 @@ namespace FinTrack.API.Infrastructure.Identity.Services
                 Subject = new ClaimsIdentity(claims)
             };
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateJwtSecurityToken(descriptor);
+            var header = new JwtHeader(signingCredentials: null);
+            header["alg"] = "none";
+
+            var payload = new JwtPayload(
+                issuer: _jwtOptions.Issuer,
+                audience: _jwtOptions.Audience,
+                claims: claims,
+                notBefore: DateTime.UtcNow,
+                expires: DateTime.UtcNow.Add(_jwtOptions.LifeTime),
+                issuedAt: DateTime.UtcNow
+            );
+
+            var token = new JwtSecurityToken(header, payload);
 
             string rawToken = $"{token.EncodedHeader}.{token.EncodedPayload}";
             string signedToken = await _signingService.SignTokenAsync(rawToken);
-
             return signedToken;
+
+
         }
     }
 }

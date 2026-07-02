@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using FinTrack.API.Infrastructure.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 
@@ -28,7 +29,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             _key = key;
         }
 
-        async public Task<string> SignTokenAsync(string rawToken)
+        public Task<string> SignTokenAsync(string rawToken)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(rawToken);
             using (var hmac = new HMACSHA256(_key)){
@@ -36,13 +37,15 @@ namespace FinTrack.API.Infrastructure.Identity.Services
                 byte[] hash = hmac.ComputeHash(bytes);
 
                 string sign = Base64UrlEncoder.Encode(hash);
-                
-                return $"{rawToken}.{sign}";
+                var signedToken = $"{rawToken}.{sign}";
+
+                return Task.FromResult(signedToken);
             }
         }
 
-        async public Task<bool> VerifyTokenAsync(string token)
-        {   
+        public Task<bool> VerifyTokenAsync(string token)
+        {
+            token = token.Trim();
             var sp = token.Split('.');
 
             var payload = sp[0] + '.' + sp[1];
@@ -52,9 +55,12 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             using(var hmac = new HMACSHA256(_key))
             {
                 byte[] hash = hmac.ComputeHash(bytes);
+                var valid = CryptographicOperations.FixedTimeEquals(tokenSign, hash);
 
-                return CryptographicOperations.FixedTimeEquals(tokenSign, hash);
+                return Task.FromResult(valid);
             }
         }
+
+        
     }
 }

@@ -17,7 +17,6 @@ services:
     - POSTGRES_PORT=${POSTGRES_PORT}
     - Serilog__WriteTo__2__Args__uri=${LOKI_URI}
     - HashicorpVaultOptions__VaultAddress=${VAULT_URI}
-    - VAULT_CREDS_PATH=/shared/vault-creds.json
     
     depends_on:
       db:
@@ -30,8 +29,6 @@ services:
     - fintrack-api-network
   db:
    image: postgres:18.4
-   ports: 
-   - 5432:5432
    volumes:
    - postgres-data:/var/lib/postgresql
    environment:
@@ -44,7 +41,7 @@ services:
   
   vault:
     image: hashicorp/vault:2.0.3
-    ports:
+    ports: 
     - 8200:8200
     volumes: 
     - vault-data:/vault/file
@@ -69,8 +66,6 @@ services:
 
   loki:
     image: grafana/loki:3.7.0
-    ports:
-    - 3100:3100
     volumes:
     - loki-data:/loki
     - ../configs/loki.yaml:/etc/loki/local-config.yaml

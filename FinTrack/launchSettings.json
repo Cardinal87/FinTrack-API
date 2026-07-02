@@ -5,17 +5,6 @@
       "commandVersion": "1.0",
       "serviceActions": {
         "fintrack.api": "StartDebugging"
-      },
-      "environmentVariables": {
-        "POSTGRES_HOST": "db",
-        "POSTGRES_PORT": "5432",
-        "POSTGRES_USER": "postgres",
-        "POSTGRES_PASSWORD": "password",
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "GRAFANA_USERNAME": "admin",
-        "GRAFANA_PASSWORD": "password",
-        "LOKI_URI": "http://loki:3100",
-        "VAULT_URI": "http://vault:8200"
       }
     }
   }
