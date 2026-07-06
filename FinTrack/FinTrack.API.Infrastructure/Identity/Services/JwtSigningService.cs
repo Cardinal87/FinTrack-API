@@ -37,7 +37,6 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             byte[] bytes = Encoding.UTF8.GetBytes(rawToken);
             string base64 = Convert.ToBase64String(bytes);
 
-            var token = await _client.V1.Auth.AppRole.LoginAsync(new AppRoleAuthMethodInfo(_options.RoleID, _options.SecretID));
 
 
             var signOptions = new SignRequestOptions

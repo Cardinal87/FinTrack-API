@@ -2,12 +2,23 @@
 
 set -e
 
+
 if vault status -format=json 2>/dev/null | jq -e '.initialized == true' > /dev/null; then
   echo 'Vault already initialized.'
   if vault status -format=json | jq -e '.sealed == true' > /dev/null; then
-    echo 'ERROR: Vault is sealed, but no keys are stored.'
-    echo 'Please unseal manually using the keys from the first initialization.'
-    exit 1
+    if [ ! -f /shared/keys.txt ]; then
+        echo "Vault is sealed but no keys file found"
+        exit 1
+    fi 
+    keys=$(cat /shared/keys.txt)
+
+    echo 'Unsealing Vault...'
+    for key in $keys; do
+        vault operator unseal "$key"
+    done
+    
+    echo "Vaule unsealed completely"
+
   else
     echo 'Vault is already unsealed and ready to use.'
   fi
@@ -19,13 +30,13 @@ else
     keys=$(echo "$init_json" | jq -r '.unseal_keys_b64[]')
     token=$(echo "$init_json" | jq -r '.root_token')
 
+    echo $keys > /shared/keys.txt
+
     echo 'Unsealing Vault...'
     for key in $keys; do
     vault operator unseal "$key"
     done
 
-
-    echo "Root token: $token"
     echo 'Vault initialization and unseal completed successfully.'
 
     echo 'Creating signing key...'
@@ -38,28 +49,23 @@ else
     echo 'Creating policy...'
     vault policy write fintrack-api-policy /configs/fintrack-api-policy.hcl
 
+    api_ip=$(getent hosts fintrack.api | awk '{ print $1 }')
 
     echo 'Configuring approle authetication...'
     vault auth enable approle
     vault write auth/approle/role/fintrack-api-role \
-      secret_id_ttl="720h" \
+      bind_secret_id=false \
+      token_bound_cidrs="10.0.0.30/32" \
+      secret_id_bound_cidrs="10.0.0.30/32" \
       token_policies="fintrack-api-policy" \
       token_ttl="1h" \
       max_token_ttl="10h" 
 
     role_id=$(vault read -format=json auth/approle/role/fintrack-api-role/role-id | jq -r '.data.role_id')
-    secret_id=$(vault write -f -format=json auth/approle/role/fintrack-api-role/secret-id | jq -r '.data.secret_id')
+    echo "$role_id" > /shared/roleid
 
+    vault token revoke -self
     
-
-    jq -n \
-      --arg rid "$role_id" \
-      --arg sid "$secret_id" \
-      '{ "HashicorpVaultOptions": { "RoleID": $rid, "SecretID": $sid } }' > /shared/vault-creds.json
-    
-    chmod 644 /shared/vault-creds.json
-
-    echo "API Role Id ${role_id}"
-    echo "API Secret Id ${secret_id}"
+    chmod 644 /shared/roleid
 
 fi

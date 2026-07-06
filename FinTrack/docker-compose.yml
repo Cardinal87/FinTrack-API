@@ -17,6 +17,7 @@ services:
     - POSTGRES_PORT=${POSTGRES_PORT}
     - Serilog__WriteTo__2__Args__uri=${LOKI_URI}
     - HashicorpVaultOptions__VaultAddress=${VAULT_URI}
+    - VAULT_CREDS_PATH=/shared/vault-creds.json
     
     depends_on:
       db:
@@ -26,7 +27,10 @@ services:
       vault-init:
         condition: service_completed_successfully
     networks:
-    - fintrack-api-network
+      api-network:
+         ipv4_address: 10.0.0.30
+      telemetry-network:
+
   db:
    image: postgres:18.4
    volumes:
@@ -36,7 +40,7 @@ services:
    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
    - POSTGRES_DB=FinTrackDb
    networks:
-   - fintrack-api-network
+   - api-network
 
   
   vault:
@@ -48,7 +52,7 @@ services:
     - ../configs/vault.hcl:/vault/config/config.hcl
     entrypoint: ["vault", "server", "-config=/vault/config/config.hcl"]
     networks:
-    - fintrack-api-network
+    - api-network
   
 
 
@@ -61,7 +65,7 @@ services:
     environment:
       - VAULT_ADDR=http://vault:8200
     networks:
-      - fintrack-api-network
+      - api-network
 
 
   loki:
@@ -70,7 +74,8 @@ services:
     - loki-data:/loki
     - ../configs/loki.yaml:/etc/loki/local-config.yaml
     networks:
-    - fintrack-api-network
+    - telemetry-network
+    - grafana-network
 
 
   grafana:
@@ -83,7 +88,7 @@ services:
     - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     networks:
-    - fintrack-api-network
+    - grafana-network
 
   prometheus:
     image: prom/prometheus:v3.12.0
@@ -93,7 +98,8 @@ services:
     - prometheus-data:/prometheus
     - ../configs/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
-    - fintrack-api-network
+    - telemetry-network
+    - grafana-network
 
 volumes:
   fintrack-logs:
@@ -105,6 +111,15 @@ volumes:
   vault-creds:
 
 networks:
-  fintrack-api-network:
+  api-network:
     driver: bridge
+    internal: true
+    ipam:
+      config:
+      - subnet: 10.0.0.0/24
+  grafana-network:
+    driver: bridge
+  telemetry-network:
+    driver: bridge
+    internal: true
  

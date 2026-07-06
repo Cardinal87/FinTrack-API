@@ -39,7 +39,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             };
 
             var header = new JwtHeader(signingCredentials: null);
-            header["alg"] = "none";
+            header["alg"] = "ed25519";
 
             var payload = new JwtPayload(
                 issuer: _jwtOptions.Issuer,
