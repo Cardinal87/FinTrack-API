@@ -62,7 +62,9 @@ else
       max_token_ttl="10h" 
 
     role_id=$(vault read -format=json auth/approle/role/fintrack-api-role/role-id | jq -r '.data.role_id')
-    echo "$role_id" > /shared/roleid
+    jq -n \
+    --arg rid "$role_id" \
+    '{ "HashicorpVaultOptions": { "RoleID": $rid } }' > /shared/roleid
 
     vault token revoke -self
     

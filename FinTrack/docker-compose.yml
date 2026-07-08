@@ -1,3 +1,4 @@
+version: "3.9"
 services:
   fintrack.api:
     #image: cardinal87/fintrack:latest
@@ -17,7 +18,7 @@ services:
     - POSTGRES_PORT=${POSTGRES_PORT}
     - Serilog__WriteTo__2__Args__uri=${LOKI_URI}
     - HashicorpVaultOptions__VaultAddress=${VAULT_URI}
-    - VAULT_CREDS_PATH=/shared/vault-creds.json
+    - ROLEID_PATH=/shared/roleid
     
     depends_on:
       db:
@@ -113,7 +114,6 @@ volumes:
 networks:
   api-network:
     driver: bridge
-    internal: true
     ipam:
       config:
       - subnet: 10.0.0.0/24

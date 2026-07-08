@@ -24,13 +24,13 @@ namespace FinTrack.API.Infrastructure.Decorators
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var decoded = jwtTokenHandler.ReadJwtToken(token);
 
-            var sub = decoded.Claims.FirstOrDefault(t => t.Type == JwtRegisteredClaimNames.Sub);
-            var jti = decoded.Claims.FirstOrDefault(t => t.Type == JwtRegisteredClaimNames.Jti);
+            var sub = decoded.Claims.FirstOrDefault(t => t.Type == JwtRegisteredClaimNames.Sub)?.Value;
+            var jti = decoded.Claims.FirstOrDefault(t => t.Type == JwtRegisteredClaimNames.Jti)?.Value;
 
             _logger.LogInformation("User with id {userId} get token with sub {Sub} and jti {Jti}",
                                     user.Id,
-                                    sub,
-                                    jti);
+                                    sub ?? "Undefined",
+                                    jti ?? "Undefined");
 
             return token;
         }

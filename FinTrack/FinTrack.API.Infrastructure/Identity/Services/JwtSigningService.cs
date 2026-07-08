@@ -1,13 +1,9 @@
 using FinTrack.API.Infrastructure.Identity.DTO;
 using FinTrack.API.Infrastructure.Interfaces;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
 using System.Text;
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using VaultSharp;
-using VaultSharp.V1.AuthMethods.AppRole;
-using VaultSharp.V1.SecretsEngines.Transit;
 
 namespace FinTrack.API.Infrastructure.Identity.Services
 {
@@ -15,12 +11,12 @@ namespace FinTrack.API.Infrastructure.Identity.Services
     {
         private const string rawTokenFormat = @"^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$";
         private readonly VaultOptions _options;
-        private readonly IVaultClient _client;
+        private readonly HttpClient _client;
 
 
-        public JwtSigningService(IOptions<VaultOptions> options, IVaultClient client)
+        public JwtSigningService(IOptions<VaultOptions> options, IHttpClientFactory client)
         {
-            _client = client;
+            _client = client.CreateClient("SigningService");
             _options = options.Value;
         }
 
@@ -37,16 +33,20 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             byte[] bytes = Encoding.UTF8.GetBytes(rawToken);
             string base64 = Convert.ToBase64String(bytes);
 
-
-
-            var signOptions = new SignRequestOptions
+            var response = await _client.PostAsJsonAsync($"v1/transit/sign/{_options.KeyName}", new
             {
-                Base64EncodedInput = base64
-            };
-            var signResp = await _client.V1.Secrets.Transit.SignDataAsync(_options.KeyName, signOptions);
+                input = base64
+            });
 
-            var sign = signResp.Data.Signature.Split(':')[2];
+            response.EnsureSuccessStatusCode();
 
+            var result = await response.Content.ReadFromJsonAsync<VaultSign>();
+
+            var sign = result.data.signature.Split(':')[2];
+
+            sign = sign.Replace('+', '-')
+                        .Replace('/', '_')
+                        .TrimEnd('=');
             return $"{rawToken}.{sign}";
         }
 
@@ -55,25 +55,46 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             var sp = token.Split('.');
 
             var payload = sp[0] + '.' + sp[1];
-            var sign = sp[2];
+            var sign = sp[2].Replace('-', '+')
+                            .Replace('_', '/');
+
+            var padding = (sign.Length % 4) switch
+            {
+                2 => "==",
+                3 => "=",
+                _ => ""
+            };
+            sign += padding;
 
             byte[] bytes = Encoding.UTF8.GetBytes(payload);
             string base64 = Convert.ToBase64String(bytes);
 
 
-            var verifyOptions = new VerifyRequestOptions
+            var response = await _client.PostAsJsonAsync($"/v1/transit/verify/{_options.KeyName}", new
             {
-                Base64EncodedInput = base64,
-                Signature = $"vault:v1:{sign}"
-            };
+                input = base64,
+                signature = $"vault:v1:{sign}"
+            });
+            response.EnsureSuccessStatusCode();
 
-            var verifyResp = await _client.V1.Secrets.Transit.VerifySignedDataAsync(_options.KeyName, verifyOptions);
-            if (verifyResp.Data.Valid)
+
+            var result = await response.Content.ReadFromJsonAsync<VaultVerify>();
+
+            if (result.data.valid)
             {
                 return true;
             }
-
             return false;
+        }
+
+        readonly record struct VaultSign(VaultSign.Data data)
+        {
+            public readonly record struct Data(int key_version, string signature);
+        }
+
+        readonly record struct VaultVerify(VaultVerify.Data data)
+        {
+            public readonly record struct Data(bool valid);
         }
     }
 }

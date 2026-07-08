@@ -15,10 +15,7 @@ using FinTrack.API.Infrastructure.Decorators;
 using Serilog;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Metrics;
-using VaultSharp.V1.AuthMethods.AppRole;
-using VaultSharp;
 using FinTrack.API.Infrastructure.Interfaces;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace FinTrack.API
@@ -51,7 +48,7 @@ namespace FinTrack.API
                 serviceName = builder.Environment.ApplicationName;
                 environment = builder.Environment.EnvironmentName;
 
-                var vaultCredsPath = Environment.GetEnvironmentVariable("VAULT_CREDS_PATH");
+                var vaultCredsPath = Environment.GetEnvironmentVariable("ROLEID_PATH");
                 builder.Configuration.AddJsonFile(Path.Combine(AppContext.BaseDirectory, "appsettings.json"));
 
                 if (!String.IsNullOrEmpty(vaultCredsPath)){
@@ -189,13 +186,21 @@ namespace FinTrack.API
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IJwtSigningService, JwtSigningService>();
             services.AddSingleton<IPasswordHasher, PBKDF2PasswordHasher>();
-            services.AddScoped<IVaultClient>((service) =>
+
+            //Hashicorp Vault 
+            services.AddSingleton<IVaultTokenProvider, VaultTokenProvider>();
+            services.AddTransient<VaultTokenHeaderHandler>();
+
+            var vaultAddress = config["HashicorpVaultOptions:VaultAddress"] ?? "http://localhost:8200";
+            services.AddHttpClient("SigningService", client =>
             {
-                var options = service.GetRequiredService<IOptions<VaultOptions>>().Value;
-                var authMethod = new AppRoleAuthMethodInfo(options.RoleID, options.SecretID);
-                var vaultClientSettins = new VaultClientSettings(options.VaultAddress, authMethod);
-                var vaultClient = new VaultClient(vaultClientSettins);
-                return vaultClient;
+                client.BaseAddress = new Uri(vaultAddress);
+
+            }).AddHttpMessageHandler<VaultTokenHeaderHandler>();
+            services.AddHttpClient("VaultTokenProvider", client =>
+            {
+                client.BaseAddress = new Uri(vaultAddress);
+
             });
 
 
