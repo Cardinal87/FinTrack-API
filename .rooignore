@@ -1,0 +1,24 @@
+# Сборка, кэш и бинарники .NET
+bin/
+obj/
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docproperties
+
+# Логи, артефакты компиляции и тесты
+*.log
+TestResults/
+*.trx
+*.cache
+
+# Сторонние зависимости и фронтенд (если есть)
+packages/
+node_modules/
+.paket/
+
+# Конфиги контроля версий
+.git/
+.github/
