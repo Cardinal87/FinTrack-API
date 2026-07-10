@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
-using FinTrack.API.Infrastructure.Data.DbEntities;
+using FinTrack.API.Infrastructure.Common.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinTrack.API.Infrastructure.Data.Repositories
@@ -144,7 +144,7 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
 
         public void Add(Transaction transaction)
         {
-            var dbTransaction = _mapper.Map<TransactionDb>(transaction);
+            var dbTransaction = _mapper.Map<TransactionDTO>(transaction);
             _client.Transactions.Add(dbTransaction);
         }
 

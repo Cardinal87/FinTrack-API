@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using FinTrack.API.Infrastructure.Data.DbEntities;
+using FinTrack.API.Infrastructure.Common.DTO;
 namespace FinTrack.API.Infrastructure.Data.Configurations
 {
-    class UserConfiguration : IEntityTypeConfiguration<UserDb>
+    class UserConfiguration : IEntityTypeConfiguration<UserDTO>
     {
-        public void Configure(EntityTypeBuilder<UserDb> builder)
+        public void Configure(EntityTypeBuilder<UserDTO> builder)
         {
             builder.ToTable("Users");
             
@@ -19,11 +19,6 @@ namespace FinTrack.API.Infrastructure.Data.Configurations
             builder.HasIndex(t => t.Name).IsUnique();
             builder.Property(t => t.Roles).IsRequired();
 
-            builder.HasMany(t => t.Accounts)
-                .WithOne(t => t.User)
-                .HasForeignKey(t => t.UserId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

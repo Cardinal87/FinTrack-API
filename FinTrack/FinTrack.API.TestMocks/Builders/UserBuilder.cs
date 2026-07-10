@@ -2,7 +2,7 @@
 
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
-using FinTrack.API.Infrastructure.Data.DbEntities;
+using FinTrack.API.Infrastructure.Common.DTO;
 
 namespace FinTrack.API.TestMocks.Builders
 {
@@ -34,9 +34,9 @@ namespace FinTrack.API.TestMocks.Builders
             return user;
         }
 
-        public UserDb BuildDbUser()
+        public UserDTO BuildDbUser()
         {
-            var dbUser = new UserDb()
+            var dbUser = new UserDTO()
             {
                 Id = Guid.NewGuid(),
                 Email = _email,

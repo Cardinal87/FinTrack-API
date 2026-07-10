@@ -2,7 +2,7 @@
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Exceptions;
 using FinTrack.API.Core.Interfaces;
-using FinTrack.API.Infrastructure.Data.DbEntities;
+using FinTrack.API.Infrastructure.Common.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinTrack.API.Infrastructure.Data.Repositories
@@ -56,7 +56,7 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
 
         public void Add(Account account)
         {
-            var dbAccount = _mapper.Map<AccountDb>(account);
+            var dbAccount = _mapper.Map<AccountDTO>(account);
             _client.Accounts.Add(dbAccount);
         }
 

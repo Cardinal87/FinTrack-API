@@ -6,10 +6,10 @@ using FluentAssertions;
 using FinTrack.IntegrationTests.Common;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using FinTrack.API.Infrastructure.Mappers;
-using FinTrack.API.Infrastructure.Data.DbEntities;
 using FinTrack.API.Core.Exceptions;
 using FinTrack.API.TestMocks.Builders;
+using FinTrack.API.Infrastructure.Common.Mappers;
+using FinTrack.API.Infrastructure.Common.DTO;
 
 namespace FinTrack.IntegrationTests.Repositories
 {
@@ -197,7 +197,7 @@ namespace FinTrack.IntegrationTests.Repositories
             {
                 var user = new UserBuilder().Build();
 
-                var userDb = new UserDb()
+                var userDb = new UserDTO()
                 {
                     Id = user.Id,
                     Email = user.Email,

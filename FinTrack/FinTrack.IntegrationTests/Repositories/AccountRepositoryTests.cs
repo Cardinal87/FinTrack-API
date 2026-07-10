@@ -1,19 +1,19 @@
 ﻿using AutoMapper;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
-using FinTrack.API.Infrastructure.Data.DbEntities;
 using FinTrack.API.Infrastructure.Data.Repositories;
-using FinTrack.API.Infrastructure.Mappers;
 using FinTrack.IntegrationTests.Common;
 using FinTrack.API.TestMocks.Builders;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using FinTrack.API.Infrastructure.Common.Mappers;
+using FinTrack.API.Infrastructure.Common.DTO;
 namespace FinTrack.IntegrationTests.Repositories
 {
     public class AccountRepositoryTests : DatabaseTestBase
     {
         private IAccountRepository _accountRepository = null!;
-        private UserDb defaultUser = null!;
+        private UserDTO defaultUser = null!;
         
         override async public ValueTask InitializeAsync()
         {
@@ -129,7 +129,7 @@ namespace FinTrack.IntegrationTests.Repositories
             {
                 var account = new Account(defaultUser.Id);
                 
-                var accountDb = new AccountDb()
+                var accountDb = new AccountDTO()
                 {
                     Id = account.Id,
                     UserId = account.UserId,

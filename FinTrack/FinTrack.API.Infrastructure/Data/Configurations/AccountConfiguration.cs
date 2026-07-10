@@ -1,12 +1,12 @@
-﻿using FinTrack.API.Infrastructure.Data.DbEntities;
+﻿using FinTrack.API.Infrastructure.Common.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FinTrack.API.Infrastructure.Data.Configurations
 {
-    class AccountConfiguration : IEntityTypeConfiguration<AccountDb>
+    class AccountConfiguration : IEntityTypeConfiguration<AccountDTO>
     {
-        public void Configure(EntityTypeBuilder<AccountDb> builder)
+        public void Configure(EntityTypeBuilder<AccountDTO> builder)
         {
             builder.ToTable("Accounts");
             
@@ -14,18 +14,10 @@ namespace FinTrack.API.Infrastructure.Data.Configurations
             builder.Property(t => t.Balance).HasPrecision(18,2).IsRequired();
             builder.Property(t => t.UserId).IsRequired();
 
-
-            builder.HasMany(t => t.OutgoingTransactions)
-                .WithOne(t => t.FromAccount)
-                .HasForeignKey(t => t.FromAccountId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
-
-            builder.HasMany(t => t.IncomingTransactions)
-                .WithOne(t => t.ToAccount)
-                .HasForeignKey(t => t.ToAccountId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired();
+            builder.HasOne<UserDTO>()
+                .WithMany()
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
         }
     }

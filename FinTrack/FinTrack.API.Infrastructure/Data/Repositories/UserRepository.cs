@@ -2,7 +2,7 @@
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Exceptions;
 using FinTrack.API.Core.Interfaces;
-using FinTrack.API.Infrastructure.Data.DbEntities;
+using FinTrack.API.Infrastructure.Common.DTO;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -64,7 +64,7 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
 
         public void Add(User user)
         {
-            var dbUser = _mapper.Map<UserDb>(user);
+            var dbUser = _mapper.Map<UserDTO>(user);
             _client.Users.Add(dbUser);
         }
 

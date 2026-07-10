@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using FluentAssertions;
 using FinTrack.IntegrationTests.Common;
-using FinTrack.API.Infrastructure.Data.DbEntities;
 using FinTrack.API.TestMocks.Builders;
 using FinTrack.API.Core.Entities;
+using FinTrack.API.Infrastructure.Common.DTO;
 
 namespace FinTrack.IntegrationTests.Databases
 {
@@ -63,12 +63,12 @@ namespace FinTrack.IntegrationTests.Databases
             await _client.SaveChangesAsync();
 
 
-            var firstAccount = new AccountDb()
+            var firstAccount = new AccountDTO()
             {
                 UserId = user.Id,
                 Balance = 0
             };
-            var secondAccount = new AccountDb()
+            var secondAccount = new AccountDTO()
             {
                 UserId = user.Id,
                 Balance = 0

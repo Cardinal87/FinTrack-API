@@ -1,12 +1,12 @@
-﻿using FinTrack.API.Infrastructure.Data.DbEntities;
+﻿using FinTrack.API.Infrastructure.Common.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FinTrack.API.Infrastructure.Data.Configurations
 {
-    class TransactionConfiguration : IEntityTypeConfiguration<TransactionDb>
+    class TransactionConfiguration : IEntityTypeConfiguration<TransactionDTO>
     {
-        public void Configure(EntityTypeBuilder<TransactionDb> builder)
+        public void Configure(EntityTypeBuilder<TransactionDTO> builder)
         {
             builder.ToTable("Transactions");
             
@@ -15,6 +15,17 @@ namespace FinTrack.API.Infrastructure.Data.Configurations
             builder.Property(t => t.FromAccountId).IsRequired();
             builder.Property(t => t.ToAccountId).IsRequired();
             builder.Property(t => t.Date).HasColumnType("timestamp with time zone");
+
+            builder.HasOne<AccountDTO>()
+                .WithMany()
+                .HasForeignKey(t => t.FromAccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne<AccountDTO>()
+                .WithMany()
+                .HasForeignKey(t => t.ToAccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
     }
 }

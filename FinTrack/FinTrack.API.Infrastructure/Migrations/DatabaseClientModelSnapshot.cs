@@ -18,12 +18,12 @@ namespace FinTrack.API.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.7")
+                .HasAnnotation("ProductVersion", "9.0.17")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("FinTrack.API.Infrastructure.Data.DbEntities.AccountDb", b =>
+            modelBuilder.Entity("FinTrack.API.Infrastructure.Common.DTO.AccountDTO", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -43,7 +43,7 @@ namespace FinTrack.API.Infrastructure.Migrations
                     b.ToTable("Accounts", (string)null);
                 });
 
-            modelBuilder.Entity("FinTrack.API.Infrastructure.Data.DbEntities.TransactionDb", b =>
+            modelBuilder.Entity("FinTrack.API.Infrastructure.Common.DTO.TransactionDTO", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -71,7 +71,7 @@ namespace FinTrack.API.Infrastructure.Migrations
                     b.ToTable("Transactions", (string)null);
                 });
 
-            modelBuilder.Entity("FinTrack.API.Infrastructure.Data.DbEntities.UserDb", b =>
+            modelBuilder.Entity("FinTrack.API.Infrastructure.Common.DTO.UserDTO", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -115,46 +115,28 @@ namespace FinTrack.API.Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("FinTrack.API.Infrastructure.Data.DbEntities.AccountDb", b =>
+            modelBuilder.Entity("FinTrack.API.Infrastructure.Common.DTO.AccountDTO", b =>
                 {
-                    b.HasOne("FinTrack.API.Infrastructure.Data.DbEntities.UserDb", "User")
-                        .WithMany("Accounts")
+                    b.HasOne("FinTrack.API.Infrastructure.Common.DTO.UserDTO", null)
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FinTrack.API.Infrastructure.Data.DbEntities.TransactionDb", b =>
+            modelBuilder.Entity("FinTrack.API.Infrastructure.Common.DTO.TransactionDTO", b =>
                 {
-                    b.HasOne("FinTrack.API.Infrastructure.Data.DbEntities.AccountDb", "FromAccount")
-                        .WithMany("OutgoingTransactions")
+                    b.HasOne("FinTrack.API.Infrastructure.Common.DTO.AccountDTO", null)
+                        .WithMany()
                         .HasForeignKey("FromAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FinTrack.API.Infrastructure.Data.DbEntities.AccountDb", "ToAccount")
-                        .WithMany("IncomingTransactions")
+                    b.HasOne("FinTrack.API.Infrastructure.Common.DTO.AccountDTO", null)
+                        .WithMany()
                         .HasForeignKey("ToAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("FromAccount");
-
-                    b.Navigation("ToAccount");
-                });
-
-            modelBuilder.Entity("FinTrack.API.Infrastructure.Data.DbEntities.AccountDb", b =>
-                {
-                    b.Navigation("IncomingTransactions");
-
-                    b.Navigation("OutgoingTransactions");
-                });
-
-            modelBuilder.Entity("FinTrack.API.Infrastructure.Data.DbEntities.UserDb", b =>
-                {
-                    b.Navigation("Accounts");
                 });
 #pragma warning restore 612, 618
         }

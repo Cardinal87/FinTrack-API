@@ -5,7 +5,7 @@ using FluentAssertions;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net;
-using FinTrack.API.Infrastructure.Data.DbEntities;
+using FinTrack.API.Infrastructure.Common.DTO;
 
 namespace FinTrack.IntegrationTests.API.TransactionControllerTests
 {
@@ -75,7 +75,7 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
 
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDb>>>();
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDTO>>>();
             data.Should().NotBeNull();
 
             var transactions = data["transactions"];
@@ -100,7 +100,7 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
 
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDb>>>();
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDTO>>>();
             data.Should().NotBeNull();
 
             var transactions = data["transactions"];

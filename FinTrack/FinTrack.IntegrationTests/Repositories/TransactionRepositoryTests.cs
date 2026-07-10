@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
-using FinTrack.API.Infrastructure.Data.DbEntities;
+using FinTrack.API.Infrastructure.Common.DTO;
+using FinTrack.API.Infrastructure.Common.Mappers;
 using FinTrack.API.Infrastructure.Data.Repositories;
-using FinTrack.API.Infrastructure.Mappers;
 using FinTrack.API.TestMocks.Builders;
 using FinTrack.IntegrationTests.Common;
 using FluentAssertions;
@@ -35,13 +35,13 @@ namespace FinTrack.IntegrationTests.Repositories
             var fromAccount = new Account(user.Id);
             var toAccount = new Account(user.Id);
 
-            var fromAccountDb = new AccountDb()
+            var fromAccountDb = new AccountDTO()
             {
                 Id = fromAccount.Id,
                 Balance = 0,
                 UserId = user.Id
             };
-            var toAccountDb = new AccountDb()
+            var toAccountDb = new AccountDTO()
             {
                 Id = toAccount.Id,
                 Balance = 0,
@@ -149,7 +149,7 @@ namespace FinTrack.IntegrationTests.Repositories
             {
                 var transaction = new Transaction(100, _fromAccount.Id, _toAccount.Id, date);
 
-                var transactionDb = new TransactionDb()
+                var transactionDb = new TransactionDTO()
                 {
                     Id = transaction.Id,
                     Amount = transaction.Amount,
