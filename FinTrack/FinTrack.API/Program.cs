@@ -170,7 +170,7 @@ namespace FinTrack.API
                     OnTokenValidated = async context =>
                     {                        
                         var signingService = context.HttpContext.RequestServices.GetRequiredService<IJwtSigningService>();
-                        var rawToken = (context.SecurityToken as JsonWebToken ?? throw new NullReferenceException("Unable to retrive jwt token"));
+                        var rawToken = context.SecurityToken as JsonWebToken ?? throw new NullReferenceException("Unable to retrive jwt token");
                         bool success = await signingService.VerifyTokenAsync(rawToken.EncodedToken);
                         if (!success)
                         {

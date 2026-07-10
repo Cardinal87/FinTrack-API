@@ -1,9 +1,9 @@
 services:
   fintrack.api:
-    #image: cardinal87/fintrack:latest
-    build:
-      context: .
-      dockerfile: Fintrack.Api/Dockerfile
+    image: cardinal87/fintrack:latest
+    #build:
+    #context: .
+    #dockerfile: Fintrack.Api/Dockerfile
     ports:
       - 8080:8080
     volumes:
@@ -20,11 +20,7 @@ services:
       - ROLEID_PATH=/shared/roleid
 
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -f http://localhost:8080/health",
-        ]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health"]
       interval: 15s
       timeout: 2s
       retries: 3

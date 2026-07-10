@@ -27,7 +27,7 @@ namespace FinTrack.API.Infrastructure.Decorators
             var sub = decoded.Claims.FirstOrDefault(t => t.Type == JwtRegisteredClaimNames.Sub)?.Value;
             var jti = decoded.Claims.FirstOrDefault(t => t.Type == JwtRegisteredClaimNames.Jti)?.Value;
 
-            _logger.LogInformation("User with id {userId} get token with sub {$sub} and jti {$jti}",
+            _logger.LogInformation("User with id {userId} get token with sub {sub} and jti {jti}",
                                     user.Id,
                                     sub ?? "Undefined",
                                     jti ?? "Undefined");
