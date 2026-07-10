@@ -61,13 +61,13 @@ namespace FinTrack.API
                 {
                     lc.ReadFrom.Configuration(builder.Configuration).
                         ReadFrom.Services(services);
-                }, preserveStaticLogger: true);
+                }, preserveStaticLogger: isTesting);
                 
-
 
                 ConfigureServices(builder.Services, builder.Configuration);
                 var app = builder.Build();
                 app.MapPrometheusScrapingEndpoint();
+                app.MapHealthChecks("/health");
 
                 if (!isTesting)
                 {
@@ -105,6 +105,15 @@ namespace FinTrack.API
                         dc.Set("ClientIP", ctx.Connection.RemoteIpAddress?.ToString() ?? "undefined");
                         dc.Set("UserAgent", ctx.Request.Headers.UserAgent.ToString());
                     };
+
+                    options.GetLevel = (httpContext, elapsed, ex) =>
+                    {
+                        if (httpContext.Response.StatusCode >= 500 || ex != null)
+                        {
+                            return Serilog.Events.LogEventLevel.Warning;
+                        }
+                        return Serilog.Events.LogEventLevel.Information;
+                    };
                 });
 
                 app.UseAuthentication();
@@ -137,6 +146,7 @@ namespace FinTrack.API
         private static void ConfigureServices(IServiceCollection services, IConfiguration config)
         {
             services.AddControllers();
+            services.AddHealthChecks();
 
             //Authorization and authetication
             services.AddAuthorization();
@@ -252,7 +262,7 @@ namespace FinTrack.API
                     .AllowCredentials();
                 });
             });
-
+                
             //Exception handlers
             services.AddExceptionHandler<GlobalExceptionHandler>();
             services.AddProblemDetails();

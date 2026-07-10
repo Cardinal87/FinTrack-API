@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   fintrack.api:
     #image: cardinal87/fintrack:latest
@@ -6,101 +5,148 @@ services:
       context: .
       dockerfile: Fintrack.Api/Dockerfile
     ports:
-    - 8080:8080
+      - 8080:8080
     volumes:
-    - fintrack-logs:/app/logs
-    - vault-creds:/shared
+      - fintrack-logs:/app/logs
+      - vault-creds:/shared
     environment:
-    - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
-    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    - POSTGRES_USERNAME=${POSTGRES_USER}
-    - POSTGRES_HOST=${POSTGRES_HOST}
-    - POSTGRES_PORT=${POSTGRES_PORT}
-    - Serilog__WriteTo__2__Args__uri=${LOKI_URI}
-    - HashicorpVaultOptions__VaultAddress=${VAULT_URI}
-    - ROLEID_PATH=/shared/roleid
-    
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USERNAME=${POSTGRES_USER}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - Serilog__WriteTo__2__Args__uri=${LOKI_URI}
+      - HashicorpVaultOptions__VaultAddress=${VAULT_URI}
+      - ROLEID_PATH=/shared/roleid
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:8080/health",
+        ]
+      interval: 15s
+      timeout: 2s
+      retries: 3
+      start_period: 20s
+
     depends_on:
       db:
-        condition: service_started  
+        condition: service_healthy
       loki:
         condition: service_started
       vault-init:
         condition: service_completed_successfully
     networks:
       api-network:
-         ipv4_address: 10.0.0.30
+        ipv4_address: 10.0.0.30
       telemetry-network:
 
   db:
-   image: postgres:18.4
-   volumes:
-   - postgres-data:/var/lib/postgresql
-   environment:
-   - POSTGRES_USER=${POSTGRES_USER}
-   - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-   - POSTGRES_DB=FinTrackDb
-   networks:
-   - api-network
+    image: postgres:18.4
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=FinTrackDb
 
-  
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      - api-network
+
   vault:
     image: hashicorp/vault:2.0.3
-    ports: 
-    - 8200:8200
-    volumes: 
-    - vault-data:/vault/file
-    - ../configs/vault.hcl:/vault/config/config.hcl
+    ports:
+      - 8200:8200
+    volumes:
+      - vault-data:/vault/file
+      - ../configs/vault.hcl:/vault/config/config.hcl
     entrypoint: ["vault", "server", "-config=/vault/config/config.hcl"]
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "vault status -address=http://127.0.0.1:8200 >/dev/null 2>&1; code=$$?; [ $$code -eq 0 ] || [ $$code -eq 2 ]",
+        ]
+      interval: 15s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
     networks:
-    - api-network
-  
-
+      - api-network
 
   vault-init:
-    image: cardinal87/autovault:1.0.0  
+    image: cardinal87/autovault:1.0.0
     volumes:
-    - vault-creds:/shared
+      - vault-creds:/shared
     depends_on:
-      - vault
+      vault:
+        condition: service_healthy
     environment:
       - VAULT_ADDR=http://vault:8200
     networks:
       - api-network
 
-
   loki:
     image: grafana/loki:3.7.0
     volumes:
-    - loki-data:/loki
-    - ../configs/loki.yaml:/etc/loki/local-config.yaml
-    networks:
-    - telemetry-network
-    - grafana-network
+      - loki-data:/loki
+      - ../configs/loki.yaml:/etc/loki/local-config.yaml
 
+    networks:
+      - telemetry-network
+      - grafana-network
 
   grafana:
     image: grafana/grafana:13.1.0
     ports:
-    - 3000:3000
+      - 3000:3000
     volumes:
-    - grafana-data:/var/lib/grafana
+      - grafana-data:/var/lib/grafana
     environment:
-    - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
-    - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO /dev/null http://localhost:3000/api/health || exit 1",
+        ]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
     networks:
-    - grafana-network
+      - grafana-network
 
   prometheus:
     image: prom/prometheus:v3.12.0
     ports:
-    - 9090:9090
+      - 9090:9090
     volumes:
-    - prometheus-data:/prometheus
-    - ../configs/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+      - ../configs/prometheus.yml:/etc/prometheus/prometheus.yml
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO /dev/null http://localhost:9090/-/ready || exit 1",
+        ]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
     networks:
-    - telemetry-network
-    - grafana-network
+      - telemetry-network
+      - grafana-network
 
 volumes:
   fintrack-logs:
@@ -116,10 +162,9 @@ networks:
     driver: bridge
     ipam:
       config:
-      - subnet: 10.0.0.0/24
+        - subnet: 10.0.0.0/24
   grafana-network:
     driver: bridge
   telemetry-network:
     driver: bridge
     internal: true
- 
