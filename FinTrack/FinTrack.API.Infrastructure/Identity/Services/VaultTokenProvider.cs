@@ -41,12 +41,40 @@ namespace FinTrack.API.Infrastructure.Identity.Services
 
                 var response = await _client.PostAsJsonAsync("/v1/auth/approle/login", new { role_id = _options.RoleID });
 
+                if (!response.IsSuccessStatusCode)
+                {
+                    var parsedErrors = "undefined";
+                    try
+                    {
+                        var errorObj = await response.Content.ReadFromJsonAsync<VaultErrors>();
+                        if (errorObj.errors != null)
+                        {
+                            parsedErrors = string.Join("; ", errorObj.errors);
+                        }
+                    }
+                    catch
+                    {
+                        parsedErrors = "Failed to parse Vault errors";
+                    }
+                    var endpoint = response.RequestMessage?.RequestUri?.ToString() ?? "unknown";
+
+                    _logger.LogError(
+                        "Failed to authenticate with Vault AppRole. " +
+                        "StatusCode: {StatusCode}, VaultResponse: {VaultResponse} " +
+                        "Endpoint: {Endpoint}",
+                        (int)response.StatusCode,
+                        parsedErrors,
+                        endpoint);
+
+                    response.EnsureSuccessStatusCode();
+                }
+
                 
                 var result = await response.Content.ReadFromJsonAsync<VaultResponse>();
 
                 _vaultToken = result.auth.client_token;
                 _expires = DateTime.Now.AddSeconds(result.auth.lease_duration);
-                _logger.LogInformation("token recieved successfully and expires at {0}", _expires);
+                _logger.LogDebug("token recieved successfully and expires at {ExpiresAt}", _expires);
 
                 return _vaultToken;
 
@@ -61,5 +89,6 @@ namespace FinTrack.API.Infrastructure.Identity.Services
         {
             public readonly record struct Auth(string client_token, int lease_duration);
         }
+        readonly record struct VaultErrors(List<string> errors);
     }
 }
