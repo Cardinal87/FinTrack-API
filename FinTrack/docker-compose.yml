@@ -15,15 +15,16 @@ services:
       - POSTGRES_USERNAME=${POSTGRES_USER}
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PORT=${POSTGRES_PORT}
-      - Serilog__WriteTo__2__Args__uri=${LOKI_URI}
-      - HashicorpVaultOptions__VaultAddress=${VAULT_URI}
-      - ROLEID_PATH=/shared/roleid
+      - Serilog__WriteTo__2__Args__uri=http://loki:3100
+      - HashicorpVaultOptions__VaultAddress=http://vault:8200
+      - ROLEID_PATH=/shared/
+      - RedisOptions_ResidAddress=http://redis:6379
 
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/health"]
       interval: 15s
       timeout: 2s
-      retries: 3
+      retries: 5
       start_period: 20s
 
     depends_on:
@@ -33,6 +34,8 @@ services:
         condition: service_started
       vault-init:
         condition: service_completed_successfully
+      redis:
+        condition: service_healthy
     networks:
       api-network:
         ipv4_address: 10.0.0.30
@@ -51,8 +54,25 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 15s
       timeout: 3s
-      retries: 3
+      retries: 5
       start_period: 5s
+    networks:
+      - api-network
+
+  redis:
+    image: redis:8.8-alpine
+    volumes:
+      - redis-data:/data
+      - ../configs/redis.conf:/usr/local/etc/redis/redis.conf
+
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(redis-cli ping) = 'PONG' ] || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+    command: "redis-server /usr/local/etc/redis/redis.conf"
     networks:
       - api-network
 
@@ -117,7 +137,7 @@ services:
         ]
       interval: 15s
       timeout: 3s
-      retries: 3
+      retries: 5
       start_period: 20s
     networks:
       - grafana-network
@@ -138,7 +158,7 @@ services:
         ]
       interval: 15s
       timeout: 3s
-      retries: 3
+      retries: 5
       start_period: 5s
     networks:
       - telemetry-network
@@ -152,6 +172,7 @@ volumes:
   prometheus-data:
   vault-data:
   vault-creds:
+  redis-data:
 
 networks:
   api-network:
