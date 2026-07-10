@@ -16,7 +16,7 @@ namespace FinTrack.IntegrationTests.Repositories
         private ITransactionRepository _transactionRepository = null!;
         private Account _fromAccount = null!;
         private Account _toAccount = null!;
-        override async public Task InitializeAsync()
+        override async public ValueTask InitializeAsync()
         {
             await base.InitializeAsync();
             var config = new MapperConfiguration(cfg =>
@@ -58,12 +58,14 @@ namespace FinTrack.IntegrationTests.Repositories
         [Fact]
         async public Task AddTransaction_ValidData_Success()
         {
+            var cancellationToken = TestContext.Current.CancellationToken;
+
             var transaction = new Transaction(300, _fromAccount.Id, _toAccount.Id, DateTime.UtcNow);
 
             _transactionRepository.Add(transaction);
-            await _client.SaveChangesAsync();
+            await _client.SaveChangesAsync(cancellationToken);
 
-            var list = await _client.Transactions.ToListAsync();
+            var list = await _client.Transactions.ToListAsync(cancellationToken);
             list.Should().HaveCount(1);
             list[0].FromAccountId.Should().Be(_fromAccount.Id);
             list[0].ToAccountId.Should().Be(_toAccount.Id);

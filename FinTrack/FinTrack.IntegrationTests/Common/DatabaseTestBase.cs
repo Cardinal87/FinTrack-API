@@ -9,18 +9,18 @@ namespace FinTrack.IntegrationTests.Common
     public class DatabaseTestBase : IAsyncLifetime
     {
         protected DatabaseClient _client = null!;
-        private readonly PostgreSqlContainer _container = new PostgreSqlBuilder()
+        private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:18.4")
             .WithDatabase("test_db")
             .WithUsername("test_user")
             .WithPassword("test_password")
             .WithCleanUp(true)
             .Build();
-        async public Task DisposeAsync()
+        async public ValueTask DisposeAsync()
         {
             await _container.DisposeAsync();
         }
 
-        virtual async public Task InitializeAsync()
+        virtual async public ValueTask InitializeAsync()
         {
             await _container.StartAsync();
 

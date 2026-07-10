@@ -15,7 +15,7 @@ namespace FinTrack.IntegrationTests.Repositories
         private IAccountRepository _accountRepository = null!;
         private UserDb defaultUser = null!;
         
-        override async public Task InitializeAsync()
+        override async public ValueTask InitializeAsync()
         {
             await base.InitializeAsync();
             var config = new MapperConfiguration(cfg =>
@@ -35,6 +35,9 @@ namespace FinTrack.IntegrationTests.Repositories
         [Fact]
         async public Task AddAccount_ValidData_Success()
         {
+            var cancellationToken = TestContext.Current.CancellationToken;
+
+
             var first_account = new Account(defaultUser.Id);
             var second_account = new Account(defaultUser.Id);
 
@@ -42,8 +45,8 @@ namespace FinTrack.IntegrationTests.Repositories
             _accountRepository.Add(second_account);
             await _accountRepository.SaveChangesAsync();
 
-            await _client.SaveChangesAsync();
-            var accounts = await _client.Accounts.ToListAsync();
+            await _client.SaveChangesAsync(cancellationToken);
+            var accounts = await _client.Accounts.ToListAsync(cancellationToken);
 
             accounts.Should().HaveCount(2);
 
@@ -59,13 +62,15 @@ namespace FinTrack.IntegrationTests.Repositories
         [Fact]
         async public Task UpdateAccount_ValidData_Success()
         {
+            var cancellationToken = TestContext.Current.CancellationToken;
+
             var list = await AddValidAccounts(1);
             list[0].TopUp(500);
 
             await _accountRepository.UpdateAsync(list[0]);
             await _accountRepository.SaveChangesAsync();
 
-            var updated = await _client.Accounts.FirstOrDefaultAsync(t => t.Id == list[0].Id);
+            var updated = await _client.Accounts.FirstOrDefaultAsync(t => t.Id == list[0].Id,cancellationToken);
 
             updated.Should().NotBeNull();
             updated.Balance.Should().Be(500);
@@ -100,12 +105,14 @@ namespace FinTrack.IntegrationTests.Repositories
         [Fact]
         async public Task DeleteAccount_ValidData_Success()
         {
+            var cancellationToken = TestContext.Current.CancellationToken;
+
             var list = await AddValidAccounts(2);
 
             await _accountRepository.DeleteAsync(list[0].Id);
             await _accountRepository.SaveChangesAsync();
 
-            var accounts = await _client.Accounts.ToListAsync();
+            var accounts = await _client.Accounts.ToListAsync(cancellationToken);
 
             accounts.Should().HaveCount(1);
             var accountDb = accounts.First(t => t.Id == list[1].Id);

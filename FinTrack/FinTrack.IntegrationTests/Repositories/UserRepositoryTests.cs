@@ -17,7 +17,7 @@ namespace FinTrack.IntegrationTests.Repositories
     {
         private IUserRepository _userRepository = null!;
         
-        override async public Task InitializeAsync()
+        override async public ValueTask InitializeAsync()
         {
             await base.InitializeAsync();
             var config = new MapperConfiguration(cfg =>
@@ -34,13 +34,15 @@ namespace FinTrack.IntegrationTests.Repositories
         [Fact]
         async public Task AddUser_ValidData_Success()
         {
+            var cancellationToken = TestContext.Current.CancellationToken;
+
             var user = new UserBuilder().WithRoles(UserRoles.User, UserRoles.Admin)
                                         .Build();
 
             _userRepository.Add(user);
             await _userRepository.SaveChangesAsync();
 
-            var savedUser = await _client.Users.FirstOrDefaultAsync(t => t.Id == user.Id);
+            var savedUser = await _client.Users.FirstOrDefaultAsync(t => t.Id == user.Id, cancellationToken);
             savedUser.Should().NotBeNull();
             savedUser.Email.Should().Be(user.Email);
             savedUser.Phone.Should().Be(user.Phone);
@@ -78,6 +80,7 @@ namespace FinTrack.IntegrationTests.Repositories
         [Fact]
         async public Task UpdateUser_ValidData_Success()
         {
+            var cancellationToken = TestContext.Current.CancellationToken;
 
             var user = (await AddValidUsers(1))[0];
 
@@ -90,7 +93,7 @@ namespace FinTrack.IntegrationTests.Repositories
             await _userRepository.UpdateAsync(user);
             await _userRepository.SaveChangesAsync();
 
-            var updatedUser = await _client.Users.FirstOrDefaultAsync(t => t.Id == user.Id);
+            var updatedUser = await _client.Users.FirstOrDefaultAsync(t => t.Id == user.Id, cancellationToken);
             updatedUser.Should().NotBeNull();
             updatedUser.Email.Should().Be(user.Email);
             updatedUser.Name.Should().Be(user.Name);
