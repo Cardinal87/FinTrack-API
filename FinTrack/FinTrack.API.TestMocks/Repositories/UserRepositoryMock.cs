@@ -9,9 +9,10 @@ namespace FinTrack.API.TestMocks.Repositories
         private readonly List<User> _users = [];
         
         
-        public void Add(User user)
+        public Task AddAsync(User user)
         {
             _users.Add(user);
+            return Task.CompletedTask;
         }
 
         public Task DeleteAsync(Guid id)

@@ -7,9 +7,10 @@ namespace FinTrack.API.TestMocks.Repositories
     public class TransactionRepositoryMock : ITransactionRepository
     {
         private readonly List<Transaction> _transactions = [];
-        public void Add(Transaction transaction)
+        public Task AddAsync(Transaction transaction)
         {
             _transactions.Add(transaction);
+            return Task.CompletedTask;
         }
 
         public Task<IEnumerable<Transaction>> GetAllAsync(int pageNumber = 1, int pageSize = 50)

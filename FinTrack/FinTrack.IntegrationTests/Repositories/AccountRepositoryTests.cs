@@ -41,8 +41,8 @@ namespace FinTrack.IntegrationTests.Repositories
             var first_account = new Account(defaultUser.Id);
             var second_account = new Account(defaultUser.Id);
 
-            _accountRepository.Add(first_account);
-            _accountRepository.Add(second_account);
+            await _accountRepository.AddAsync(first_account);
+            await _accountRepository.AddAsync(second_account);
             await _accountRepository.SaveChangesAsync();
 
             await _client.SaveChangesAsync(cancellationToken);

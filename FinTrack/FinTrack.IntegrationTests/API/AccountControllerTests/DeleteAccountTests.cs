@@ -26,8 +26,8 @@ namespace FinTrack.IntegrationTests.API.AccountControllerTests
             var userAccount = new Account(_user.Id);
             var adminAccount = new Account(_admin.Id);
 
-            _factory.AccountRepositoryMock.Add(userAccount);
-            _factory.AccountRepositoryMock.Add(adminAccount);
+            _factory.AccountRepositoryMock.AddAsync(userAccount);
+            _factory.AccountRepositoryMock.AddAsync(adminAccount);
             _userAccount = userAccount;
             _adminAccount = adminAccount;
 

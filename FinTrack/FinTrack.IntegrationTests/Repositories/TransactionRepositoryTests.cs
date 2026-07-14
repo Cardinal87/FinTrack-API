@@ -62,7 +62,7 @@ namespace FinTrack.IntegrationTests.Repositories
 
             var transaction = new Transaction(300, _fromAccount.Id, _toAccount.Id, DateTime.UtcNow);
 
-            _transactionRepository.Add(transaction);
+            await _transactionRepository.AddAsync(transaction);
             await _client.SaveChangesAsync(cancellationToken);
 
             var list = await _client.Transactions.ToListAsync(cancellationToken);

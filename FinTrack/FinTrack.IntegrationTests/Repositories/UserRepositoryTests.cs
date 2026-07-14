@@ -39,7 +39,7 @@ namespace FinTrack.IntegrationTests.Repositories
             var user = new UserBuilder().WithRoles(UserRoles.User, UserRoles.Admin)
                                         .Build();
 
-            _userRepository.Add(user);
+            await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
 
             var savedUser = await _client.Users.FirstOrDefaultAsync(t => t.Id == user.Id, cancellationToken);

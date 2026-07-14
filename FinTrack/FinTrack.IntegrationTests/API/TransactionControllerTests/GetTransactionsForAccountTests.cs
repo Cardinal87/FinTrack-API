@@ -33,10 +33,10 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
             firtsAdminAccount.TopUp(500);
             firstUserAccount.TopUp(500);
 
-            _factory.AccountRepositoryMock.Add(firstUserAccount);
-            _factory.AccountRepositoryMock.Add(secondUserAccount);
-            _factory.AccountRepositoryMock.Add(firtsAdminAccount);
-            _factory.AccountRepositoryMock.Add(secondAdminAccount);
+            _factory.AccountRepositoryMock.AddAsync(firstUserAccount);
+            _factory.AccountRepositoryMock.AddAsync(secondUserAccount);
+            _factory.AccountRepositoryMock.AddAsync(firtsAdminAccount);
+            _factory.AccountRepositoryMock.AddAsync(secondAdminAccount);
             _userAccounts = [firstUserAccount, secondUserAccount];
             _adminAccounts = [firtsAdminAccount, secondAdminAccount];
 
@@ -53,10 +53,10 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
             firstUserAccount.AddIncomingTransaction(firstAdminTransaction);
 
 
-            _factory.TransactionRepositoryMock.Add(firstUserTransaction);
-            _factory.TransactionRepositoryMock.Add(secondUserTransaction);
-            _factory.TransactionRepositoryMock.Add(firstAdminTransaction);
-            _factory.TransactionRepositoryMock.Add(secondAdminTransaction);
+            _factory.TransactionRepositoryMock.AddAsync(firstUserTransaction);
+            _factory.TransactionRepositoryMock.AddAsync(secondUserTransaction);
+            _factory.TransactionRepositoryMock.AddAsync(firstAdminTransaction);
+            _factory.TransactionRepositoryMock.AddAsync(secondAdminTransaction);
 
         }
 

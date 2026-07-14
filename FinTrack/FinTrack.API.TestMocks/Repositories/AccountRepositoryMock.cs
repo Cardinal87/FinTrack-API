@@ -8,9 +8,10 @@ namespace FinTrack.API.TestMocks.Repositories
     public class AccountRepositoryMock : IAccountRepository
     {
         private readonly List<Account> _accounts = [];
-        public void Add(Account account)
+        public Task AddAsync(Account account)
         {
             _accounts.Add(account);
+            return Task.CompletedTask;
         }
 
         public Task DeleteAsync(Guid id)

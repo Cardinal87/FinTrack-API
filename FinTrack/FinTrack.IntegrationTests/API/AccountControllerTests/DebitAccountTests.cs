@@ -25,11 +25,13 @@ namespace FinTrack.IntegrationTests.API.AccountControllerTests
             (_user, _admin) = _factory.CreateBaseUsers();
 
             var userAccount = new Account(_user.Id);
-            _factory.AccountRepositoryMock.Add(userAccount);
+            _factory.AccountRepositoryMock.AddAsync(userAccount);
             _userAccount = userAccount;
 
 
         }
+
+        
 
         public void Dispose()
         {

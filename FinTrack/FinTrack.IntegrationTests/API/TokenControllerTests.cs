@@ -32,7 +32,7 @@ namespace FinTrack.IntegrationTests.API
                     .WithRoles(UserRoles.Admin, UserRoles.User)
                     .Build();
 
-                _factory.UserRepositoryMock.Add(user);
+                _factory.UserRepositoryMock.AddAsync(user);
             }
         }
         [Fact]
