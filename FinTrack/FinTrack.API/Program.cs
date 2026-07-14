@@ -11,12 +11,19 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using FinTrack.API.Core.Services;
 using FinTrack.API.Middleware;
-using FinTrack.API.Infrastructure.Decorators;
 using Serilog;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Metrics;
 using FinTrack.API.Infrastructure.Interfaces;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Polly;
+using FinTrack.API.Infrastructure.Caching.DTO;
+using FinTrack.API.Infrastructure.Identity.Decorators;
+using Polly.CircuitBreaker;
+using Microsoft.Extensions.Options;
+using StackExchange.Redis;
+using FinTrack.API.Infrastructure.Caching.Services;
+using FinTrack.API.Infrastructure.Caching.Decorators;
 
 namespace FinTrack.API
 {
@@ -180,7 +187,8 @@ namespace FinTrack.API
                 };
                 opt.MapInboundClaims = false;
             });
-            
+
+
             //MedidtR
             services.AddMediatR(cfg =>
             {
@@ -190,6 +198,23 @@ namespace FinTrack.API
             //Configuration
             services.Configure<JwtOptions>(config.GetSection("JwtOptions"));
             services.Configure<VaultOptions>(config.GetSection("HashicorpVaultOptions"));
+            services.Configure<CacheOptions>(config.GetSection("RedisOptions"));
+
+            //Resilience
+            services.AddResiliencePipeline("cache-pipeline", (builder, context) =>
+            {
+                var cacheOptions = context.ServiceProvider.GetRequiredService<IOptions<CacheOptions>>().Value;
+                var breakerOptions = cacheOptions.CircuitBreakerOptions;
+
+                builder.AddCircuitBreaker(new CircuitBreakerStrategyOptions
+                {
+                    MinimumThroughput = breakerOptions.MinimumThroughput,
+                    SamplingDuration = breakerOptions.SamplingDuration,
+                    FailureRatio = breakerOptions.FailureRatio,
+                    BreakDuration = breakerOptions.BreakDuration
+
+                });
+            });
 
             //Services
             services.AddScoped<TransferService>();
@@ -234,6 +259,28 @@ namespace FinTrack.API
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
 
+            //Redis cache
+            services.AddSingleton<IConnectionMultiplexer>(sp =>
+            {
+                var opt = sp.GetRequiredService<IOptions<CacheOptions>>().Value;
+                return ConnectionMultiplexer.Connect(new ConfigurationOptions
+                {
+                    EndPoints = {opt.EndPoint},
+                    AbortOnConnectFail = false,
+                    Password = "",
+                    ConnectTimeout = 2000,
+                    SyncTimeout = 2000
+                });
+            });
+
+            services.AddSingleton<ICacheService, RedisCacheService>();
+            services.AddSingleton<ICacheKeyProvider, RedisKeyProvider>();
+            services.Decorate<ICacheService, CacheResilienceDecorator>();
+
+
+            services.Decorate<IUserRepository, CachedUserRepositoryDecorator>();
+            services.Decorate<IAccountRepository, CachedAccountRepositoryDecorator>();
+            services.Decorate<ITransactionRepository, CachedTransactionRepositoryDecorator>();
 
             //Docs
             services.AddSwaggerGen(c =>

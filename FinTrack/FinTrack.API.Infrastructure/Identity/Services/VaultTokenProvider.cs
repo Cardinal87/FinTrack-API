@@ -39,7 +39,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
                     return _vaultToken;
                 }
 
-                var response = await _client.PostAsJsonAsync("/v1/auth/approle/login", new { role_id = _options.RoleID });
+                var response = await _client.PostAsJsonAsync("/v1/auth/approle/login", new { role_id = _options.RoleId });
 
                 if (!response.IsSuccessStatusCode)
                 {

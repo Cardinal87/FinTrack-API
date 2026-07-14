@@ -64,7 +64,7 @@ else
     role_id=$(vault read -format=json auth/approle/role/fintrack-api-role/role-id | jq -r '.data.role_id')
     jq -n \
     --arg rid "$role_id" \
-    '{ "HashicorpVaultOptions": { "RoleID": $rid } }' > /shared/roleid
+    '{ "HashicorpVaultOptions": { "RoleId": $rid } }' > /shared/roleid
 
     vault token revoke -self
     

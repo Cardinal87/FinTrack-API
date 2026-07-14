@@ -36,7 +36,7 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.CreateUser
                                     hash);
                 user.AssignRole(UserRoles.User);
 
-                _userRepository.Add(user);
+                await _userRepository.AddAsync(user);
                 await _userRepository.SaveChangesAsync();
                 return ValueResult<Guid>.Ok(user.Id, OperationStatusMessages.Created);
             }

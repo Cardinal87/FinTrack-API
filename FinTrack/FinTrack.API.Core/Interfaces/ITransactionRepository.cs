@@ -8,7 +8,7 @@ namespace FinTrack.API.Core.Interfaces
         /// Begins tracking the given entity as "Added"
         /// </summary>
         /// <param name="transaction">the entity to track </param>
-        void Add(Transaction transaction);
+        Task AddAsync(Transaction transaction);
 
 
         /// <summary>

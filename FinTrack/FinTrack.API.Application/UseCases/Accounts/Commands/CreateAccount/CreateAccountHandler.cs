@@ -17,7 +17,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.Commands.CreateAccount
         public async Task<ValueResult<Guid>> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
         {
             var account = new Core.Entities.Account(request.userId);
-            _accountRepository.Add(account);
+            await _accountRepository.AddAsync(account);
             await _accountRepository.SaveChangesAsync();
 
             return ValueResult<Guid>.Ok(account.Id, OperationStatusMessages.Created);

@@ -12,7 +12,7 @@ RUN curl -LOf "https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAU
 FROM alpine:3.24.1
 
 COPY --from=builder /vault /usr/local/bin/
-COPY ./scripts/vault_init.sh /
+COPY ./vault-init/vault_init.sh /
 COPY ./configs/fintrack-api-policy.hcl /configs/
 
 RUN apk add --no-cache jq

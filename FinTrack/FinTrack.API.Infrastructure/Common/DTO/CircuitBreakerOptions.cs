@@ -2,10 +2,11 @@
 
 namespace FinTrack.API.Infrastructure.Common.DTO
 {
-    public readonly record struct CircuitBreakerOptions(
-            TimeSpan SamplingDuration,
-            int MinimumThroughput,
-            double FailureRatio,
-            TimeSpan BreakDuration
-        );
+    public class CircuitBreakerOptions()
+    {
+        public TimeSpan SamplingDuration { get; set; }
+        public int MinimumThroughput { get; set; }
+        public double FailureRatio { get; set; }
+        public TimeSpan BreakDuration { get; set; }
+    }
 }

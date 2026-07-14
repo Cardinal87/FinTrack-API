@@ -2,5 +2,11 @@ using FinTrack.API.Infrastructure.Common.DTO;
 
 namespace FinTrack.API.Infrastructure.Caching.DTO
 {
-    public readonly record struct CacheOptions(TimeSpan ttl, CircuitBreakerOptions cacheBreaker);
+    public class CacheOptions()
+    {
+        public TimeSpan TTL { get; set; }
+        public string EndPoint { get; set; } = null!;
+        public CircuitBreakerOptions CircuitBreakerOptions { get; set; } = null!;
+    }
+
 }

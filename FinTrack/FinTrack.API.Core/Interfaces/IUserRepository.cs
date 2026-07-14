@@ -9,7 +9,7 @@ namespace FinTrack.API.Core.Interfaces
         /// </summary>
         /// <param name="user">the entity to track </param>
         /// <exception cref="UniqueConstraintViolationException">new property value already exists and violates uniqueness</exception>
-        void Add(User user);
+        Task AddAsync(User user);
 
         /// <summary>
         /// Begins tracking the given entity as "Updated"

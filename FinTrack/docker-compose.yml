@@ -1,9 +1,9 @@
 services:
   fintrack.api:
-    image: cardinal87/fintrack:latest
-    #build:
-    #context: .
-    #dockerfile: Fintrack.Api/Dockerfile
+    #image: cardinal87/fintrack:latest
+    build:
+        context: .
+        dockerfile: FinTrack.API/Dockerfile
     ports:
       - 8080:8080
     volumes:
@@ -17,8 +17,8 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT}
       - Serilog__WriteTo__2__Args__uri=http://loki:3100
       - HashicorpVaultOptions__VaultAddress=http://vault:8200
-      - ROLEID_PATH=/shared/
-      - RedisOptions_ResidAddress=http://redis:6379
+      - ROLEID_PATH=/shared/roleid
+      - RedisOptions__EndPoint=redis:6379
 
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/health"]

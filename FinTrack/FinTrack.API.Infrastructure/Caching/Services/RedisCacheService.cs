@@ -26,7 +26,7 @@ namespace FinTrack.API.Infrastructure.Caching.Services
             };
         }
 
-        async public Task SetAsync<T>(string key, T value, TimeSpan ttl, CancellationToken ct = default) where T : class
+        public async Task SetAsync<T>(string key, T value, TimeSpan ttl, CancellationToken ct = default) where T : class
         {
             var json = JsonSerializer.Serialize(value, _serializerOptions);
 
@@ -38,7 +38,7 @@ namespace FinTrack.API.Infrastructure.Caching.Services
             await _db.StringSetAsync(key, json, ttl);
         }
 
-        async public Task<T?> GetAsync<T>(string key, CancellationToken ct = default) where T : class
+        public async Task<T?> GetAsync<T>(string key, CancellationToken ct = default) where T : class
         {
             var json = await _db.StringGetAsync(key);
             if (json.IsNull)
@@ -46,7 +46,7 @@ namespace FinTrack.API.Infrastructure.Caching.Services
                 return null;
             }
 
-            T? result = JsonSerializer.Deserialize<T>(json!);
+            T? result = JsonSerializer.Deserialize<T>(json!, _serializerOptions);
 
             if (result == null)
             {
@@ -56,7 +56,7 @@ namespace FinTrack.API.Infrastructure.Caching.Services
             return result;
         }
 
-        async public Task RemoveByKeyAsync(string key, CancellationToken ct = default)
+        public async Task RemoveByKeyAsync(string key, CancellationToken ct = default)
         {
             await _db.KeyDeleteAsync(key);
         }
@@ -71,5 +71,7 @@ namespace FinTrack.API.Infrastructure.Caching.Services
                 await _db.KeyDeleteAsync(key);
             }
         }
+
+        
     }
 }

@@ -142,10 +142,11 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
             return transactionList;
         }
 
-        public void Add(Transaction transaction)
+        public Task AddAsync(Transaction transaction)
         {
             var dbTransaction = _mapper.Map<TransactionDTO>(transaction);
             _client.Transactions.Add(dbTransaction);
+            return Task.CompletedTask;
         }
 
         async public Task SaveChangesAsync() => await _client.SaveChangesAsync();

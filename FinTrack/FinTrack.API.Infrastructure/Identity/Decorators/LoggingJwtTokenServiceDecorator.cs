@@ -1,10 +1,9 @@
-﻿
-using FinTrack.API.Application.Interfaces;
+﻿using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Core.Entities;
 using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace FinTrack.API.Infrastructure.Decorators
+namespace FinTrack.API.Infrastructure.Identity.Decorators
 {
     public class LoggingJwtTokenServiceDecorator : IJwtTokenService
     {
