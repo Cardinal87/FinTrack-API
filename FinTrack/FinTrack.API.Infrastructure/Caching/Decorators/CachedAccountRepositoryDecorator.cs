@@ -43,7 +43,7 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
             await _cache.RemoveByKeyAsync(_provider.AccountsByUserId(account.UserId));
             await _cache.RemoveByPatternAsync(_provider.AccountListPattern());
 
-            await _cache.SetAsync(idKey, account, _cacheOptions.TTL);
+            await _cache.SetAsync(idKey, account, _cacheOptions.DefaultTTL);
         }
 
         public async Task DeleteAsync(Guid id)
@@ -82,7 +82,7 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
             if (dbList.Any())
             {
                 _logger.LogDebug("Trying restore value to cache");
-                await _cache.SetAsync(key, dbList, _cacheOptions.TTL);
+                await _cache.SetAsync(key, dbList, _cacheOptions.DefaultTTL);
             }
 
             return dbList;
@@ -91,7 +91,7 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
         public async Task<IEnumerable<Account>> GetAllAsync(int pageNumber = 1, int pageSize = 50)
         {
             var key = _provider.AccountAll(pageNumber, pageSize);
-            var cachedList = await _cache.GetAsync<List<AccountDTO>>(key);
+            var cachedList = await _cache.GetAsync<List<AccountDb>>(key);
 
             if (cachedList != null)
             {
@@ -103,8 +103,8 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
             var dbList = await _inner.GetAllAsync(pageNumber, pageSize);
 
             _logger.LogDebug("Trying restore value to cache");
-            var mapped = _mapper.Map<List<AccountDTO>>(dbList);
-            await _cache.SetAsync(key, mapped, _cacheOptions.TTL);
+            var mapped = _mapper.Map<List<AccountDb>>(dbList);
+            await _cache.SetAsync(key, mapped, _cacheOptions.DefaultTTL);
             
 
             return dbList;
@@ -113,7 +113,7 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
         public async Task<Account?> GetByIdAsync(Guid id)
         {
             var key = _provider.AccountById(id);
-            var cachedAccount = await _cache.GetAsync<AccountDTO>(key);
+            var cachedAccount = await _cache.GetAsync<AccountDb>(key);
 
             if (cachedAccount != null)
             {
@@ -127,8 +127,8 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
             if (dbAccount != null)
             {
                 _logger.LogDebug("Trying restore value to cache");
-                var mapped = _mapper.Map<AccountDTO>(dbAccount);
-                await _cache.SetAsync(key, mapped, _cacheOptions.TTL);
+                var mapped = _mapper.Map<AccountDb>(dbAccount);
+                await _cache.SetAsync(key, mapped, _cacheOptions.DefaultTTL);
             }
             return dbAccount;
 

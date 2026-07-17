@@ -56,7 +56,7 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
 
         public Task AddAsync(Account account)
         {
-            var dbAccount = _mapper.Map<AccountDTO>(account);
+            var dbAccount = _mapper.Map<AccountDb>(account);
             _client.Accounts.Add(dbAccount);
             return Task.CompletedTask;
         }

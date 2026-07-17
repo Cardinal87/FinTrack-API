@@ -10,7 +10,7 @@ namespace FinTrack.API.Infrastructure.Common.Mappers
     {
         public UserMapper()
         {
-            CreateMap<User, UserDTO>()
+            CreateMap<User, UserDb>()
                 .ForMember(t => t.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(t => t.Email, opt => opt.MapFrom(src => src.Email))
                 .ForMember(t => t.Phone, opt => opt.MapFrom(src => src.Phone))
@@ -19,7 +19,7 @@ namespace FinTrack.API.Infrastructure.Common.Mappers
                 .ForMember(t => t.Roles, opt => opt.MapFrom(src => src.Roles));
 
 
-            CreateMap<UserDTO, User>()
+            CreateMap<UserDb, User>()
                 .ConstructUsing(src => new User(src.Email, src.Phone, src.Name, src.PasswordHash))
                 .ForMember(t => t.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(t => t.Accounts, opt => opt.Ignore())

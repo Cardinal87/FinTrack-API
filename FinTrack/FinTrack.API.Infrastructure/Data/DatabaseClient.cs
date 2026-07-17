@@ -9,9 +9,9 @@ namespace FinTrack.API.Infrastructure.Data
 {
     public class DatabaseClient : DbContext
     {
-        public DbSet<UserDTO> Users { get; set; }
-        public DbSet<AccountDTO> Accounts { get; set; }
-        public DbSet<TransactionDTO> Transactions { get; set; }
+        public DbSet<UserDb> Users { get; set; }
+        public DbSet<AccountDb> Accounts { get; set; }
+        public DbSet<TransactionDb> Transactions { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         public DatabaseClient(DbContextOptions<DatabaseClient> options) : base(options) { }

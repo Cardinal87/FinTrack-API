@@ -11,6 +11,7 @@
         string TransactionsById(Guid id);
         string UserListPattern();
         string AccountListPattern();
+        string RefreshToken(string hash);
 
     }
 }

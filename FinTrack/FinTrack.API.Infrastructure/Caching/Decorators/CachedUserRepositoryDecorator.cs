@@ -41,11 +41,11 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
             var idKey = _provider.UserById(user.Id);
             var emailKey = _provider.UserByEmail(user.Email);
 
-            var mapped = _mapper.Map<UserDTO>(user);
+            var mapped = _mapper.Map<UserDb>(user);
 
             await _cache.RemoveByPatternAsync(_provider.UserListPattern());
-            await _cache.SetAsync(idKey, mapped, _cacheOptions.TTL);
-            await _cache.SetAsync(emailKey, mapped, _cacheOptions.TTL);
+            await _cache.SetAsync(idKey, mapped, _cacheOptions.DefaultTTL);
+            await _cache.SetAsync(emailKey, mapped, _cacheOptions.DefaultTTL);
         }
 
         async public Task DeleteAsync(Guid id)
@@ -73,7 +73,7 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
         async public Task<IEnumerable<User>> GetAllAsync(int pageNumber = 1, int pageSize = 50)
         {
             var key = _provider.UserAll(pageNumber, pageSize);
-            var cachedList = await _cache.GetAsync<List<UserDTO>>(key);
+            var cachedList = await _cache.GetAsync<List<UserDb>>(key);
             if (cachedList != null)
             {
                 _logger.LogDebug("Cache found successfully");
@@ -84,9 +84,9 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
             var dbList = await _inner.GetAllAsync(pageNumber, pageSize);
 
             
-            var mappedList = _mapper.Map<List<UserDTO>>(dbList);
+            var mappedList = _mapper.Map<List<UserDb>>(dbList);
             _logger.LogDebug("Trying restore value to cache");
-            await _cache.SetAsync(key, mappedList, _cacheOptions.TTL);
+            await _cache.SetAsync(key, mappedList, _cacheOptions.DefaultTTL);
             
 
             return dbList;
@@ -95,7 +95,7 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
         async public Task<User?> GetByEmailAsync(string email)
         {
             var key = _provider.UserByEmail(email);
-            var cachedUser = await _cache.GetAsync<UserDTO>(key);
+            var cachedUser = await _cache.GetAsync<UserDb>(key);
             if (cachedUser != null)
             {
                 _logger.LogDebug("Cache found successfully");
@@ -106,9 +106,9 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
 
             if (dbUser != null)
             {
-                var mappedUser = _mapper.Map<UserDTO>(dbUser);
+                var mappedUser = _mapper.Map<UserDb>(dbUser);
                 _logger.LogDebug("Trying restore value to cache");
-                await _cache.SetAsync(key, mappedUser, _cacheOptions.TTL);
+                await _cache.SetAsync(key, mappedUser, _cacheOptions.DefaultTTL);
             }
 
             return dbUser;
@@ -117,7 +117,7 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
         async public Task<User?> GetByIdAsync(Guid id)
         {
             var key = _provider.UserById(id);
-            var cachedUser = await _cache.GetAsync<UserDTO>(key);
+            var cachedUser = await _cache.GetAsync<UserDb>(key);
             if (cachedUser != null)
             {
                 _logger.LogDebug("Cache found successfully");
@@ -128,9 +128,9 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
 
             if (dbUser != null)
             {
-                var mappedUser = _mapper.Map<UserDTO>(dbUser);
+                var mappedUser = _mapper.Map<UserDb>(dbUser);
                 _logger.LogDebug("Trying restore value to cache");
-                await _cache.SetAsync(key, mappedUser, _cacheOptions.TTL);
+                await _cache.SetAsync(key, mappedUser, _cacheOptions.DefaultTTL);
             }
 
             return dbUser;

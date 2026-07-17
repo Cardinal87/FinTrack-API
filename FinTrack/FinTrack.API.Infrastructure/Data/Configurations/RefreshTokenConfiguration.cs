@@ -23,7 +23,7 @@ namespace FinTrack.API.Infrastructure.Data.Configurations
             builder.Property(x => x.IsRevoked).IsRequired();
             builder.HasIndex(x => x.ReplacedByTokenId).IsUnique(false);
 
-            builder.HasOne<UserDTO>()
+            builder.HasOne<UserDb>()
                 .WithMany()
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);

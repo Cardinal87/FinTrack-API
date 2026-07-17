@@ -197,7 +197,7 @@ namespace FinTrack.IntegrationTests.Repositories
             {
                 var user = new UserBuilder().Build();
 
-                var userDb = new UserDTO()
+                var userDb = new UserDb()
                 {
                     Id = user.Id,
                     Email = user.Email,

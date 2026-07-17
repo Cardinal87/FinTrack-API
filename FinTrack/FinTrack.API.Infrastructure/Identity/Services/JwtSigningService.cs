@@ -1,5 +1,6 @@
 using FinTrack.API.Infrastructure.Identity.DTO;
 using FinTrack.API.Infrastructure.Interfaces;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
@@ -53,9 +54,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
 
             var sign = result.data.signature.Split(':')[2];
 
-            sign = sign.Replace('+', '-')
-                        .Replace('/', '_')
-                        .TrimEnd('=');
+            sign = WebEncoders.Base64UrlEncode(Convert.FromBase64String(sign));
 
             _logger.LogDebug("Token signed successfully by Vault. KeyVersion: {KeyVersion}",
                                     result.data.key_version);
@@ -74,16 +73,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             }
 
             var payload = sp[0] + '.' + sp[1];
-            var sign = sp[2].Replace('-', '+')
-                            .Replace('_', '/');
-
-            var padding = (sign.Length % 4) switch
-            {
-                2 => "==",
-                3 => "=",
-                _ => ""
-            };
-            sign += padding;
+            var sign = Convert.ToBase64String(WebEncoders.Base64UrlDecode(sp[2]));
 
             byte[] bytes = Encoding.UTF8.GetBytes(payload);
             string base64 = Convert.ToBase64String(bytes);

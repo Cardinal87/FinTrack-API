@@ -35,7 +35,7 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
         public async Task<Transaction?> GetByIdAsync(Guid id)
         {
             var key = _provider.TransactionsById(id);
-            var cachedTransaction = await _cache.GetAsync<TransactionDTO>(key);
+            var cachedTransaction = await _cache.GetAsync<TransactionDb>(key);
 
             if (cachedTransaction != null) {
                 _logger.LogDebug("Cache found successfully");
@@ -47,9 +47,9 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
 
             if (dbTransaction != null)
             {
-                var mapped = _mapper.Map<TransactionDTO>(dbTransaction);
+                var mapped = _mapper.Map<TransactionDb>(dbTransaction);
                 _logger.LogDebug("Trying restore value to cache");
-                await _cache.SetAsync(key, mapped, _cacheOptions.TTL);
+                await _cache.SetAsync(key, mapped, _cacheOptions.DefaultTTL);
             }
             return dbTransaction;
         }

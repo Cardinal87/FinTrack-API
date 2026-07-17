@@ -75,7 +75,7 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
 
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDTO>>>();
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDb>>>();
             data.Should().NotBeNull();
 
             var transactions = data["transactions"];
@@ -100,7 +100,7 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
 
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDTO>>>();
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDb>>>();
             data.Should().NotBeNull();
 
             var transactions = data["transactions"];

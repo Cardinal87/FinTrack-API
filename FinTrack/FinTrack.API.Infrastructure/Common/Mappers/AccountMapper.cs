@@ -9,13 +9,13 @@ namespace FinTrack.API.Infrastructure.Common.Mappers
     {
         public AccountMapper()
         {
-            CreateMap<Account, AccountDTO>()
+            CreateMap<Account, AccountDb>()
                 .ForMember(t => t.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(t => t.Balance, opt => opt.MapFrom(src => src.Balance))
                 .ForMember(t => t.UserId, opt => opt.MapFrom(src => src.UserId));
 
 
-            CreateMap<AccountDTO, Account>()
+            CreateMap<AccountDb, Account>()
                 .ConstructUsing(src => new Account(src.UserId))
                 .ForMember(t => t.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(t => t.OutgoingTransactions, opt => opt.Ignore())

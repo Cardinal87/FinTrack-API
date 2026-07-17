@@ -2,9 +2,9 @@
 
 namespace FinTrack.API.Infrastructure.Common.DTO
 {
-    public class UserDTO
+    public class UserDb
     {
-        public UserDTO() { }
+        public UserDb() { }
         public Guid Id { get; set; }
         public string Email { get; set; } = null!;
         public string Name { get; set; } = null!;

@@ -35,13 +35,13 @@ namespace FinTrack.IntegrationTests.Repositories
             var fromAccount = new Account(user.Id);
             var toAccount = new Account(user.Id);
 
-            var fromAccountDb = new AccountDTO()
+            var fromAccountDb = new AccountDb()
             {
                 Id = fromAccount.Id,
                 Balance = 0,
                 UserId = user.Id
             };
-            var toAccountDb = new AccountDTO()
+            var toAccountDb = new AccountDb()
             {
                 Id = toAccount.Id,
                 Balance = 0,
@@ -149,7 +149,7 @@ namespace FinTrack.IntegrationTests.Repositories
             {
                 var transaction = new Transaction(100, _fromAccount.Id, _toAccount.Id, date);
 
-                var transactionDb = new TransactionDTO()
+                var transactionDb = new TransactionDb()
                 {
                     Id = transaction.Id,
                     Amount = transaction.Amount,

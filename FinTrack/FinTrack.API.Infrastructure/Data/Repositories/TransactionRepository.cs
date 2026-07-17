@@ -144,7 +144,7 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
 
         public Task AddAsync(Transaction transaction)
         {
-            var dbTransaction = _mapper.Map<TransactionDTO>(transaction);
+            var dbTransaction = _mapper.Map<TransactionDb>(transaction);
             _client.Transactions.Add(dbTransaction);
             return Task.CompletedTask;
         }

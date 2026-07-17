@@ -1,8 +1,8 @@
 ﻿namespace FinTrack.API.Infrastructure.Common.DTO
 {
-    public class TransactionDTO
+    public class TransactionDb
     {
-        public TransactionDTO() { }
+        public TransactionDb() { }
         public Guid Id { get; set; }
         public DateTime Date { get; set; }
         public decimal Amount { get; set; }

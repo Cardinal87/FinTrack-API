@@ -34,9 +34,9 @@ namespace FinTrack.API.TestMocks.Builders
             return user;
         }
 
-        public UserDTO BuildDbUser()
+        public UserDb BuildDbUser()
         {
-            var dbUser = new UserDTO()
+            var dbUser = new UserDb()
             {
                 Id = Guid.NewGuid(),
                 Email = _email,

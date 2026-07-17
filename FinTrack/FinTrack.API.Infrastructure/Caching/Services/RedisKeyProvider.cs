@@ -21,6 +21,7 @@ namespace FinTrack.API.Infrastructure.Caching.Services
         public string UserByEmail(string email) => $"user:email:{email}";
 
         public string UserById(Guid id) => $"user:{id}";
+        public string RefreshToken(string hash) => $"refresh_token:{hash}";
     }
 }
 

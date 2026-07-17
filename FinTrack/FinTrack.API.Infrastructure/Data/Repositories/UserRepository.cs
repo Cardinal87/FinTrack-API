@@ -64,7 +64,7 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
 
         public Task AddAsync(User user)
         {
-            var dbUser = _mapper.Map<UserDTO>(user);
+            var dbUser = _mapper.Map<UserDb>(user);
             _client.Users.Add(dbUser);
             return Task.CompletedTask;
         }

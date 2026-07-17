@@ -13,7 +13,7 @@ namespace FinTrack.IntegrationTests.Repositories
     public class AccountRepositoryTests : DatabaseTestBase
     {
         private IAccountRepository _accountRepository = null!;
-        private UserDTO defaultUser = null!;
+        private UserDb defaultUser = null!;
         
         override async public ValueTask InitializeAsync()
         {
@@ -129,7 +129,7 @@ namespace FinTrack.IntegrationTests.Repositories
             {
                 var account = new Account(defaultUser.Id);
                 
-                var accountDb = new AccountDTO()
+                var accountDb = new AccountDb()
                 {
                     Id = account.Id,
                     UserId = account.UserId,

@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using FinTrack.API.Infrastructure.Common.DTO;
 namespace FinTrack.API.Infrastructure.Data.Configurations
 {
-    class UserConfiguration : IEntityTypeConfiguration<UserDTO>
+    class UserConfiguration : IEntityTypeConfiguration<UserDb>
     {
-        public void Configure(EntityTypeBuilder<UserDTO> builder)
+        public void Configure(EntityTypeBuilder<UserDb> builder)
         {
             builder.ToTable("Users");
             

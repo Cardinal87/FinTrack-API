@@ -63,12 +63,12 @@ namespace FinTrack.IntegrationTests.Databases
             await _client.SaveChangesAsync();
 
 
-            var firstAccount = new AccountDTO()
+            var firstAccount = new AccountDb()
             {
                 UserId = user.Id,
                 Balance = 0
             };
-            var secondAccount = new AccountDTO()
+            var secondAccount = new AccountDb()
             {
                 UserId = user.Id,
                 Balance = 0

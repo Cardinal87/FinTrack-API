@@ -1,8 +1,8 @@
 ﻿namespace FinTrack.API.Infrastructure.Common.DTO
 {
-    public class AccountDTO
+    public class AccountDb
     {
-        public AccountDTO() { }
+        public AccountDb() { }
         public Guid Id { get; set; }
         public decimal Balance { get; set; }
 

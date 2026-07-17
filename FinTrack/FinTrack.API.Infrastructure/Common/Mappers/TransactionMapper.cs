@@ -8,14 +8,14 @@ namespace FinTrack.API.Infrastructure.Common.Mappers
     {
         public TransactionMapper()
         {
-            CreateMap<Transaction, TransactionDTO>()
+            CreateMap<Transaction, TransactionDb>()
                 .ForMember(t => t.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(t => t.Amount, opt => opt.MapFrom(src => src.Amount))
                 .ForMember(t => t.FromAccountId, opt => opt.MapFrom(src => src.FromAccountId))
                 .ForMember(t => t.ToAccountId, opt => opt.MapFrom(src => src.ToAccountId))
                 .ForMember(t => t.Date, opt => opt.MapFrom(src => src.Date));
 
-            CreateMap<TransactionDTO, Transaction>()
+            CreateMap<TransactionDb, Transaction>()
                 .ConstructUsing(src => new Transaction(src.Amount, src.FromAccountId, src.ToAccountId, src.Date))
                 .ForMember(t => t.Id, opt => opt.MapFrom(src => src.Id));
         }
