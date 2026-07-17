@@ -1,5 +1,6 @@
 ﻿using FinTrack.API.Infrastructure.Common.DTO;
 using FinTrack.API.Infrastructure.Data.Configurations;
+using FinTrack.API.Infrastructure.Identity.DTO;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -11,7 +12,8 @@ namespace FinTrack.API.Infrastructure.Data
         public DbSet<UserDTO> Users { get; set; }
         public DbSet<AccountDTO> Accounts { get; set; }
         public DbSet<TransactionDTO> Transactions { get; set; }
-        
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
         public DatabaseClient(DbContextOptions<DatabaseClient> options) : base(options) { }
 
         
@@ -20,6 +22,7 @@ namespace FinTrack.API.Infrastructure.Data
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new AccountConfiguration());
             modelBuilder.ApplyConfiguration(new TransactionConfiguration());
+            modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());   
         }
     }
 }
