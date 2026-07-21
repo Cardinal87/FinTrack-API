@@ -5,6 +5,7 @@ using FinTrack.API.Core.Exceptions;
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Runtime.CompilerServices;
 
 namespace FinTrack.API.Application.UseCases.Users.Commands.UpdateUser
 {
@@ -12,11 +13,13 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.UpdateUser
     {
         private readonly IUserRepository _userRepository;
         private readonly ILogger<UpdateUserHandler> _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UpdateUserHandler(IUserRepository userRepository, ILogger<UpdateUserHandler> logger)
+        public UpdateUserHandler(IUserRepository userRepository, ILogger<UpdateUserHandler> logger, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         async public Task<Result> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
@@ -41,7 +44,7 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.UpdateUser
                     user.Phone = request.phone;
                 }
                 await _userRepository.UpdateAsync(user);
-                await _userRepository.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return Result.Ok(OperationStatusMessages.NoContent);
             }
             catch(ArgumentException ex)

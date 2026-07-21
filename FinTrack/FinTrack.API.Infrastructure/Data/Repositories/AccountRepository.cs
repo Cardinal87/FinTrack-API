@@ -48,7 +48,6 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
         async public Task<Account?> GetByIdAsync(Guid id)
         {
             var dbAccount = await _client.Accounts
-                .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id);
             var account = _mapper.Map<Account>(dbAccount);
             return account;

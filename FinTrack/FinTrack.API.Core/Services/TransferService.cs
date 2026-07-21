@@ -13,11 +13,13 @@ namespace FinTrack.API.Core.Services
     {
         private readonly IAccountRepository _accountRepository;
         private readonly ITransactionRepository _transactionRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TransferService(IAccountRepository accountRepository, ITransactionRepository transactionRepository)
+        public TransferService(IAccountRepository accountRepository, ITransactionRepository transactionRepository, IUnitOfWork unitOfWork)
         {
             _accountRepository = accountRepository;
             _transactionRepository = transactionRepository;
+            _unitOfWork = unitOfWork;
         }
 
 
@@ -59,8 +61,7 @@ namespace FinTrack.API.Core.Services
             await _accountRepository.UpdateAsync(toAccount);
             await _accountRepository.UpdateAsync(fromAccount);
 
-            await _accountRepository.SaveChangesAsync();
-            await _transactionRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return transaction.Id;
         }
     }

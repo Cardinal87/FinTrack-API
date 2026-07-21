@@ -48,7 +48,6 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
         async public Task<User?> GetByIdAsync(Guid id)
         {
             var dbUser = await _client.Users
-                .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id);
             var user = _mapper.Map<User>(dbUser);
             return user;
@@ -56,7 +55,6 @@ namespace FinTrack.API.Infrastructure.Data.Repositories
         public async Task<User?> GetByEmailAsync(string email)
         {
             var dbUser = await _client.Users
-                .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Email == email);
             var user = _mapper.Map<User>(dbUser);
             return user;

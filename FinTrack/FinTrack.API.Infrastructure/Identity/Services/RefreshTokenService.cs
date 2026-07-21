@@ -1,6 +1,7 @@
 ﻿using FinTrack.API.Application.Common;
 using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Core.Exceptions;
+using FinTrack.API.Core.Interfaces;
 using FinTrack.API.Infrastructure.Caching.DTO;
 using FinTrack.API.Infrastructure.Data;
 using FinTrack.API.Infrastructure.Identity.DTO;
@@ -16,6 +17,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
     public class RefreshTokenService : IRefreshTokenService
     {
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ICacheService _cache;
         private readonly ICacheKeyProvider _provider;
         private readonly ILogger<RefreshTokenService> _logger;
@@ -29,9 +31,11 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             ICacheKeyProvider provider, 
             ILogger<RefreshTokenService> logger, 
             IOptions<JwtOptions> jwtOptions,
-            IOptions<CacheOptions> cacheOptions)
+            IOptions<CacheOptions> cacheOptions,
+            IUnitOfWork unitOfWork)
         {
             _refreshTokenRepository = refreshTokenRepository;
+            _unitOfWork = unitOfWork;
             _cache = cache;
             _provider = provider;
             _logger = logger;
@@ -55,7 +59,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
 
             _logger.LogDebug("saving refresh token record to database");
             await _refreshTokenRepository.AddTokenAsync(record, ct);
-            await _refreshTokenRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(ct);
 
             _logger.LogDebug("saving refresh token to cache");
             var cacheEntry = new CacheEntry(userId, record.ExpiresAt, false);
@@ -80,7 +84,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
                 record.IsRevoked = true;
                 record.RevokedAt = DateTime.UtcNow;
                 await _refreshTokenRepository.UpdateTokenAsync(record, ct);
-                await _refreshTokenRepository.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync(ct);
                 _logger.LogDebug("Refresh token with hash {Hash} was revoked", hash);
 
                 var remainingTTL = record.ExpiresAt - DateTime.UtcNow;
@@ -151,7 +155,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             {
                 await _refreshTokenRepository.UpdateTokenAsync(oldToken, ct);
                 await _refreshTokenRepository.AddTokenAsync(newTokenRecord, ct);
-                await _refreshTokenRepository.SaveChangesAsync(ct);
+                await _unitOfWork.SaveChangesAsync(ct);
             }
             catch (EntityNotFoundException ex)
             {

@@ -11,10 +11,12 @@ namespace FinTrack.API.Application.UseCases.Accounts.Commands.DeleteAccount
     internal class DeleteAccountHandler : IRequestHandler<DeleteAccountCommand, Result>
     {
         private readonly IAccountRepository _accountRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteAccountHandler(IAccountRepository accountRepository)
+        public DeleteAccountHandler(IAccountRepository accountRepository, IUnitOfWork unitOfWork)
         {
             _accountRepository = accountRepository;
+            _unitOfWork = unitOfWork;
         }
 
         async public Task<Result> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
@@ -28,7 +30,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.Commands.DeleteAccount
                 request.userId == account.UserId)
             {
                 await _accountRepository.DeleteAsync(request.accountId);
-                await _accountRepository.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return Result.Ok(OperationStatusMessages.NoContent);
             }
             return Result.Fail(OperationStatusMessages.Forbidden, "you do not have permission to delete this account.");

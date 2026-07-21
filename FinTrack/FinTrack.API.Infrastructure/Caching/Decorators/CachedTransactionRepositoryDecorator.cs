@@ -89,9 +89,5 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
             return _inner.GetFromToDateAsync(fromDate, toDate, accountIds, pageNumber, pageSize);
         }
 
-        public Task SaveChangesAsync()
-        {
-            return _inner.SaveChangesAsync();
-        }
     }
 }

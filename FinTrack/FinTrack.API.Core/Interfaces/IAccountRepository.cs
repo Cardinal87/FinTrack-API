@@ -5,13 +5,13 @@ namespace FinTrack.API.Core.Interfaces
     public interface IAccountRepository
     {
         /// <summary>
-        /// Begins tracking the given entity as "Added"
+        /// Asynchronously add provided entity
         /// </summary>
         /// <param name="account">the entity to track </param>
         Task AddAsync(Account account);
 
         /// <summary>
-        /// Begins tracking the given entity as "Updated"
+        /// Asynchronously update provided entity
         /// </summary>
         /// <param name="account">the entity to update</param>
         /// <exception cref="EntityNotFoundException">the given entity does not exist</exception>
@@ -19,7 +19,7 @@ namespace FinTrack.API.Core.Interfaces
         Task UpdateAsync(Account account);
 
         /// <summary>
-        /// Begins tracking the given entity as "Deleted"
+        /// Asynchronously delete entity by id
         /// </summary>
         /// <param name="id">id of the entity to delete</param>
         /// <exception cref="EntityNotFoundException">the given entity does not exist</exception>
@@ -57,10 +57,5 @@ namespace FinTrack.API.Core.Interfaces
         /// </returns>
         Task<Account?> GetByIdAsync(Guid id);
 
-        /// <summary>
-        /// Asynchronously save all changes maked in repository
-        /// </summary>
-        /// <returns><see cref="Task"/></returns>
-        Task SaveChangesAsync();
     }
 }

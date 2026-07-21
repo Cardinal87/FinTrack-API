@@ -18,7 +18,6 @@ using FinTrack.API.Infrastructure.Interfaces;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Polly;
 using FinTrack.API.Infrastructure.Caching.DTO;
-using FinTrack.API.Infrastructure.Identity.Decorators;
 using Polly.CircuitBreaker;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
@@ -256,6 +255,7 @@ namespace FinTrack.API
 
                 opt.UseNpgsql(connectionString);
             });
+            services.AddScoped<IUnitOfWork, UnitOfWork>();  
             services.AddScoped<IUserRepository,UserRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
@@ -316,8 +316,6 @@ namespace FinTrack.API
             services.AddExceptionHandler<GlobalExceptionHandler>();
             services.AddProblemDetails();
 
-            //Decorators
-            services.Decorate<IJwtTokenService, LoggingJwtTokenServiceDecorator>();
 
             //Telemetry
             services.AddOpenTelemetry()

@@ -136,11 +136,6 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
             return dbUser;
         }
 
-        public Task SaveChangesAsync()
-        {
-            return _inner.SaveChangesAsync();
-        }
-
         
     }
 }

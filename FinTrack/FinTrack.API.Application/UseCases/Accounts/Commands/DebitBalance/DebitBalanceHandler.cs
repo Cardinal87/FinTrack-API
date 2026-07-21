@@ -10,10 +10,12 @@ namespace FinTrack.API.Application.UseCases.Accounts.Commands.DebitBalance
     internal class DebitBalanceHandler : IRequestHandler<DebitBalanceCommand, ValueResult<decimal>>
     {
         private readonly IAccountRepository _accountRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DebitBalanceHandler(IAccountRepository accountRepository)
+        public DebitBalanceHandler(IAccountRepository accountRepository, IUnitOfWork unitOfWork)
         {
             _accountRepository = accountRepository;
+            _unitOfWork = unitOfWork;
         }
 
         async public Task<ValueResult<decimal>> Handle(DebitBalanceCommand request, CancellationToken cancellationToken)
@@ -28,7 +30,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.Commands.DebitBalance
 
                 account.Debit(request.amount);
                 await _accountRepository.UpdateAsync(account);
-                await _accountRepository.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 return ValueResult<decimal>.Ok(account.Balance, OperationStatusMessages.Ok);
             }

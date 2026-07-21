@@ -1,6 +1,6 @@
 ﻿
 
-namespace FinTrack.API.Core.Interfaces
+namespace FinTrack.API.Application.Interfaces
 {
     public interface IPasswordHasher
     {

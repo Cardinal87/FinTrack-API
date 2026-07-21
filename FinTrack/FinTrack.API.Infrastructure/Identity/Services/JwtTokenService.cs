@@ -2,6 +2,7 @@
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Infrastructure.Identity.DTO;
 using FinTrack.API.Infrastructure.Interfaces;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,19 +14,22 @@ namespace FinTrack.API.Infrastructure.Identity.Services
 
         private IJwtSigningService _signingService;
         private JwtOptions _jwtOptions;
+        private ILogger<JwtTokenService> _logger;
 
-        public JwtTokenService(IJwtSigningService signingService, IOptions<JwtOptions> jwtOptions)
+        public JwtTokenService(IJwtSigningService signingService, IOptions<JwtOptions> jwtOptions, ILogger<JwtTokenService> logger)
         {
             _signingService = signingService;
             _jwtOptions = jwtOptions.Value;
+            _logger = logger;
         }
 
         public async Task<string> GenerateTokenAsync(User user)
         {
+            var jti = Guid.NewGuid().ToString();
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, jti)
             };
             claims.AddRange(user.Roles.Select(role => new Claim("role", role)));
 
@@ -54,6 +58,10 @@ namespace FinTrack.API.Infrastructure.Identity.Services
 
             string rawToken = $"{token.EncodedHeader}.{token.EncodedPayload}";
             string signedToken = await _signingService.SignTokenAsync(rawToken);
+
+            _logger.LogInformation("Token with jti {jti} was issued to the user with id {id}",
+                                    jti,
+                                    user.Id);
             return signedToken;
 
 

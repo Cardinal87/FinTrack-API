@@ -9,11 +9,13 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.DeleteUser
     internal class DeleteUserHandler : IRequestHandler<DeleteUserCommand, Result>
     {
 
-        private IUserRepository _userRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DeleteUserHandler(IUserRepository userRepository)
+        public DeleteUserHandler(IUserRepository userRepository, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
 
         async public Task<Result> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
@@ -21,7 +23,7 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.DeleteUser
             try
             {
                 await _userRepository.DeleteAsync(request.id);
-                await _userRepository.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return Result.Ok(OperationStatusMessages.NoContent);
             }
             catch(EntityNotFoundException)

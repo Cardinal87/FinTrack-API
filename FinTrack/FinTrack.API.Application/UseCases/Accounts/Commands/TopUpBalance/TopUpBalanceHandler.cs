@@ -10,10 +10,12 @@ namespace FinTrack.API.Application.UseCases.Accounts.Commands.TopUpBalance
     internal class TopUpBalanceHandler : IRequestHandler<TopUpBalanceCommand, ValueResult<decimal>>
     {
         private readonly IAccountRepository _accountRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TopUpBalanceHandler(IAccountRepository accountRepository)
+        public TopUpBalanceHandler(IAccountRepository accountRepository, IUnitOfWork unitOfWork)
         {
             _accountRepository = accountRepository;
+            _unitOfWork = unitOfWork;
         }
 
         async public Task<ValueResult<decimal>> Handle(TopUpBalanceCommand request, CancellationToken cancellationToken)
@@ -29,7 +31,7 @@ namespace FinTrack.API.Application.UseCases.Accounts.Commands.TopUpBalance
 
 
                 await _accountRepository.UpdateAsync(account);
-                await _accountRepository.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return ValueResult<decimal>.Ok(account.Balance, OperationStatusMessages.Ok);
             }
             catch (IncorrectAmountException)

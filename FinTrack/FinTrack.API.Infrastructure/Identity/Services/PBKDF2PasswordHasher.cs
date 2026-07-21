@@ -1,5 +1,5 @@
 ﻿
-using FinTrack.API.Core.Interfaces;
+using FinTrack.API.Application.Interfaces;
 using System.Security.Cryptography;
 
 namespace FinTrack.API.Infrastructure.Identity.Services

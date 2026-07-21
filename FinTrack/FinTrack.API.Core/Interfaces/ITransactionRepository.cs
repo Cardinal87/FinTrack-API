@@ -5,7 +5,7 @@ namespace FinTrack.API.Core.Interfaces
     public interface ITransactionRepository
     {
         /// <summary>
-        /// Begins tracking the given entity as "Added"
+        /// Asynchronously add provided entity
         /// </summary>
         /// <param name="transaction">the entity to track </param>
         Task AddAsync(Transaction transaction);
@@ -101,10 +101,6 @@ namespace FinTrack.API.Core.Interfaces
         /// </returns>
         Task<IEnumerable<Transaction>> GetFromToDateAsync(DateTime fromDate, DateTime toDate, IEnumerable<Guid> accountIds, int pageNumber = 1, int pageSize = 50);
 
-        /// <summary>
-        /// Asynchronously save all changes maked in repository
-        /// </summary>
-        /// <returns><see cref="Task"/></returns>
-        Task SaveChangesAsync();
+        
     }
 }

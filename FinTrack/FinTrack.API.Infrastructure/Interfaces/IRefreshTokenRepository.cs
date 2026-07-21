@@ -8,7 +8,5 @@ namespace FinTrack.API.Infrastructure.Interfaces
         Task<RefreshToken?> GetTokenByHashAsync(string hash, CancellationToken ct = default);
         Task AddTokenAsync(RefreshToken token, CancellationToken ct = default);
         Task UpdateTokenAsync(RefreshToken token, CancellationToken ct = default);
-
-        Task SaveChangesAsync(CancellationToken ct = default);
     }
 }

@@ -2,6 +2,7 @@
 using FinTrack.API.Core.Common;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Exceptions;
+using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -14,12 +15,14 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.CreateUser
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly ILogger<CreateUserHandler> _logger;
+        private readonly IUnitOfWork _unitOfWork;
         
-        public CreateUserHandler(IUserRepository userRepository, IPasswordHasher passwordHasher,  ILogger<CreateUserHandler> logger)
+        public CreateUserHandler(IUserRepository userRepository, IPasswordHasher passwordHasher,  ILogger<CreateUserHandler> logger, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
 
@@ -37,7 +40,7 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.CreateUser
                 user.AssignRole(UserRoles.User);
 
                 await _userRepository.AddAsync(user);
-                await _userRepository.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return ValueResult<Guid>.Ok(user.Id, OperationStatusMessages.Created);
             }
             catch (UniqueConstraintViolationException ex)
