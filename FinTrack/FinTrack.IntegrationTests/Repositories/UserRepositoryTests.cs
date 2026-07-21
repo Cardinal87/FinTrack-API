@@ -1,22 +1,24 @@
-﻿using FinTrack.API.Infrastructure.Data.Repositories;
-using FinTrack.API.Core.Interfaces;
-using FinTrack.API.Core.Entities;
+﻿using AutoMapper;
 using FinTrack.API.Core.Common;
-using FluentAssertions;
-using FinTrack.IntegrationTests.Common;
-using Microsoft.EntityFrameworkCore;
-using AutoMapper;
+using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Exceptions;
-using FinTrack.API.TestMocks.Builders;
-using FinTrack.API.Infrastructure.Common.Mappers;
+using FinTrack.API.Core.Interfaces;
 using FinTrack.API.Infrastructure.Common.DTO;
+using FinTrack.API.Infrastructure.Common.Mappers;
+using FinTrack.API.Infrastructure.Data;
+using FinTrack.API.Infrastructure.Data.Repositories;
+using FinTrack.API.TestMocks.Builders;
+using FinTrack.IntegrationTests.Common;
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinTrack.IntegrationTests.Repositories
 {
     public class UserRepositoryTests : DatabaseTestBase
     {
         private IUserRepository _userRepository = null!;
-        
+        private IUnitOfWork _unitOfWork = null!;
+
         override async public ValueTask InitializeAsync()
         {
             await base.InitializeAsync();
@@ -28,6 +30,7 @@ namespace FinTrack.IntegrationTests.Repositories
 
             IMapper mapper = config.CreateMapper();
             _userRepository = new UserRepository(_client, mapper);
+            _unitOfWork = new UnitOfWork(_client);
         }
 
 
@@ -40,7 +43,7 @@ namespace FinTrack.IntegrationTests.Repositories
                                         .Build();
 
             await _userRepository.AddAsync(user);
-            await _userRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             var savedUser = await _client.Users.FirstOrDefaultAsync(t => t.Id == user.Id, cancellationToken);
             savedUser.Should().NotBeNull();
@@ -91,7 +94,7 @@ namespace FinTrack.IntegrationTests.Repositories
             user.AssignRole(UserRoles.Admin);
 
             await _userRepository.UpdateAsync(user);
-            await _userRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             var updatedUser = await _client.Users.FirstOrDefaultAsync(t => t.Id == user.Id, cancellationToken);
             updatedUser.Should().NotBeNull();
@@ -143,7 +146,7 @@ namespace FinTrack.IntegrationTests.Repositories
             var user = (await AddValidUsers(1))[0];
 
             await _userRepository.DeleteAsync(user.Id);
-            await _userRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             var deletedUser = _client.Users.FirstOrDefault(t => t.Id == user.Id);
             deletedUser.Should().BeNull();

@@ -1,7 +1,7 @@
 ﻿
 
 using FinTrack.API.Core.Entities;
-using FinTrack.API.Core.Interfaces;
+using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Infrastructure.Common.DTO;
 
 namespace FinTrack.API.TestMocks.Builders

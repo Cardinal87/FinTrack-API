@@ -2,6 +2,7 @@
 using FinTrack.API.Core.Common;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
+using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Infrastructure.Caching.Decorators;
 using FinTrack.API.Infrastructure.Identity.Services;
 using FinTrack.API.Infrastructure.Interfaces;
@@ -15,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using StackExchange.Redis;
+using Moq;
 
 namespace FinTrack.IntegrationTests.Common
 {
@@ -24,7 +26,9 @@ namespace FinTrack.IntegrationTests.Common
         public UserRepositoryMock UserRepositoryMock { get;private set; } = new();
         public AccountRepositoryMock AccountRepositoryMock { get; private set; } = new();
         public TransactionRepositoryMock TransactionRepositoryMock { get; private set; } = new();
+        public RefreshTokenRepositoryMock RefreshTokenRepositoryMock { get; private set; } = new();
         public CacheServiceMock CacheServiceMock { get; private set; } = new();
+        public Mock<IUnitOfWork> UnitOfWorkMock { get; private set; } = new(); 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             builder.UseEnvironment("Testing");
@@ -37,6 +41,7 @@ namespace FinTrack.IntegrationTests.Common
                 services.RemoveAll<IUserRepository>();
                 services.RemoveAll<IAccountRepository>();
                 services.RemoveAll<ITransactionRepository>();
+                services.RemoveAll<IRefreshTokenRepository>();
 
                 //Remove all redis specified services
                 services.RemoveAll<IConnectionMultiplexer>();
@@ -51,6 +56,8 @@ namespace FinTrack.IntegrationTests.Common
                 services.AddSingleton<IUserRepository>(UserRepositoryMock);
                 services.AddSingleton<IAccountRepository>(AccountRepositoryMock);
                 services.AddSingleton<ITransactionRepository>(TransactionRepositoryMock);
+                services.AddSingleton<IRefreshTokenRepository>(RefreshTokenRepositoryMock);
+                services.AddSingleton<IUnitOfWork>(UnitOfWorkMock.Object);
 
                 //Add mocks to imitate cache
                 services.AddSingleton<ICacheService>(CacheServiceMock);
@@ -69,6 +76,7 @@ namespace FinTrack.IntegrationTests.Common
             UserRepositoryMock.Reset();
             AccountRepositoryMock.Reset();
             TransactionRepositoryMock.Reset();
+            RefreshTokenRepositoryMock.Reset();
             CacheServiceMock.Reset();
         }
 

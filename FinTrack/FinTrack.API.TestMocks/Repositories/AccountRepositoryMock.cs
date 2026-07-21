@@ -40,10 +40,6 @@ namespace FinTrack.API.TestMocks.Repositories
             return Task.FromResult(_accounts.FirstOrDefault(t => t.Id == id));
         }
 
-        public Task SaveChangesAsync()
-        {
-            return Task.CompletedTask;
-        }
 
         public Task UpdateAsync(Account account)
         {

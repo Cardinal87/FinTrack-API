@@ -8,11 +8,13 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using FinTrack.API.Infrastructure.Common.Mappers;
 using FinTrack.API.Infrastructure.Common.DTO;
+using FinTrack.API.Infrastructure.Data;
 namespace FinTrack.IntegrationTests.Repositories
 {
     public class AccountRepositoryTests : DatabaseTestBase
     {
         private IAccountRepository _accountRepository = null!;
+        private IUnitOfWork _unitOfWork = null!;
         private UserDb defaultUser = null!;
         
         override async public ValueTask InitializeAsync()
@@ -25,6 +27,7 @@ namespace FinTrack.IntegrationTests.Repositories
 
             IMapper mapper = config.CreateMapper();
             _accountRepository = new AccountRepository(_client, mapper);
+            _unitOfWork = new UnitOfWork(_client);
             var user = new UserBuilder().BuildDbUser();
 
             _client.Users.Add(user);
@@ -43,7 +46,7 @@ namespace FinTrack.IntegrationTests.Repositories
 
             await _accountRepository.AddAsync(first_account);
             await _accountRepository.AddAsync(second_account);
-            await _accountRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             await _client.SaveChangesAsync(cancellationToken);
             var accounts = await _client.Accounts.ToListAsync(cancellationToken);
@@ -68,7 +71,7 @@ namespace FinTrack.IntegrationTests.Repositories
             list[0].TopUp(500);
 
             await _accountRepository.UpdateAsync(list[0]);
-            await _accountRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             var updated = await _client.Accounts.FirstOrDefaultAsync(t => t.Id == list[0].Id,cancellationToken);
 
@@ -110,7 +113,7 @@ namespace FinTrack.IntegrationTests.Repositories
             var list = await AddValidAccounts(2);
 
             await _accountRepository.DeleteAsync(list[0].Id);
-            await _accountRepository.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
 
             var accounts = await _client.Accounts.ToListAsync(cancellationToken);
 

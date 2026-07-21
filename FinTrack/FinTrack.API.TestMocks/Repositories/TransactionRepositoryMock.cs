@@ -53,11 +53,6 @@ namespace FinTrack.API.TestMocks.Repositories
                                        || x.ToAccountId == accountId));
         }
 
-        public Task SaveChangesAsync()
-        {
-            return Task.CompletedTask;
-        }
-
         public void Reset()
         {
             _transactions.Clear();

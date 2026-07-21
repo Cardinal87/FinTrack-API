@@ -1,7 +1,7 @@
 ﻿using FinTrack.API;
 using FinTrack.API.Core.Common;
 using FinTrack.API.Core.Entities;
-using FinTrack.API.Core.Interfaces;
+using FinTrack.API.Application.Interfaces;
 using FinTrack.API.DTO;
 using FinTrack.API.TestMocks.Builders;
 using FinTrack.IntegrationTests.Common;
@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json.Nodes;
 
 namespace FinTrack.IntegrationTests.API
 {
@@ -18,6 +19,7 @@ namespace FinTrack.IntegrationTests.API
     {
         private readonly HttpClient _client;
         private readonly FinTrackWebApplicationFactory<Program> _factory;
+        private readonly CancellationToken ct = TestContext.Current.CancellationToken;
 
         public TokenControllerTests(FinTrackWebApplicationFactory<Program> factory)
         {
@@ -44,13 +46,15 @@ namespace FinTrack.IntegrationTests.API
                 Password = "pwd",
             };
 
-            var response = await _client.PostAsJsonAsync("/api/auth/token", request);
+            var response = await _client.PostAsJsonAsync("/api/auth/token", request, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-            data.Should().NotBeNullOrEmpty();
-            data["token"].Should().NotBeNullOrEmpty();
+            var data = await response.Content.ReadFromJsonAsync<JsonNode>(ct);
+            data.Should().NotBeNull();
+            data["access_token"].Should().NotBeNull();
+            data["refresh_token"].Should().NotBeNull();
+            data["expires_in"]!.GetValue<int>().Should().BeGreaterThan(0);
         }
 
         [Fact]
@@ -61,7 +65,7 @@ namespace FinTrack.IntegrationTests.API
                 Login = "test@email.com",
             };
 
-            var response = await _client.PostAsJsonAsync("/api/auth/token", request);
+            var response = await _client.PostAsJsonAsync("/api/auth/token", request, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
@@ -74,7 +78,7 @@ namespace FinTrack.IntegrationTests.API
                 Password = "pwd",
             };
 
-            var response = await _client.PostAsJsonAsync("/api/auth/token", request);
+            var response = await _client.PostAsJsonAsync("/api/auth/token", request, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
@@ -88,7 +92,7 @@ namespace FinTrack.IntegrationTests.API
                 Password = "invalid"
             };
 
-            var response = await _client.PostAsJsonAsync("/api/auth/token", request);
+            var response = await _client.PostAsJsonAsync("/api/auth/token", request, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
@@ -102,7 +106,7 @@ namespace FinTrack.IntegrationTests.API
                 Password = "pwd"
             };
 
-            var response = await _client.PostAsJsonAsync("/api/auth/token", request);
+            var response = await _client.PostAsJsonAsync("/api/auth/token", request, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
@@ -115,7 +119,7 @@ namespace FinTrack.IntegrationTests.API
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, "/api/auth/token/status");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
@@ -123,7 +127,7 @@ namespace FinTrack.IntegrationTests.API
         [Fact]
         async public Task GetJwtStatus_MissingToken_Returns401()
         {
-            var response = await _client.GetAsync("/api/auth/token/status");
+            var response = await _client.GetAsync("/api/auth/token/status", ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
