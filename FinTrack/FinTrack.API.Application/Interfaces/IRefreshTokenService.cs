@@ -1,4 +1,6 @@
 ﻿
+using FinTrack.API.Application.Common;
+
 namespace FinTrack.API.Application.Interfaces
 {
     public interface IRefreshTokenService
@@ -19,10 +21,9 @@ namespace FinTrack.API.Application.Interfaces
         /// <param name="refreshToken">token for rotation</param>
         /// <param name="ct">Cancellation token</param>
         /// <returns>
-        /// Returns new refresh token <see cref="string"/> and operation status as <see cref="bool"></see>.
-        /// If false, returned token <see cref="string"/> is <see langword="null"/>
+        /// Returns <see cref="RefreshTokenRotationResult"/> object
         /// </returns>
-        Task<(string?, bool)> RotateRefreshTokenAsync(string refreshToken, CancellationToken ct = default);
+        Task<RefreshTokenRotationResult> RotateRefreshTokenAsync(string refreshToken, CancellationToken ct = default);
 
         /// <summary>
         /// Method for revoking provided refresh token

@@ -1,22 +1,29 @@
 ﻿using FinTrack.API.Application.Common;
+using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 
 namespace FinTrack.API.Application.UseCases.Users.Commands.AuthUser
 {
-    internal class AuthUserHandler : IRequestHandler<AuthUserCommand, ValueResult<User>>
+    internal class AuthUserHandler : IRequestHandler<AuthUserCommand, ValueResult<AuthResponse>>
     {
-        private IUserRepository _userRepository;
-        private IPasswordHasher _passwordHasher;
-        
-        public AuthUserHandler(IUserRepository userRepository, IPasswordHasher passwordHasher)
+        private readonly IUserRepository _userRepository;
+        private readonly IPasswordHasher _passwordHasher;
+        private readonly IJwtTokenService _jwtTokenService;
+        private readonly IRefreshTokenService _refreshTokenService;
+        public AuthUserHandler(IUserRepository userRepository,
+                               IPasswordHasher passwordHasher,
+                               IJwtTokenService jwtTokenService,
+                               IRefreshTokenService refreshTokenService)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _refreshTokenService = refreshTokenService;
+            _jwtTokenService = jwtTokenService;
         }
 
-        async public Task<ValueResult<User>> Handle(AuthUserCommand request, CancellationToken cancellationToken)
+        async public Task<ValueResult<AuthResponse>> Handle(AuthUserCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByEmailAsync(request.login);
             if (user != null)
@@ -24,11 +31,13 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.AuthUser
                 var isValidCredentials = _passwordHasher.VerifyPassword(user.PasswordHash, request.password);
                 if (isValidCredentials)
                 {
-                    return ValueResult<User>.Ok(user, OperationStatusMessages.Ok);
+                    var accessToken = await _jwtTokenService.GenerateTokenAsync(user);
+                    var refreshToken = await _refreshTokenService.GenerateRefreshTokenAsync(user.Id, cancellationToken);
+                    return ValueResult<AuthResponse>.Ok(new AuthResponse(accessToken, refreshToken), OperationStatusMessages.Ok);
                 }
-                return ValueResult<User>.Fail(OperationStatusMessages.Unauthorized, "login or password is incorrect");
+                return ValueResult<AuthResponse>.Fail(OperationStatusMessages.Unauthorized, "login or password is incorrect");
             }
-            return ValueResult<User>.Fail(OperationStatusMessages.Unauthorized, "login or password is incorrect");
+            return ValueResult<AuthResponse>.Fail(OperationStatusMessages.Unauthorized, "login or password is incorrect");
         }
     }
 }

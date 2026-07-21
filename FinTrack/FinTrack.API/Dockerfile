@@ -5,6 +5,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
 USER root
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /app/logs && chown -R $APP_UID:$APP_UID /app /app/logs
 
 USER $APP_UID
 WORKDIR /app
@@ -33,7 +34,5 @@ RUN dotnet publish "./FinTrack.API.csproj" -c $BUILD_CONFIGURATION -o /app/publi
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-RUN mkdir -p /app/logs
-RUN chmod 777 /app/logs
 
 ENTRYPOINT ["dotnet", "FinTrack.API.dll"]

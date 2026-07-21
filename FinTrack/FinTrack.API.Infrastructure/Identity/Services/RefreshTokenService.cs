@@ -1,4 +1,5 @@
-﻿using FinTrack.API.Application.Interfaces;
+﻿using FinTrack.API.Application.Common;
+using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Core.Exceptions;
 using FinTrack.API.Infrastructure.Caching.DTO;
 using FinTrack.API.Infrastructure.Data;
@@ -7,9 +8,8 @@ using FinTrack.API.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
-using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace FinTrack.API.Infrastructure.Identity.Services
 {
@@ -21,6 +21,8 @@ namespace FinTrack.API.Infrastructure.Identity.Services
         private readonly ILogger<RefreshTokenService> _logger;
         private readonly JwtOptions _jwtOptions;
         private readonly CacheOptions _cacheOptions;
+
+        const string base64UrlPattern = @"^[a-zA-Z0-9_-]*$";
 
         public RefreshTokenService(IRefreshTokenRepository refreshTokenRepository, 
             ICacheService cache, 
@@ -53,6 +55,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
 
             _logger.LogDebug("saving refresh token record to database");
             await _refreshTokenRepository.AddTokenAsync(record, ct);
+            await _refreshTokenRepository.SaveChangesAsync();
 
             _logger.LogDebug("saving refresh token to cache");
             var cacheEntry = new CacheEntry(userId, record.ExpiresAt, false);
@@ -63,6 +66,10 @@ namespace FinTrack.API.Infrastructure.Identity.Services
 
         public async Task RevokeRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
         {
+            if (!Regex.IsMatch(refreshToken, base64UrlPattern))
+            {
+                return;
+            }
             var hash = HashToken(refreshToken);
             await _cache.RemoveByKeyAsync(_provider.RefreshToken(hash), ct);
 
@@ -73,6 +80,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
                 record.IsRevoked = true;
                 record.RevokedAt = DateTime.UtcNow;
                 await _refreshTokenRepository.UpdateTokenAsync(record, ct);
+                await _refreshTokenRepository.SaveChangesAsync();
                 _logger.LogDebug("Refresh token with hash {Hash} was revoked", hash);
 
                 var remainingTTL = record.ExpiresAt - DateTime.UtcNow;
@@ -85,8 +93,13 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             else _logger.LogDebug("Refresh token with hash {Hash} was not found in database or already revoked", hash);
         }
 
-        public async Task<(string?, bool)> RotateRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
+        public async Task<RefreshTokenRotationResult> RotateRefreshTokenAsync(string refreshToken, CancellationToken ct = default)
         {
+            if (!Regex.IsMatch(refreshToken, base64UrlPattern))
+            {
+                return new RefreshTokenRotationResult(false, null, Guid.Empty);
+            }
+            
             var oldHash = HashToken(refreshToken);
             var cacheKey = _provider.RefreshToken(oldHash);
 
@@ -96,7 +109,8 @@ namespace FinTrack.API.Infrastructure.Identity.Services
                 if (existingCache.IsRevoked || DateTime.UtcNow > existingCache.ExpiresAt)
                 {
                     _logger.LogDebug("Fast fail: refresh token with hash {hash} is revoked or expired", oldHash);
-                    return (null,  false);
+                    return new RefreshTokenRotationResult(false, null, Guid.Empty);
+
                 }
             }
 
@@ -105,7 +119,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             if (oldToken == null)
             {
                 _logger.LogDebug("Provided refresh token with hash: {hash} was not found in database", oldHash);
-                return (null, false);
+                return new RefreshTokenRotationResult(false, null, Guid.Empty);
             }
             if (oldToken.IsRevoked || oldToken.ExpiresAt < DateTime.UtcNow)
             {
@@ -114,7 +128,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
                 var negativeCache = new CacheEntry(oldToken.UserId, oldToken.ExpiresAt, oldToken.IsRevoked);
                 await _cache.SetAsync(cacheKey, negativeCache, _cacheOptions.DefaultTTL, ct);
 
-                return (null, false);
+                return new RefreshTokenRotationResult(false, null, Guid.Empty);
             }
 
             var newToken = GenerateToken();
@@ -135,14 +149,14 @@ namespace FinTrack.API.Infrastructure.Identity.Services
 
             try
             {
-                await _refreshTokenRepository.AddTokenAsync(newTokenRecord, ct);
                 await _refreshTokenRepository.UpdateTokenAsync(oldToken, ct);
+                await _refreshTokenRepository.AddTokenAsync(newTokenRecord, ct);
                 await _refreshTokenRepository.SaveChangesAsync(ct);
             }
             catch (EntityNotFoundException ex)
             {
                 _logger.LogDebug(ex, "Failed to update refresh token");
-                return (null, false);
+                return new RefreshTokenRotationResult(false, null, Guid.Empty);
             }
 
             var oldRemainingTtl = oldToken.ExpiresAt - DateTime.UtcNow;
@@ -156,7 +170,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             await _cache.SetAsync(_provider.RefreshToken(newToken.Hash), cacheEntry, _jwtOptions.RefreshTokenLifeTime, ct);
 
             _logger.LogDebug("Token successfully rotated for user with id: {Id}", oldToken.Id);
-            return (newToken.Value, true);
+            return new RefreshTokenRotationResult(true, newToken.Value, newTokenRecord.UserId);
         }
 
         private static GeneratedToken GenerateToken()

@@ -48,8 +48,8 @@ namespace FinTrack.API.Middleware
                     };
 
                     logger.LogWarning("Incorrect userId format: {Sub}. Token id: {Jti}",
-                                       jti,
-                                       idClaimValue);
+                                       idClaimValue,
+                                       jti);
 
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                     await context.Response.WriteAsJsonAsync(problemDetails);

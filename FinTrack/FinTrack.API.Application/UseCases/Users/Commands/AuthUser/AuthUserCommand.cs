@@ -12,5 +12,5 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.AuthUser
     /// <param name="login">User's login</param>
     /// <param name="password">User's password</param>
     public record AuthUserCommand(string login,
-                                   string password) : IRequest<ValueResult<User>>;
+                                   string password) : IRequest<ValueResult<AuthResponse>>;
 }

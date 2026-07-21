@@ -221,6 +221,7 @@ namespace FinTrack.API
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IJwtSigningService, JwtSigningService>();
             services.AddSingleton<IPasswordHasher, PBKDF2PasswordHasher>();
+            services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
             //Hashicorp Vault 
             services.AddSingleton<IVaultTokenProvider, VaultTokenProvider>();
@@ -258,6 +259,7 @@ namespace FinTrack.API
             services.AddScoped<IUserRepository,UserRepository>();
             services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepsitory>();
 
             //Redis cache
             services.AddSingleton<IConnectionMultiplexer>(sp =>
