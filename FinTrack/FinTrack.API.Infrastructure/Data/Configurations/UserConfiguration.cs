@@ -18,7 +18,9 @@ namespace FinTrack.API.Infrastructure.Data.Configurations
             builder.Property(t => t.Name).HasMaxLength(100).IsRequired();
             builder.HasIndex(t => t.Name).IsUnique();
             builder.Property(t => t.Roles).IsRequired();
-
+            builder.Property(t => t.IsEmailVerified).IsRequired().HasDefaultValue(false);
+            builder.Property(t => t.TotpSecret).HasMaxLength(64).IsRequired(false); 
+            
         }
     }
 }

@@ -11,6 +11,8 @@ namespace FinTrack.API.Infrastructure.Common.DTO
         public string Phone { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
         public List<string> Roles { get; set; } = new();
+        public bool IsEmailVerified { get; set; }
+        public string? TotpSecret { get; set; } = null!;
 
     }
 }

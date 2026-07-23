@@ -16,13 +16,14 @@ namespace FinTrack.API.Infrastructure.Common.Mappers
                 .ForMember(t => t.Phone, opt => opt.MapFrom(src => src.Phone))
                 .ForMember(t => t.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(t => t.PasswordHash, opt => opt.MapFrom(src => src.PasswordHash))
-                .ForMember(t => t.Roles, opt => opt.MapFrom(src => src.Roles));
+                .ForMember(t => t.Roles, opt => opt.MapFrom(src => src.Roles))
+                .ForMember(t => t.IsEmailVerified, opt => opt.MapFrom(src => src.IsEmailVerified))
+                .ForMember(t => t.TotpSecret, opt => opt.MapFrom(src => src.TotpSecret));
 
 
             CreateMap<UserDb, User>()
                 .ConstructUsing(src => new User(src.Email, src.Phone, src.Name, src.PasswordHash))
                 .ForMember(t => t.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(t => t.Accounts, opt => opt.Ignore())
                 .ForMember(t => t.Roles, opt => opt.Ignore())
                 .AfterMap((dbEntity, domainEntity, context) =>
                 {
@@ -30,7 +31,11 @@ namespace FinTrack.API.Infrastructure.Common.Mappers
                     {
                         domainEntity.AssignRole(role);
                     }
-
+                    if (dbEntity.TotpSecret != null)
+                    {
+                        domainEntity.SetTotpSecret(dbEntity.TotpSecret);
+                        domainEntity.VerifyEmail();
+                    }
                 });
         }
     }

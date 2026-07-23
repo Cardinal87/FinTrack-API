@@ -17,15 +17,19 @@ namespace FinTrack.API.Core.Entities
     /// </remarks>
     public class User : Entity
     {
-        private const string phonePattern = @"^\+[1-9]\d{1,14}$";
-        private const string emailPattern = @"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$";
-        private const string hashPattern = @"^[A-Za-z0-9]+\.\d+\.[A-Za-z0-9+/]+={0,2}\.[A-Za-z0-9+/]+={0,2}$";
+        private static readonly Regex phonePattern = new Regex(@"^\+[1-9]\d{1,14}$", RegexOptions.Compiled);
+        private static readonly Regex emailPattern = new Regex(@"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
+                                                    RegexOptions.Compiled);
+        private static readonly Regex hashPattern = new Regex(@"^[A-Za-z0-9]+\.\d+\.[A-Za-z0-9+/]+={0,2}\.[A-Za-z0-9+/]+={0,2}$", RegexOptions.Compiled);
+        private static readonly Regex base32Pattern = new Regex(@"^(?:[A-Z2-7]{8})*(?:[A-Z2-7]{2}={6}|[A-Z2-7]{4}={4}|[A-Z2-7]{5}={3}|[A-Z2-7]{7}=)?$",
+                                                    RegexOptions.Compiled);
 
         private string name;
         private string email;
         private string phone;
         private string passwordHash;
-        private readonly List<Account> accounts = new();
+        private string? totpSecret;
+        private bool isEmailVerified;
         private readonly List<string> roles = new();
 
         public User(string email, string phone, string name, string hash)
@@ -34,12 +38,9 @@ namespace FinTrack.API.Core.Entities
             Phone = phone;
             Name = name;
             PasswordHash = hash;
+            isEmailVerified = false;
         }
 
-        /// <summary>
-        /// Read-only collection with user's accounts
-        /// </summary>
-        public IReadOnlyCollection<Account> Accounts => accounts.AsReadOnly();
 
         /// <summary>
         /// Read-only collection with user's roles
@@ -107,7 +108,7 @@ namespace FinTrack.API.Core.Entities
             [MemberNotNull(nameof(email))]
             set 
             {
-                if (!Regex.IsMatch(value, emailPattern))
+                if (!emailPattern.IsMatch(value))
                 {
                     throw new ArgumentException("Incorrect email format");
                 }
@@ -140,12 +141,27 @@ namespace FinTrack.API.Core.Entities
             [MemberNotNull(nameof(phone))]
             set
             {
-                if (!Regex.IsMatch(value, phonePattern))
+                if (!phonePattern.IsMatch(value))
                 {
                     throw new ArgumentException("Incorrect phone format");
                 }
                 phone = value;
             }
+        }
+
+        /// <summary>
+        /// Indicates whether the user's email is verified
+        /// </summary>
+        public bool IsEmailVerified 
+        {
+            get => isEmailVerified;
+        }
+
+        /// <summary>
+        /// Returns the TOTP Secret for current user
+        /// </summary>
+        public string? TotpSecret {
+            get => totpSecret;
         }
 
         /// <summary>
@@ -173,7 +189,7 @@ namespace FinTrack.API.Core.Entities
             [MemberNotNull(nameof(passwordHash))]
             set
             {
-                if (!Regex.IsMatch(value, hashPattern))
+                if (!hashPattern.IsMatch(value))
                 {
                     throw new ArgumentException("Incorrect hash format");
                 }
@@ -181,44 +197,6 @@ namespace FinTrack.API.Core.Entities
             }
         }
 
-        /// <summary>
-        /// Attaches user's account to account collection
-        /// </summary>
-        /// <param name="account">
-        /// account of the current user
-        /// </param>
-        /// 
-        /// <exception cref="ArgumentException">
-        /// Account's reference to user and current user's id does not match
-        /// </exception>
-        public void AddAccount(Account account)
-        {
-            if (account.UserId != Id)
-            {
-                throw new AccountOwnershipException(Id, account.UserId);
-            }
-            accounts.Add(account);
-        }
-
-        /// <summary>
-        /// Deattaches user's account from collection
-        /// </summary>
-        /// <param name="accountId">
-        /// Id of the attached account
-        /// </param>
-        /// 
-        /// <exception cref="KeyNotFoundException">
-        /// Account with such id does not exist in user's collection
-        /// </exception>
-        public void DeleteAccount(Guid accountId)
-        {
-            var account = accounts.FirstOrDefault(t => t.Id == accountId);
-            if (account == null)
-            {
-                throw new KeyNotFoundException("Account with this id does not belong to the user");
-            }
-            accounts.Remove(account);
-        }
 
         /// <summary>
         /// Assings a new role to user
@@ -235,6 +213,33 @@ namespace FinTrack.API.Core.Entities
             {
                 roles.Add(role);
             }
+        }
+
+        /// <summary>
+        /// Verifies user email
+        /// </summary>
+        /// <exception cref="DomainException"><see cref="TotpSecret"/> is null</exception>
+        public void VerifyEmail()
+        {
+            if (totpSecret == null)
+            {
+                throw new DomainException("TOTP Secret is null. Email cannot be verified without TOTP Secret");
+            }
+            isEmailVerified = true;
+        }
+
+        /// <summary>
+        /// Sets TOTP Secret for current user
+        /// </summary>
+        /// <param name="secret">TOTP Secret in Base32 format</param>
+        /// <exception cref="ArgumentException">Invalid format of <paramref name="secret"/></exception>
+        public void SetTotpSecret(string secret)
+        {
+            if (base32Pattern.IsMatch(secret))
+            {
+                throw new ArgumentException("Invalid TOTP Secret Format. Must match base32 string format");
+            }
+            totpSecret = secret;
         }
     }
 }
