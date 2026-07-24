@@ -5,7 +5,6 @@ namespace FinTrack.API.Infrastructure.Caching.DTO
     public class CacheOptions()
     {
         public TimeSpan DefaultTTL { get; set; }
-        public string EndPoint { get; set; } = null!;
         public CircuitBreakerOptions CircuitBreakerOptions { get; set; } = null!;
     }
 

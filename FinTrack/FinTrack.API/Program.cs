@@ -1,28 +1,34 @@
-using Microsoft.OpenApi.Models;
-using FinTrack.API.Infrastructure.Data;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using FinTrack.API.Core.Interfaces;
-using FinTrack.API.Infrastructure.Data.Repositories;
-using FinTrack.API.Infrastructure.Identity.Services;
 using FinTrack.API.Application.Interfaces;
-using FinTrack.API.Infrastructure.Identity.DTO;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using FinTrack.API.Core.Interfaces;
 using FinTrack.API.Core.Services;
-using FinTrack.API.Middleware;
-using Serilog;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Metrics;
-using FinTrack.API.Infrastructure.Interfaces;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Polly;
-using FinTrack.API.Infrastructure.Caching.DTO;
-using Polly.CircuitBreaker;
-using Microsoft.Extensions.Options;
-using StackExchange.Redis;
-using FinTrack.API.Infrastructure.Caching.Services;
 using FinTrack.API.Infrastructure.Caching.Decorators;
+using FinTrack.API.Infrastructure.Caching.DTO;
+using FinTrack.API.Infrastructure.Caching.Services;
+using FinTrack.API.Infrastructure.Data;
+using FinTrack.API.Infrastructure.Data.Repositories;
+using FinTrack.API.Infrastructure.Identity.DTO;
+using FinTrack.API.Infrastructure.Identity.Services;
+using FinTrack.API.Infrastructure.Interfaces;
+using FinTrack.API.Infrastructure.Messaging;
+using FinTrack.API.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using NATS.Client.Core;
+using NATS.Client.JetStream;
+using NATS.Extensions.Microsoft.DependencyInjection;
+using NATS.Net;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using Polly;
+using Polly.CircuitBreaker;
+using Serilog;
+using StackExchange.Redis;
+using System.Reflection;
 
 namespace FinTrack.API
 {
@@ -221,12 +227,13 @@ namespace FinTrack.API
             services.AddScoped<IJwtSigningService, JwtSigningService>();
             services.AddSingleton<IPasswordHasher, PBKDF2PasswordHasher>();
             services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+            services.AddSingleton<ITotpService, TotpService>();
 
             //Hashicorp Vault 
             services.AddSingleton<IVaultTokenProvider, VaultTokenProvider>();
             services.AddTransient<VaultTokenHeaderHandler>();
 
-            var vaultAddress = config["HashicorpVaultOptions:VaultAddress"] ?? "http://localhost:8200";
+            var vaultAddress = config.GetConnectionString("Vault") ?? "http://localhost:8200";
             services.AddHttpClient("SigningService", client =>
             {
                 client.BaseAddress = new Uri(vaultAddress);
@@ -238,6 +245,24 @@ namespace FinTrack.API
 
             });
 
+            //NATS
+            services.AddNatsClient(options =>
+            {
+                var url = config.GetConnectionString("Nats") ?? "nats://localhost:4222";
+                options.ConfigureOptions(builder =>
+                {
+                    builder.Configure(opts =>
+                    {
+                        opts.Opts = opts.Opts with { Url = url };
+                    });
+                });
+            });
+            services.AddSingleton<INatsJSContext>(sp =>
+            {
+                var conn = sp.GetRequiredService<INatsConnection>();
+                return conn.CreateJetStreamContext();
+            });
+            services.AddSingleton<IMessagePublisher, NatsMessagePublisher>();
 
             //AutoMapper
             services.AddAutoMapper(typeof(Infrastructure.AssemblyReference).Assembly);
@@ -264,15 +289,16 @@ namespace FinTrack.API
             //Redis cache
             services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
-                var opt = sp.GetRequiredService<IOptions<CacheOptions>>().Value;
-                return ConnectionMultiplexer.Connect(new ConfigurationOptions
+                string connectionString = config.GetConnectionString("Redis") ?? "localhost:6379";
+                var options = new ConfigurationOptions
                 {
-                    EndPoints = {opt.EndPoint},
                     AbortOnConnectFail = false,
                     Password = "",
                     ConnectTimeout = 2000,
                     SyncTimeout = 2000
-                });
+                };
+                options.EndPoints.Add(connectionString);
+                return ConnectionMultiplexer.Connect(connectionString);
             });
 
             services.AddSingleton<ICacheService, RedisCacheService>();
@@ -283,6 +309,7 @@ namespace FinTrack.API
             services.Decorate<IUserRepository, CachedUserRepositoryDecorator>();
             services.Decorate<IAccountRepository, CachedAccountRepositoryDecorator>();
             services.Decorate<ITransactionRepository, CachedTransactionRepositoryDecorator>();
+
 
             //Docs
             services.AddSwaggerGen(c =>
