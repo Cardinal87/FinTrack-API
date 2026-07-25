@@ -204,6 +204,7 @@ namespace FinTrack.API
             services.Configure<JwtOptions>(config.GetSection("JwtOptions"));
             services.Configure<VaultOptions>(config.GetSection("HashicorpVaultOptions"));
             services.Configure<CacheOptions>(config.GetSection("RedisOptions"));
+            services.Configure<MessageStreamOptions>(config.GetSection("NatsOptions:StreamOptions"));
 
             //Resilience
             services.AddResiliencePipeline("cache-pipeline", (builder, context) =>

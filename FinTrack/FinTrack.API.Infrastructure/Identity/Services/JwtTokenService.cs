@@ -1,4 +1,5 @@
-﻿using FinTrack.API.Application.Interfaces;
+﻿using FinTrack.API.Application.Common;
+using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Infrastructure.Identity.DTO;
 using FinTrack.API.Infrastructure.Interfaces;
@@ -23,7 +24,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             _logger = logger;
         }
 
-        public async Task<string> GenerateTokenAsync(User user)
+        public async Task<TokenGenerationResult> GenerateTokenAsync(User user, bool challenge = false)
         {
             var jti = Guid.NewGuid().ToString();
             var claims = new List<Claim>
@@ -31,14 +32,25 @@ namespace FinTrack.API.Infrastructure.Identity.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, jti)
             };
-            claims.AddRange(user.Roles.Select(role => new Claim("role", role)));
 
+            if (challenge)
+            {
+                claims.Add(new Claim("type", "2fa_pending"));
+            }
+            else
+            {
+                claims.AddRange(user.Roles.Select(role => new Claim("role", role)));
+            }
+
+            var lifeTime = challenge ?
+                _jwtOptions.ChallengeTokenLifeTime :
+                _jwtOptions.AccessTokenLifeTime;
 
             var descriptor = new SecurityTokenDescriptor()
             {
                 Issuer = _jwtOptions.Issuer,
                 Audience = _jwtOptions.Audience,
-                Expires = DateTime.UtcNow.Add(_jwtOptions.LifeTime),
+                Expires = DateTime.UtcNow.Add(lifeTime),
                 Subject = new ClaimsIdentity(claims)
             };
 
@@ -50,7 +62,7 @@ namespace FinTrack.API.Infrastructure.Identity.Services
                 audience: _jwtOptions.Audience,
                 claims: claims,
                 notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.Add(_jwtOptions.LifeTime),
+                expires: DateTime.UtcNow.Add(lifeTime),
                 issuedAt: DateTime.UtcNow
             );
 
@@ -59,10 +71,12 @@ namespace FinTrack.API.Infrastructure.Identity.Services
             string rawToken = $"{token.EncodedHeader}.{token.EncodedPayload}";
             string signedToken = await _signingService.SignTokenAsync(rawToken);
 
-            _logger.LogInformation("Token with jti {jti} was issued to the user with id {id}",
+            var type = challenge ? "Challenge" : "Access";
+            _logger.LogInformation("Token of type {type} with jti {jti} was issued to the user with id {id}",
+                                    type,
                                     jti,
                                     user.Id);
-            return signedToken;
+            return new TokenGenerationResult(signedToken, (int)lifeTime.TotalSeconds);
 
 
         }

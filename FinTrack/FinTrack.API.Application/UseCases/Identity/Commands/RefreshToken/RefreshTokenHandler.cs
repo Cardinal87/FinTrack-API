@@ -30,22 +30,22 @@ namespace FinTrack.API.Application.UseCases.Identity.Commands.RefreshToken
         {
             var result = await _refreshTokenService.RotateRefreshTokenAsync(request.refreshToken, cancellationToken);
 
-            if (!result.isSuccess)
+            if (!result.IsSuccess)
             {
                 return ValueResult<AuthResponse>.Fail(OperationStatusMessages.Unauthorized, "Provided refresh token is not valid");
             }
 
-            var user = await _userRepository.GetByIdAsync(result.userId);
+            var user = await _userRepository.GetByIdAsync(result.UserId);
 
             if (user == null) 
             {
-                _logger.LogWarning("Token rotation was requested for the deleted user with id {userId}", result.userId);
+                _logger.LogWarning("Token rotation was requested for the deleted user with id {userId}", result.UserId);
                 return ValueResult<AuthResponse>.Fail(OperationStatusMessages.Unauthorized, "Provided refresh token is not valid");
             }
 
             var accessToken = await _jwtTokenService.GenerateTokenAsync(user);
 
-            return ValueResult<AuthResponse>.Ok(new AuthResponse(accessToken, result.refreshToken!), OperationStatusMessages.Ok);
+            return ValueResult<AuthResponse>.Ok(new AuthResponse(accessToken, result.RefreshToken!), OperationStatusMessages.Ok);
         }
     }
 }

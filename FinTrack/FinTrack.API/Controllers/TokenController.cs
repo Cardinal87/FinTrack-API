@@ -100,7 +100,7 @@ namespace FinTrack.API.Controllers
             {
                 return Ok(new
                 {
-                    access_token = result.Value.accessToken,
+                    access_token = result.Value.token,
                     refresh_token = result.Value.refreshToken,
                     expires_in = result.Value.expiresIn,
                 });

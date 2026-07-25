@@ -4,13 +4,17 @@ using MediatR;
 namespace FinTrack.API.Application.UseCases.Users.Commands.AuthUser
 {
     /// <summary>
-    /// Represents MediatR command for checking if the user exists
-    /// and are the credentials correct.
+    /// Represents MediatR command for checking user credentials 
+    /// and sending 2fa code for login on email.
     /// Returns <see cref="ValueResult{T}"/> with <see cref="User"/> if it exists and credentials are correct
     /// else returns <see langword="null"/>.
     /// </summary>
     /// <param name="login">User's login</param>
     /// <param name="password">User's password</param>
+    /// <param name="ip">The IP address from which the request was made</param>
+    /// <param name="userAgent">The user agent address from which the request was made</param>
     public record AuthUserCommand(string login,
-                                   string password) : IRequest<ValueResult<AuthResponse>>;
+                                   string password,
+                                   string ip,
+                                   string userAgent) : IRequest<ValueResult<AuthResponse>>;
 }

@@ -1,4 +1,5 @@
 ﻿
+using FinTrack.API.Application.Common;
 using FinTrack.API.Core.Entities;
 
 namespace FinTrack.API.Application.Interfaces
@@ -12,7 +13,8 @@ namespace FinTrack.API.Application.Interfaces
         /// Generates JWT token based on user data
         /// </summary>
         /// <param name="user">User domain model</param>
-        /// <returns>JWT token in base64 format</returns>
-        public Task<string> GenerateTokenAsync(User user);
+        /// <param name="challenge">Defines whether it be auth challenge or access token (Default: false)</param>
+        /// <returns><see cref="TokenGenerationResult"/> with token string and expiration time in seconds</returns>
+        public Task<TokenGenerationResult> GenerateTokenAsync(User user, bool challenge = false);
     }
 }
