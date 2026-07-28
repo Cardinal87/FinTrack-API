@@ -44,8 +44,6 @@ services:
 
   db:
     image: postgres:18.4
-    ports:
-    - 5432:5432
     volumes:
       - postgres-data:/var/lib/postgresql
     environment:
@@ -64,46 +62,44 @@ services:
 
   nats:
     image: nats:2.14.3-alpine
-    ports:
-      - "4222:4222" 
-      - "8222:8222"
     volumes:
       - ../configs/nats-server.conf:/etc/nats/nats.conf
-      - nats-data:/var/lib/nats/jetstream
+      - nats-data:/var/lib/nats/
     
     healthcheck:
-      test: ["CMD", "nats", "server", "check", "-s", "nats://localhost:4222"]
-      interval: 15s
-      timeout: 3s
-      retries: 5
-      start_period: 5s
-        
-    networks:
-      - api-network
-
-  mailpit:
-    image: axllent/mailpit:v1.30.5
-    ports:
-      - "1025:1025"
-      - "8025:8025"
-
-    environment:
-      MP_MAX_MESSAGES: 2000
-      MP_DATABASE: /data/mailpit.db
-      MP_SMTP_AUTH_ACCEPT_ANY: "false"
-      MP_SMTP_AUTH_ALLOW_INSECURE: "true"
-    volumes:
-      - mailpit-data:/data 
-
-    healthcheck:
-      test: ["CMD", "/mailpit", "readyz"]
-      interval: 15s
+      test: ["CMD", "wget", "-qO-", "http://localhost:8222/healthz"]
+      interval: 10s
       timeout: 5s
       retries: 3
-      start_period: 5s
-
+      start_period: 10s
+       
+    command: ["-c", "/etc/nats/nats.conf"]
     networks:
       - api-network
+
+  # mailpit:
+  #   image: axllent/mailpit:v1.30.5
+  #   ports:
+  #     - "1025:1025"
+  #     - "8025:8025"
+
+  #   environment:
+  #     MP_MAX_MESSAGES: 2000
+  #     MP_DATABASE: /data/mailpit.db
+  #     MP_SMTP_AUTH_ACCEPT_ANY: "false"
+  #     MP_SMTP_AUTH_ALLOW_INSECURE: "true"
+  #   volumes:
+  #     - mailpit-data:/data 
+
+  #   healthcheck:
+  #     test: ["CMD", "/mailpit", "readyz"]
+  #     interval: 15s
+  #     timeout: 5s
+  #     retries: 3
+  #     start_period: 5s
+
+  #   networks:
+  #     - api-network
 
 
   redis:

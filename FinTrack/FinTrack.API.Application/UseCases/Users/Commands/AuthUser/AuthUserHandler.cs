@@ -48,12 +48,8 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.AuthUser
             }
 
 
-            if (user.TotpSecret != null)
+            if (user.TotpSecret != null && user.IsEmailVerified)
             {
-                if (!user.IsEmailVerified)
-                {
-                    return ValueResult<AuthResponse>.Fail(OperationStatusMessages.Forbidden, "Email is not verified. Please verify your email first");
-                }
 
                 var challenge = await _jwtTokenService.GenerateTokenAsync(user, challenge: true);
 

@@ -4,7 +4,6 @@ using FinTrack.API.Application.UseCases.Accounts.Commands.DeleteAccount;
 using FinTrack.API.Application.UseCases.Accounts.Commands.TopUpBalance;
 using FinTrack.API.Application.UseCases.Accounts.Queries.GetAccount;
 using FinTrack.API.Application.UseCases.Accounts.Queries.GetAllAccounts;
-using FinTrack.API.Application.UseCases.Users.Queries.GetAllUsers;
 using FinTrack.API.Controllers.Base;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FinTrack.API.Controllers
 {
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "AccessToken")]
     [Route("api/accounts")]
     public class AccountController : AuthorizeFinTrackControllerBase
     {
@@ -126,7 +125,7 @@ namespace FinTrack.API.Controllers
         /// <response code="401">access token is missing or invalid</response>
         /// <response code="403">user does not has access</response>
         [HttpGet()]
-        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
@@ -197,7 +196,7 @@ namespace FinTrack.API.Controllers
         /// <response code="400">invalid request data</response>
         /// <response code="403">user has not access to endpoint</response>
         /// <response code="404">account with <paramref name="id"/> not found</response>
-        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Authorize(Policy = "Admin")]
         [HttpPost("{id}/topup")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -235,7 +234,7 @@ namespace FinTrack.API.Controllers
         /// <response code="400">invalid request data</response>
         /// <response code="403">user has not access to endpoint</response>
         /// <response code="404">account with <paramref name="id"/> not found</response>
-        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Authorize(Policy = "Admin")]
         [HttpPost("{id}/debit")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]

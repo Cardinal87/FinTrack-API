@@ -13,6 +13,7 @@ namespace FinTrack.API.Controllers.Base
                 OperationStatusMessages.Forbidden => 403,
                 OperationStatusMessages.NotFound => 404,
                 OperationStatusMessages.Unauthorized => 401,
+                OperationStatusMessages.Conflict => 409,
                 _ => 500
             };
 
@@ -22,6 +23,7 @@ namespace FinTrack.API.Controllers.Base
                 401 => "https://tools.ietf.org/html/rfc9110#section-15.5.2",
                 403 => "https://tools.ietf.org/html/rfc9110#section-15.5.4",
                 404 => "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+                409 => "https://tools.ietf.org/html/rfc9110#section-15.5.10",
                 500 => "https://tools.ietf.org/html/rfc9110#section-15.6.1",
                 _ => $"https://httpstatuses.io/{statusCode}"
             };

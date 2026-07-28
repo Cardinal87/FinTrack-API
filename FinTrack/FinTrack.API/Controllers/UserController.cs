@@ -8,10 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 using FinTrack.API.Controllers.Base;
 using FinTrack.API.Application.UseCases.Users.Queries.GetAllUsers;
 using FinTrack.API.Application.UseCases.Users.Commands.UpdateUser;
+using FinTrack.API.Application.UseCases.Users.Commands.SendEmailVerificationCode;
+using FinTrack.API.Application.UseCases.Users.Commands.CheckEmailVerficationCode;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace FinTrack.API.Controllers
 {
-    [Authorize]
+    [Authorize(Policy = "AccessToken")]
     [Route("api/users")]
     [ApiController]
     public class UserController : AuthorizeFinTrackControllerBase
@@ -125,7 +128,7 @@ namespace FinTrack.API.Controllers
         /// <response code="401">access token is missing or invalid</response>
         /// <response code="403">user does not has access</response>
         /// <response code="404">user with <paramref name="id"/> not found</response>
-        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Authorize(Policy = "AdminOnly")]
         [Produces("application/json")]
         [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -209,7 +212,7 @@ namespace FinTrack.API.Controllers
         /// <response code="403">user does not has access</response>
         /// <response code="404">user not found</response>
         [HttpGet("{id}")]
-        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Authorize(Policy = "AdminOnly")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
@@ -264,7 +267,7 @@ namespace FinTrack.API.Controllers
         /// <response code="401">access token is missing or invalid</response>
         /// <response code="403">user does not has access</response>
         [HttpGet()]
-        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Authorize(Policy = "AdminOnly")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
@@ -327,7 +330,7 @@ namespace FinTrack.API.Controllers
         /// <response code="401">access token is missing or invalid</response>
         /// <response code="403">user does not has access</response>
         /// <response code="404">user not found</response>
-        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Authorize(Policy = "AdminOnly")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
@@ -343,6 +346,119 @@ namespace FinTrack.API.Controllers
                 return NoContent();
             }
 
+            return HandleFailedResult(result);
+        }
+
+        /// <summary>
+        /// Sends code for email verification to user email
+        /// </summary>
+        /// <param name="ct">cancellation token</param>
+        /// <remarks>
+        /// Request example:
+        /// POST /api/users/email/code
+        /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+        /// 
+        /// Response example:
+        /// {
+        ///     "message": "verifivation code was sent to your email"
+        ///     "_links": {
+        ///          "verify": {
+        ///             "href": "/api/users/email/verify",
+        ///             "method": "POST",
+        ///             "title": "verification code confirmation"
+        ///          },
+        ///          "resend": {
+        ///             "href": "/api/users/email/code",
+        ///             "method": "POST",
+        ///             "title": "resend verification code"
+        ///          }
+        ///     }
+        /// }
+        /// </remarks>
+        /// <response code="202">verification code was sent to email</response>
+        /// <response code="404">user not found</response>
+        /// <response code="409">2fa is not enabled or email is already verified</response>
+        [HttpPost("email/code")]
+        [Produces("application/json")]
+        [EnableRateLimiting("EmailVerificationSendLimit")]
+        [ProducesResponseType(StatusCodes.Status202Accepted)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(ProblemDetails))]
+        public async Task<IActionResult> SendEmailVerificationCode(CancellationToken ct)
+        {
+            var command = new SendEmailVerificationCodeCommand(UserId);
+            var result = await _mediator.Send(command, ct);
+            if (result.IsSuccess)
+            {
+                return Accepted(new
+                {
+                    message = "verification code was sent to your email",
+                    _links = new Dictionary<string, object>
+                    {
+                        {
+                            "verify", new
+                            {
+                                href = Url.Action("CompleteEmailVerification"),
+                                method = "POST",
+                                title = "verification code confirmation"
+                            }
+                        },
+                        {
+                            "resend", new
+                            {
+                                href = Url.Action("SendEmailVerificationCode"),
+                                method = "POST",
+                                title = "resend verification code"
+                            }
+                        }
+                    }
+                });
+            }
+            return HandleFailedResult(result);
+        }
+
+
+        /// <summary>
+        /// Verifies code for email verification
+        /// </summary>
+        /// <param name="request">verification code</param>
+        /// <param name="ct">cancellation token</param>
+        /// <remarks>
+        /// Request example:
+        /// POST /api/users/email/verify
+        /// -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+        /// {
+        ///     "code": 123456
+        /// }
+        /// 
+        /// Response example:
+        /// {
+        ///     "message": "email verified successfully"
+        /// }
+        /// </remarks>
+        /// <response code="200">email verified successfully</response>
+        /// <response code="400">provided code is invalid</response>
+        /// <response code="404">user not found</response>
+        /// <response code="409">2fa is not enabled or email is already verified</response>
+        [HttpPost("email/verify")]
+        [Produces("application/json")]
+        [Consumes("application/json")]
+        [EnableRateLimiting("EmailVerificationCheckLimit")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(ProblemDetails))]
+        public async Task<IActionResult> CompleteEmailVerification([FromBody] VerifyCodeRequest request, CancellationToken ct)
+        {
+            var command = new CheckEmailVerificationCodeCommand(UserId, request.Code);
+            var result = await _mediator.Send(command, ct);
+            if (result.IsSuccess)
+            {
+                return Ok(new
+                {
+                    message = "email verified successfully"
+                });
+            }
             return HandleFailedResult(result);
         }
 

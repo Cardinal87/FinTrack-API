@@ -1,4 +1,5 @@
 using FinTrack.API.Application.Interfaces;
+using FinTrack.API.Core.Common;
 using FinTrack.API.Core.Interfaces;
 using FinTrack.API.Core.Services;
 using FinTrack.API.Infrastructure.Caching.Decorators;
@@ -13,6 +14,7 @@ using FinTrack.API.Infrastructure.Messaging;
 using FinTrack.API.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -29,6 +31,7 @@ using Polly.CircuitBreaker;
 using Serilog;
 using StackExchange.Redis;
 using System.Reflection;
+using System.Threading.RateLimiting;
 
 namespace FinTrack.API
 {
@@ -98,9 +101,8 @@ namespace FinTrack.API
                         }
                     }
                 }
-                
                             
-                app.UseExceptionHandler();
+                
                 if (app.Environment.IsDevelopment())
                 {
                     app.UseSwagger();
@@ -127,6 +129,12 @@ namespace FinTrack.API
                         return Serilog.Events.LogEventLevel.Information;
                     };
                 });
+
+                app.UseExceptionHandler();
+
+                app.UseRouting();
+
+                app.UseRateLimiter();
 
                 app.UseAuthentication();
                 app.UseAuthorization();
@@ -161,7 +169,30 @@ namespace FinTrack.API
             services.AddHealthChecks();
 
             //Authorization and authetication
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin", policy =>
+                {
+                    policy.RequireRole(UserRoles.Admin);
+                    policy.RequireClaim(JwtRegisteredClaimNames.Amr, "mfa");
+                });
+
+                options.AddPolicy("AccessToken", policy =>
+                {
+                    policy.RequireClaim("token_type", "access");
+                });
+
+                options.AddPolicy("MfaPending", policy =>
+                {
+                    policy.RequireClaim("token_type", "2fa_pending");
+                });
+
+                options.AddPolicy("VerifiedEmail", policy =>
+                {
+                    policy.RequireClaim(JwtRegisteredClaimNames.Amr, "mfa");
+                });
+
+            });
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
             {
                 opt.TokenValidationParameters = new TokenValidationParameters()
@@ -193,6 +224,68 @@ namespace FinTrack.API
                 opt.MapInboundClaims = false;
             });
 
+
+
+            //Rate limmiters
+            services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+                options.AddPolicy("MfaCompleteLimit", context =>
+                {
+                    var userId = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ?? "unknown";
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: userId,
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 5,
+                            Window = TimeSpan.FromMinutes(2),
+                            QueueLimit = 0
+                            
+                        });
+                });
+
+
+                options.AddPolicy("MfaResendCodeLimit", context =>
+                {
+                    var userId = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ?? "unknown";
+                    return RateLimitPartition.GetSlidingWindowLimiter(userId, _ => new SlidingWindowRateLimiterOptions
+                    {
+                        PermitLimit = 1,
+                        Window = TimeSpan.FromSeconds(30),
+                        SegmentsPerWindow = 10,
+                        QueueLimit = 0
+                    });
+                });
+
+                options.AddPolicy("EmailVerificationSendLimit", context =>
+                {
+                    var userId = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ?? "unknown";
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: userId,
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 3,
+                            Window = TimeSpan.FromMinutes(10),
+                            QueueLimit = 0
+                        });
+                });
+
+                options.AddPolicy("EmailVerificationCheckLimit", context =>
+                {
+                    var userId = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ?? "unknown";
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: userId,
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 5,
+                            Window = TimeSpan.FromMinutes(10),
+                            QueueLimit = 0
+                        });
+                });
+
+            });
+                
 
             //MedidtR
             services.AddMediatR(cfg =>
@@ -229,6 +322,7 @@ namespace FinTrack.API
             services.AddSingleton<IPasswordHasher, PBKDF2PasswordHasher>();
             services.AddScoped<IRefreshTokenService, RefreshTokenService>();
             services.AddSingleton<ITotpService, TotpService>();
+            services.AddSingleton<IChallengeTokenTracker, ChallengeTokenTracker>();
 
             //Hashicorp Vault 
             services.AddSingleton<IVaultTokenProvider, VaultTokenProvider>();

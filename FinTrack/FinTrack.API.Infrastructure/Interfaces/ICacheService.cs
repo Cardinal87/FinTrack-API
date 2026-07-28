@@ -11,7 +11,7 @@ namespace FinTrack.API.Infrastructure.Interfaces
         /// <param name="ttl">value storage duration</param>
         /// <param name="ct">cancellation token</param>
         /// <returns><see cref="Task"/></returns>
-        public Task SetAsync<T>(string key, T value, TimeSpan ttl, CancellationToken ct = default) where T: class;
+        Task SetAsync<T>(string key, T value, TimeSpan ttl, CancellationToken ct = default) where T: class;
 
         /// <summary>
         /// Method for retrieving object by <paramref name="key"/>
@@ -20,7 +20,7 @@ namespace FinTrack.API.Infrastructure.Interfaces
         /// <param name="key">key what be used to find value in cache</param>
         /// <param name="ct">cancellation token</param>
         /// <returns><see cref="Task"/> containing object of <typeparamref name="T"/> type</returns>
-        public Task<T?> GetAsync<T>(string key, CancellationToken ct = default) where T: class;
+        Task<T?> GetAsync<T>(string key, CancellationToken ct = default) where T: class;
 
         /// <summary>
         /// Method for removal object from cache by <paramref name="key"/>
@@ -28,7 +28,7 @@ namespace FinTrack.API.Infrastructure.Interfaces
         /// <param name="key">key what be used to find value in cache</param>
         /// <param name="ct">cancellation token</param>
         /// <returns><see cref="Task"/></returns>
-        public Task RemoveByKeyAsync(string key, CancellationToken ct = default);
+        Task RemoveByKeyAsync(string key, CancellationToken ct = default);
 
         /// <summary>
         /// Method for batch removal object from cache by <paramref name="pattern"/>  
@@ -36,6 +36,15 @@ namespace FinTrack.API.Infrastructure.Interfaces
         /// <param name="pattern">pattern what be used to find group of values in cache</param>
         /// <param name="ct">cancellation token</param>
         /// <returns></returns>
-        public Task RemoveByPatternAsync(string pattern, CancellationToken ct = default);
+        Task RemoveByPatternAsync(string pattern, CancellationToken ct = default);
+
+        /// <summary>
+        /// Sets only key with empty value if key not exists yet
+        /// </summary>
+        /// <param name="key">key what be used to find value in cache</param>
+        /// <param name="ttl">key storage duration</param>
+        /// <param name="ct">cancellation token</param>
+        /// <returns>operation status as <see cref="bool"/></returns>
+        Task<bool> TrySetKeyOnlyAsync(string key, TimeSpan ttl, CancellationToken ct = default);
     }
 }

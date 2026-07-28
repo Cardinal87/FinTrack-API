@@ -5,6 +5,7 @@ using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Core.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Runtime.CompilerServices;
 
 namespace FinTrack.API.Application.UseCases.Identity.Commands.RefreshToken
 {
@@ -45,7 +46,7 @@ namespace FinTrack.API.Application.UseCases.Identity.Commands.RefreshToken
 
             var accessToken = await _jwtTokenService.GenerateTokenAsync(user);
 
-            return ValueResult<AuthResponse>.Ok(new AuthResponse(accessToken, result.RefreshToken!), OperationStatusMessages.Ok);
+            return ValueResult<AuthResponse>.Ok(new AuthResponse(accessToken.Token, result.RefreshToken!, accessToken.ExpiresIn), OperationStatusMessages.Ok);
         }
     }
 }

@@ -17,6 +17,23 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
             _cachePipeline = provider.GetPipeline("cache-pipeline");
             _logger = logger;
         }
+
+        public async Task<bool> TrySetKeyOnlyAsync(string key, TimeSpan ttl, CancellationToken ct = default)
+        {
+            try
+            {
+                return await _cachePipeline.ExecuteAsync(async ct =>
+                {
+                    return await _inner.TrySetKeyOnlyAsync(key,ttl, ct);
+                }, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to access cache");
+                return false;
+            }
+        }
+
         async public Task<T?> GetAsync<T>(string key, CancellationToken ct = default) where T : class
         {
             try
@@ -74,12 +91,13 @@ namespace FinTrack.API.Infrastructure.Caching.Decorators
                 await _cachePipeline.ExecuteAsync(async ct =>
                 {
                     await _inner.SetAsync(key, value, ttl, ct);
-                });
+                }, ct);
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to access cache");
             }
         }
+
     }
 }

@@ -34,7 +34,7 @@ namespace FinTrack.API.Infrastructure.Common.Mappers
                     if (dbEntity.TotpSecret != null)
                     {
                         domainEntity.SetTotpSecret(dbEntity.TotpSecret);
-                        domainEntity.VerifyEmail();
+                        if (dbEntity.IsEmailVerified) domainEntity.VerifyEmail();
                     }
                 });
         }

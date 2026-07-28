@@ -27,18 +27,23 @@ namespace FinTrack.API.Infrastructure.Identity.Services
         public async Task<TokenGenerationResult> GenerateTokenAsync(User user, bool challenge = false)
         {
             var jti = Guid.NewGuid().ToString();
+
+            var amr = !user.IsEmailVerified || challenge ? "pwd" : "mfa";
+
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti, jti)
+                new Claim(JwtRegisteredClaimNames.Jti, jti),
+                new Claim(JwtRegisteredClaimNames.Amr, amr)
             };
 
             if (challenge)
             {
-                claims.Add(new Claim("type", "2fa_pending"));
+                claims.Add(new Claim("token_type", "2fa_pending"));
             }
             else
             {
+                claims.Add(new Claim("token_type", "access"));
                 claims.AddRange(user.Roles.Select(role => new Claim("role", role)));
             }
 

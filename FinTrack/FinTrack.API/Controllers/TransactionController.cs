@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FinTrack.API.Controllers
 {
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "AccessToken")]
     [Route("api/transactions")]
     public class TransactionController : AuthorizeFinTrackControllerBase
     {
@@ -47,6 +47,7 @@ namespace FinTrack.API.Controllers
         /// <response code="201">transaction created successfully</response>
         /// <response code="400">invalid request data</response>
         [HttpPost]
+        [Authorize(Policy = "VerifiedEmail")]
         [Produces("application/json")]
         [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -145,7 +146,7 @@ namespace FinTrack.API.Controllers
         /// <response code="401">access token is missing or invalid</response>
         /// <response code="403">user does not has access</response>
         [HttpGet()]
-        [Authorize(Roles = Core.Common.UserRoles.Admin)]
+        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]

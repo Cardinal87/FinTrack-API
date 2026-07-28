@@ -14,19 +14,20 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.CreateUser
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly ITotpService _totpService;
         private readonly ILogger<CreateUserHandler> _logger;
         private readonly IUnitOfWork _unitOfWork;
-        
-        public CreateUserHandler(IUserRepository userRepository, IPasswordHasher passwordHasher,  ILogger<CreateUserHandler> logger, IUnitOfWork unitOfWork)
+        public CreateUserHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, ILogger<CreateUserHandler> logger, IUnitOfWork unitOfWork, ITotpService totpService)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _logger = logger;
             _unitOfWork = unitOfWork;
+            _totpService = totpService;
         }
 
 
-        
+
         async public Task<ValueResult<Guid>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             try
@@ -38,6 +39,9 @@ namespace FinTrack.API.Application.UseCases.Users.Commands.CreateUser
                                     request.name,
                                     hash);
                 user.AssignRole(UserRoles.User);
+
+                var totpSecret = _totpService.GenerateSecret();
+                user.SetTotpSecret(totpSecret);
 
                 await _userRepository.AddAsync(user);
                 await _unitOfWork.SaveChangesAsync();

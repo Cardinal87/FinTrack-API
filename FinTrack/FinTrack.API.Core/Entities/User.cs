@@ -235,7 +235,7 @@ namespace FinTrack.API.Core.Entities
         /// <exception cref="ArgumentException">Invalid format of <paramref name="secret"/></exception>
         public void SetTotpSecret(string secret)
         {
-            if (base32Pattern.IsMatch(secret))
+            if (!base32Pattern.IsMatch(secret))
             {
                 throw new ArgumentException("Invalid TOTP Secret Format. Must match base32 string format");
             }

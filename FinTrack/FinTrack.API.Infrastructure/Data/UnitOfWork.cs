@@ -1,4 +1,7 @@
-﻿using FinTrack.API.Core.Interfaces;
+﻿using FinTrack.API.Core.Exceptions;
+using FinTrack.API.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace FinTrack.API.Infrastructure.Data
 {
@@ -13,7 +16,15 @@ namespace FinTrack.API.Infrastructure.Data
 
         public async Task SaveChangesAsync(CancellationToken ct = default)
         {
-            await _databaseClient.SaveChangesAsync(ct);
+            try
+            {
+                await _databaseClient.SaveChangesAsync(ct);
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
+            {
+                var property = pgEx.ConstraintName ?? "Unknown";
+                throw new UniqueConstraintViolationException(property);
+            }
         }
     }
 }

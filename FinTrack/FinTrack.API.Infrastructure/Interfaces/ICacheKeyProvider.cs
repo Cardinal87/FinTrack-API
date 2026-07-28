@@ -12,6 +12,6 @@
         string UserListPattern();
         string AccountListPattern();
         string RefreshToken(string hash);
-
+        string ChallengeToken(string jti);
     }
 }

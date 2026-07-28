@@ -12,16 +12,19 @@ namespace FinTrack.API.Application.UseCases.Identity.Commands.CheckLoginVerifica
         private readonly ITotpService _totpService;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IRefreshTokenService _refreshTokenService;
+        private readonly IChallengeTokenTracker _challengeTokenTracker;
 
         public CheckLoginVerificationCodeHandler(IUserRepository userRepository,
                                                  ITotpService totpService,
                                                  IJwtTokenService jwtTokenService,
-                                                 IRefreshTokenService refreshTokenService)
+                                                 IRefreshTokenService refreshTokenService,
+                                                 IChallengeTokenTracker challengeTokenTracker)
         {
             _userRepository = userRepository;
             _totpService = totpService;
             _jwtTokenService = jwtTokenService;
             _refreshTokenService = refreshTokenService;
+            _challengeTokenTracker = challengeTokenTracker;
         }
 
         public async Task<ValueResult<AuthResponse>> Handle(CheckLoginVerificationCodeCommand request, CancellationToken cancellationToken)
@@ -32,9 +35,15 @@ namespace FinTrack.API.Application.UseCases.Identity.Commands.CheckLoginVerifica
                 return ValueResult<AuthResponse>.Fail(OperationStatusMessages.Unauthorized, "Invalid verification session");
             }
 
-            var success = _totpService.VerifyCode(user.TotpSecret, request.code);
-            if (success)
+            var valid = _totpService.VerifyCode(user.TotpSecret, request.code);
+            if (valid)
             {
+                var success = await _challengeTokenTracker.TryMarkAsUsedAsync(request.jti, cancellationToken);   
+                if (!success)
+                {
+                    return ValueResult<AuthResponse>.Fail(OperationStatusMessages.Unauthorized, "Invalid verification session");
+                }
+
                 var tokenResult = await _jwtTokenService.GenerateTokenAsync(user);
                 var refreshToken = await _refreshTokenService.GenerateRefreshTokenAsync(user.Id, cancellationToken);
 

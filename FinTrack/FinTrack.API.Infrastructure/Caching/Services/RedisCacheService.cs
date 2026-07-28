@@ -72,6 +72,10 @@ namespace FinTrack.API.Infrastructure.Caching.Services
             }
         }
 
+        public async Task<bool> TrySetKeyOnlyAsync(string key, TimeSpan ttl, CancellationToken ct = default)
+        {
+            return await _db.StringSetAsync(key, 1, ttl, When.NotExists);
+        }
         
     }
 }
