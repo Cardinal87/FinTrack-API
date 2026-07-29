@@ -139,11 +139,6 @@
             </list>
             </remarks>
         </member>
-        <member name="P:FinTrack.API.Core.Entities.User.Accounts">
-            <summary>
-            Read-only collection with user's accounts
-            </summary>
-        </member>
         <member name="P:FinTrack.API.Core.Entities.User.Roles">
             <summary>
             Read-only collection with user's roles
@@ -213,6 +208,16 @@
             </list>
             </remarks>
         </member>
+        <member name="P:FinTrack.API.Core.Entities.User.IsEmailVerified">
+            <summary>
+            Indicates whether the user's email is verified
+            </summary>
+        </member>
+        <member name="P:FinTrack.API.Core.Entities.User.TotpSecret">
+            <summary>
+            Returns the TOTP Secret for current user
+            </summary>
+        </member>
         <member name="P:FinTrack.API.Core.Entities.User.PasswordHash">
             <summary>
             User's password hash
@@ -234,36 +239,25 @@
             </list>
             </remarks>
         </member>
-        <member name="M:FinTrack.API.Core.Entities.User.AddAccount(FinTrack.API.Core.Entities.Account)">
-            <summary>
-            Attaches user's account to account collection
-            </summary>
-            <param name="account">
-            account of the current user
-            </param>
-            
-            <exception cref="T:System.ArgumentException">
-            Account's reference to user and current user's id does not match
-            </exception>
-        </member>
-        <member name="M:FinTrack.API.Core.Entities.User.DeleteAccount(System.Guid)">
-            <summary>
-            Deattaches user's account from collection
-            </summary>
-            <param name="accountId">
-            Id of the attached account
-            </param>
-            
-            <exception cref="T:System.Collections.Generic.KeyNotFoundException">
-            Account with such id does not exist in user's collection
-            </exception>
-        </member>
         <member name="M:FinTrack.API.Core.Entities.User.AssignRole(System.String)">
             <summary>
             Assings a new role to user
             </summary>
             <param name="role">one of the string constants of <see cref="T:FinTrack.API.Core.Common.UserRoles"/></param>
             <exception cref="T:FinTrack.API.Core.Common.DomainException">role not defined in <see cref="T:FinTrack.API.Core.Common.UserRoles"/></exception>
+        </member>
+        <member name="M:FinTrack.API.Core.Entities.User.VerifyEmail">
+            <summary>
+            Verifies user email
+            </summary>
+            <exception cref="T:FinTrack.API.Core.Common.DomainException"><see cref="P:FinTrack.API.Core.Entities.User.TotpSecret"/> is null</exception>
+        </member>
+        <member name="M:FinTrack.API.Core.Entities.User.SetTotpSecret(System.String)">
+            <summary>
+            Sets TOTP Secret for current user
+            </summary>
+            <param name="secret">TOTP Secret in Base32 format</param>
+            <exception cref="T:System.ArgumentException">Invalid format of <paramref name="secret"/></exception>
         </member>
         <member name="T:FinTrack.API.Core.Exceptions.AccountOwnershipException">
             <summary>
@@ -295,7 +289,14 @@
             id or by amother key
             </remarks>
         </member>
-        <!-- Badly formed XML comment ignored for member "T:FinTrack.API.Core.Exceptions.IncorrectAmountException" -->
+        <member name="T:FinTrack.API.Core.Exceptions.IncorrectAmountException">
+            <summary>
+            Exception for incorrect operation amount
+            </summary>
+            <remarks>
+            Must be thrown when amount &lt;= 0
+            </remarks>
+        </member>
         <member name="P:FinTrack.API.Core.Exceptions.IncorrectAmountException.Amount">
             <summary>
             Invalid amount
@@ -379,15 +380,25 @@
             Transaction's reference by id to destination or source account
             </summary>
         </member>
-        <member name="M:FinTrack.API.Core.Interfaces.IAccountRepository.Add(FinTrack.API.Core.Entities.Account)">
+        <member name="T:FinTrack.API.Core.Exceptions.UniqueConstraintViolationException">
             <summary>
-            Begins tracking the given entity as "Added"
+            Exception for violation unique contstaint when saving data
+            </summary>
+        </member>
+        <member name="P:FinTrack.API.Core.Exceptions.UniqueConstraintViolationException.Property">
+            <summary>
+            Property whose value violates unique constraint
+            </summary>
+        </member>
+        <member name="M:FinTrack.API.Core.Interfaces.IAccountRepository.AddAsync(FinTrack.API.Core.Entities.Account)">
+            <summary>
+            Asynchronously add provided entity
             </summary>
             <param name="account">the entity to track </param>
         </member>
         <member name="M:FinTrack.API.Core.Interfaces.IAccountRepository.UpdateAsync(FinTrack.API.Core.Entities.Account)">
             <summary>
-            Begins tracking the given entity as "Updated"
+            Asynchronously update provided entity
             </summary>
             <param name="account">the entity to update</param>
             <exception cref="T:FinTrack.API.Core.Exceptions.EntityNotFoundException">the given entity does not exist</exception>
@@ -395,19 +406,21 @@
         </member>
         <member name="M:FinTrack.API.Core.Interfaces.IAccountRepository.DeleteAsync(System.Guid)">
             <summary>
-            Begins tracking the given entity as "Deleted"
+            Asynchronously delete entity by id
             </summary>
             <param name="id">id of the entity to delete</param>
             <exception cref="T:FinTrack.API.Core.Exceptions.EntityNotFoundException">the given entity does not exist</exception>
             <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
         </member>
-        <member name="M:FinTrack.API.Core.Interfaces.IAccountRepository.GetAllAsync">
+        <member name="M:FinTrack.API.Core.Interfaces.IAccountRepository.GetAllAsync(System.Int32,System.Int32)">
             <summary>
             Returns all entities asynchronously
             </summary>
+            <param name="pageNumber">page number of the paginated result (default: 1)</param>
+            <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
             <returns>
                 <see cref="T:System.Threading.Tasks.Task"/>.
-                The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
+                The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> size of <paramref name="pageSize"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
             </returns>
         </member>
         <member name="M:FinTrack.API.Core.Interfaces.IAccountRepository.GetAccountIdsByUserIdAsync(System.Guid)">
@@ -429,46 +442,21 @@
                 The task result contains a <see cref="T:FinTrack.API.Core.Entities.Account"/> with given <paramref name="id"/> or <see langword="null"/> if entity does not exist 
             </returns>
         </member>
-        <member name="M:FinTrack.API.Core.Interfaces.IAccountRepository.SaveChangesAsync">
+        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.AddAsync(FinTrack.API.Core.Entities.Transaction)">
             <summary>
-            Asynchronously save all changes maked in repository
-            </summary>
-            <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
-        </member>
-        <member name="M:FinTrack.API.Core.Interfaces.IPasswordHasher.GetHash(System.String)">
-            <summary>
-            Creates a password hash
-            </summary>
-            <param name="password">clear password</param>
-            <returns>
-            Formatted string containing hash parameters.
-            Fotmat: {Hash algorithm}.{Iteration count}.{Salt in Base64}.{Hash in Base64}
-            </returns>
-        </member>
-        <member name="M:FinTrack.API.Core.Interfaces.IPasswordHasher.VerifyPassword(System.String,System.String)">
-            <summary>
-            Checks if a password matches the hash
-            </summary>
-            <param name="hashedPassword">result of the <see cref="M:FinTrack.API.Core.Interfaces.IPasswordHasher.GetHash(System.String)"/> method</param>
-            <param name="password">password that would be checked</param>
-            <returns>
-            <see langword="true"/> if the password matches the hash.
-            <see langword="false"/> if password does not match the hash
-            </returns>
-        </member>
-        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.Add(FinTrack.API.Core.Entities.Transaction)">
-            <summary>
-            Begins tracking the given entity as "Added"
+            Asynchronously add provided entity
             </summary>
             <param name="transaction">the entity to track </param>
         </member>
-        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.GetAllAsync">
+        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.GetAllAsync(System.Int32,System.Int32)">
             <summary>
             Returns all entities asynchronously
             </summary>
+            <param name="pageNumber">page number of the paginated result (default: 1)</param>
+            <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
             <returns>
                 <see cref="T:System.Threading.Tasks.Task"/>.
-                The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
+                The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> size of <paramref name="pageSize"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
             </returns>
         </member>
         <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.GetByIdAsync(System.Guid)">
@@ -481,17 +469,32 @@
                 The task result contains a <see cref="T:FinTrack.API.Core.Entities.Transaction"/> with given <paramref name="id"/> or <see langword="null"/> if entity does not exist 
             </returns>
         </member>
-        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.GetByDateAsync(System.DateOnly)">
+        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.GetAccountTransactionsAsync(System.Guid,System.Int32,System.Int32)">
             <summary>
-            Returns the <see cref="T:FinTrack.API.Core.Entities.Transaction"/> with given <see cref="T:System.DateOnly"/>
+            Returns the <see cref="T:FinTrack.API.Core.Entities.Transaction"/>s where <see cref="P:FinTrack.API.Core.Entities.Transaction.FromAccountId"/> == <paramref name="accountId"/>
+            or <see cref="P:FinTrack.API.Core.Entities.Transaction.ToAccountId"/> == <paramref name="accountId"/>
             </summary>
-            <param name="date">date of the transaction</param>
+            <param name="accountId"></param>
+            <param name="pageNumber">page number of the paginated result (default: 1)</param>
+            <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
             <returns>
-                <see cref="T:System.Threading.Tasks.Task"/>.
-                 The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
+            <see cref="T:System.Threading.Tasks.Task"/>.
+                 The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> size of <paramref name="pageSize"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
             </returns>
         </member>
-        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.GetByDateAsync(System.DateOnly,System.Collections.Generic.IEnumerable{System.Guid})">
+        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.GetByDateAsync(System.DateOnly,System.Int32,System.Int32)">
+            <summary>
+            Returns the <see cref="T:FinTrack.API.Core.Entities.Transaction"/>s with given <see cref="T:System.DateOnly"/>
+            </summary>
+            <param name="date">date of the transaction</param>
+            <param name="pageNumber">page number of the paginated result (default: 1)</param>
+            <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
+            <returns>
+                <see cref="T:System.Threading.Tasks.Task"/>.
+                 The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> size of <paramref name="pageSize"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
+            </returns>
+        </member>
+        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.GetByDateAsync(System.DateOnly,System.Collections.Generic.IEnumerable{System.Guid},System.Int32,System.Int32)">
             <summary>
             Returns the <see cref="T:FinTrack.API.Core.Entities.Transaction"/>s with given <paramref name="date"/>
             and if <paramref name="accountIds"/> contains <see cref="P:FinTrack.API.Core.Entities.Transaction.FromAccountId"/> or
@@ -499,23 +502,27 @@
             </summary>
             <param name="date">date of the transaction</param>
             <param name="accountIds">id of accounts involved in the transaction</param>
+            <param name="pageNumber">page number of the paginated result (default: 1)</param>
+            <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
             <returns>
                 <see cref="T:System.Threading.Tasks.Task"/>.
-                 The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
+                 The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> size of <paramref name="pageSize"/>  with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
             </returns>
         </member>
-        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.GetFromToDateAsync(System.DateTime,System.DateTime)">
+        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.GetFromToDateAsync(System.DateTime,System.DateTime,System.Int32,System.Int32)">
             <summary>
             Returns all entities between <paramref name="fromDate"/> and <paramref name="toDate"/> inclusive
             </summary>
             <param name="fromDate">start of the range</param>
             <param name="toDate">end of the range</param>
+            <param name="pageNumber">page number of the paginated result (default: 1)</param>
+            <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
             <returns>
                 <see cref="T:System.Threading.Tasks.Task"/>.
-                The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
+                The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> size of <paramref name="pageSize"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
             </returns>
         </member>
-        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.GetFromToDateAsync(System.DateTime,System.DateTime,System.Collections.Generic.IEnumerable{System.Guid})">
+        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.GetFromToDateAsync(System.DateTime,System.DateTime,System.Collections.Generic.IEnumerable{System.Guid},System.Int32,System.Int32)">
             <summary>
             Returns all <see cref="T:FinTrack.API.Core.Entities.Transaction"/>s between <paramref name="fromDate"/> and <paramref name="toDate"/> inclusive 
             and the <see cref="P:FinTrack.API.Core.Entities.Transaction.FromAccountId"/> or <see cref="P:FinTrack.API.Core.Entities.Transaction.ToAccountId"/> of which is contained in <paramref name="accountIds"/>
@@ -523,46 +530,53 @@
             <param name="fromDate">start of the range</param>
             <param name="toDate">end of the range</param>
             <param name="accountIds">id of accounts involved in the transaction</param>
+            <param name="pageNumber">page number of the paginated result (default: 1)</param>
+            <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
             <returns>
                 <see cref="T:System.Threading.Tasks.Task"/>.
-                The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
+                The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> size of <paramref name="pageSize"/> with <see cref="T:FinTrack.API.Core.Entities.Transaction"/> entities
             </returns>
         </member>
-        <member name="M:FinTrack.API.Core.Interfaces.ITransactionRepository.SaveChangesAsync">
+        <member name="M:FinTrack.API.Core.Interfaces.IUnitOfWork.SaveChangesAsync(System.Threading.CancellationToken)">
             <summary>
-            Asynchronously save all changes maked in repository
+            Atomically save all changes made in current context
             </summary>
-            <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
+            <param name="ct">Cancallation token</param>
+            <returns></returns>
         </member>
-        <member name="M:FinTrack.API.Core.Interfaces.IUserRepository.Add(FinTrack.API.Core.Entities.User)">
+        <member name="M:FinTrack.API.Core.Interfaces.IUserRepository.AddAsync(FinTrack.API.Core.Entities.User)">
             <summary>
-            Begins tracking the given entity as "Added"
+            Asynchronously add provided entity
             </summary>
-            <param name="user">the entity to track </param>
+            <param name="user">the entity to add</param>
+            <exception cref="T:FinTrack.API.Core.Exceptions.UniqueConstraintViolationException">new property value already exists and violates uniqueness</exception>
         </member>
         <member name="M:FinTrack.API.Core.Interfaces.IUserRepository.UpdateAsync(FinTrack.API.Core.Entities.User)">
             <summary>
-            Begins tracking the given entity as "Updated"
+            Asynchronously update provided entity
             </summary>
             <param name="user">the entity to update</param>
             <exception cref="T:FinTrack.API.Core.Exceptions.EntityNotFoundException">the given entity does not exist</exception>
+            <exception cref="T:FinTrack.API.Core.Exceptions.UniqueConstraintViolationException">new property value already exists and violates uniqueness</exception>
             <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
         </member>
         <member name="M:FinTrack.API.Core.Interfaces.IUserRepository.DeleteAsync(System.Guid)">
             <summary>
-            Begins tracking the given entity as "Deleted"
+            Asynchronously delete entity by id
             </summary>
             <param name="id">id of the entity to delete</param>
             <exception cref="T:FinTrack.API.Core.Exceptions.EntityNotFoundException">the given entity does not exist</exception>
             <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
         </member>
-        <member name="M:FinTrack.API.Core.Interfaces.IUserRepository.GetAllAsync">
+        <member name="M:FinTrack.API.Core.Interfaces.IUserRepository.GetAllAsync(System.Int32,System.Int32)">
             <summary>
             Returns all entities asynchronously
             </summary>
+            <param name="pageNumber">page number of the paginated result (default: 1)</param>
+            <param name="pageSize">page size of the paginated result, maximum size is 1000 (default: 50)</param>
             <returns>
                 <see cref="T:System.Threading.Tasks.Task"/>.
-                The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> with <see cref="T:FinTrack.API.Core.Entities.User"/> entities
+                The task result contains a <see cref="T:System.Collections.Generic.IEnumerable`1"/> size of <paramref name="pageSize"/> with <see cref="T:FinTrack.API.Core.Entities.User"/> entities
             </returns>
         </member>
         <member name="M:FinTrack.API.Core.Interfaces.IUserRepository.GetByIdAsync(System.Guid)">
@@ -582,15 +596,9 @@
             <param name="email">email of the entity</param>
             <returns>
                 <see cref="T:System.Threading.Tasks.Task"/>.
-                The task result contains a <see cref="T:FinTrack.API.Core.Entities.User"/> with given <paramref name="id"/> or <see langword="null"/> if 
+                The task result contains a <see cref="T:FinTrack.API.Core.Entities.User"/> with given <paramref name="email"/> or <see langword="null"/> if 
                 entity with given email does not exist 
             </returns>
-        </member>
-        <member name="M:FinTrack.API.Core.Interfaces.IUserRepository.SaveChangesAsync">
-            <summary>
-            Asynchronously save all changes maked in repository
-            </summary>
-            <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
         </member>
         <member name="T:FinTrack.API.Core.Services.TransferService">
             <summary>

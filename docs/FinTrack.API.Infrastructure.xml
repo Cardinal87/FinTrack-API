@@ -4,6 +4,70 @@
         <name>FinTrack.API.Infrastructure</name>
     </assembly>
     <members>
+        <member name="T:FinTrack.API.Infrastructure.Identity.Services.LocalJwtSigningService">
+            <summary>
+            WARNING: Use this implementation ONLY in Develop or Testing environment
+            </summary>
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Interfaces.ICacheService.SetAsync``1(System.String,``0,System.TimeSpan,System.Threading.CancellationToken)">
+            <summary>
+            Method for saving <paramref name="value"/> to cache
+            </summary>
+            <typeparam name="T">type of object to save</typeparam>
+            <param name="key">key what be used to find value in cache</param>
+            <param name="value">value of <typeparamref name="T"/> object</param>
+            <param name="ttl">value storage duration</param>
+            <param name="ct">cancellation token</param>
+            <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Interfaces.ICacheService.GetAsync``1(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Method for retrieving object by <paramref name="key"/>
+            </summary>
+            <typeparam name="T">type of the resulting object</typeparam>
+            <param name="key">key what be used to find value in cache</param>
+            <param name="ct">cancellation token</param>
+            <returns><see cref="T:System.Threading.Tasks.Task"/> containing object of <typeparamref name="T"/> type</returns>
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Interfaces.ICacheService.RemoveByKeyAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Method for removal object from cache by <paramref name="key"/>
+            </summary>
+            <param name="key">key what be used to find value in cache</param>
+            <param name="ct">cancellation token</param>
+            <returns><see cref="T:System.Threading.Tasks.Task"/></returns>
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Interfaces.ICacheService.RemoveByPatternAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Method for batch removal object from cache by <paramref name="pattern"/>  
+            </summary>
+            <param name="pattern">pattern what be used to find group of values in cache</param>
+            <param name="ct">cancellation token</param>
+            <returns></returns>
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Interfaces.ICacheService.TrySetKeyOnlyAsync(System.String,System.TimeSpan,System.Threading.CancellationToken)">
+            <summary>
+            Sets only key with empty value if key not exists yet
+            </summary>
+            <param name="key">key what be used to find value in cache</param>
+            <param name="ttl">key storage duration</param>
+            <param name="ct">cancellation token</param>
+            <returns>operation status as <see cref="T:System.Boolean"/></returns>
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Interfaces.IJwtSigningService.SignTokenAsync(System.String)">
+            <summary>
+            Method using for signing jwt tokens
+            </summary>
+            <param name="rawToken">Raw token in header.payload format encoded in base64url</param>
+            <returns>Signed jwt token in base64url encoding</returns>
+        </member>
+        <member name="M:FinTrack.API.Infrastructure.Interfaces.IJwtSigningService.VerifyTokenAsync(System.String)">
+            <summary>
+            Method using to verify provided jwt token
+            </summary>
+            <param name="token">Jwt token in base64 encoding</param>
+            <returns><see langword="true"/> if sign valid or <see langword="false"/> if not</returns>
+        </member>
         <member name="T:FinTrack.API.Infrastructure.Migrations.InitialCreate">
             <inheritdoc />
         </member>
@@ -16,28 +80,28 @@
         <member name="M:FinTrack.API.Infrastructure.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
-        <member name="T:FinTrack.API.Infrastructure.Migrations.CreateUserRoles">
+        <member name="T:FinTrack.API.Infrastructure.Migrations.AddRefreshTokens">
             <inheritdoc />
         </member>
-        <member name="M:FinTrack.API.Infrastructure.Migrations.CreateUserRoles.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:FinTrack.API.Infrastructure.Migrations.AddRefreshTokens.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:FinTrack.API.Infrastructure.Migrations.CreateUserRoles.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:FinTrack.API.Infrastructure.Migrations.AddRefreshTokens.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:FinTrack.API.Infrastructure.Migrations.CreateUserRoles.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="M:FinTrack.API.Infrastructure.Migrations.AddRefreshTokens.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
-        <member name="T:FinTrack.API.Infrastructure.Migrations.ChangeUserHashLength">
+        <member name="T:FinTrack.API.Infrastructure.Migrations.AddEmailVerificationAndTotp">
             <inheritdoc />
         </member>
-        <member name="M:FinTrack.API.Infrastructure.Migrations.ChangeUserHashLength.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:FinTrack.API.Infrastructure.Migrations.AddEmailVerificationAndTotp.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:FinTrack.API.Infrastructure.Migrations.ChangeUserHashLength.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:FinTrack.API.Infrastructure.Migrations.AddEmailVerificationAndTotp.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:FinTrack.API.Infrastructure.Migrations.ChangeUserHashLength.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="M:FinTrack.API.Infrastructure.Migrations.AddEmailVerificationAndTotp.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
     </members>
