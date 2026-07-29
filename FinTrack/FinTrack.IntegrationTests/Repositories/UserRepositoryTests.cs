@@ -18,6 +18,7 @@ namespace FinTrack.IntegrationTests.Repositories
     {
         private IUserRepository _userRepository = null!;
         private IUnitOfWork _unitOfWork = null!;
+        private readonly CancellationToken ct = TestContext.Current.CancellationToken;
 
         override async public ValueTask InitializeAsync()
         {
@@ -43,7 +44,7 @@ namespace FinTrack.IntegrationTests.Repositories
                                         .Build();
 
             await _userRepository.AddAsync(user);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(ct);
 
             var savedUser = await _client.Users.FirstOrDefaultAsync(t => t.Id == user.Id, cancellationToken);
             savedUser.Should().NotBeNull();
@@ -94,7 +95,7 @@ namespace FinTrack.IntegrationTests.Repositories
             user.AssignRole(UserRoles.Admin);
 
             await _userRepository.UpdateAsync(user);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(ct);
 
             var updatedUser = await _client.Users.FirstOrDefaultAsync(t => t.Id == user.Id, cancellationToken);
             updatedUser.Should().NotBeNull();
@@ -146,7 +147,7 @@ namespace FinTrack.IntegrationTests.Repositories
             var user = (await AddValidUsers(1))[0];
 
             await _userRepository.DeleteAsync(user.Id);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(ct);
 
             var deletedUser = _client.Users.FirstOrDefault(t => t.Id == user.Id);
             deletedUser.Should().BeNull();

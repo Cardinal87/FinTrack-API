@@ -12,6 +12,7 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
     {
         private readonly HttpClient _client;
         private readonly FinTrackWebApplicationFactory<Program> _factory;
+        private readonly CancellationToken ct = TestContext.Current.CancellationToken;
         private readonly User _admin;
         private readonly User _user;
 
@@ -65,18 +66,18 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
         [Fact]
         async public Task GetTransactionById_User_OwnTransaction_Return200()
         {
-            var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _user.Email, "pwd", _user.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/transactions/{_transactions[0].Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>(ct);
             data.Should().NotBeNullOrEmpty();
 
             data["id"].Should().NotBeNull();
@@ -88,13 +89,13 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
         [Fact]
         async public Task GetTransactionById_User_AnyTransaction_Return403()
         {
-            var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _user.Email, "pwd", _user.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/transactions/{_transactions[3].Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
 
             response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -103,18 +104,18 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
         [Fact]
         async public Task GetTransactionById_Admin_AnyTransaction_Return200()
         {
-            var token = await AuthHelper.GetToken(_client, _admin.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _admin.Email, "pwd", _admin.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/transactions/{_transactions[0].Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>(ct);
             data.Should().NotBeNullOrEmpty();
 
             data["id"].Should().NotBeNull();
@@ -126,13 +127,13 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
         [Fact]
         async public Task GetTransactionById_WithNonexistentId_Return200()
         {
-            var token = await AuthHelper.GetToken(_client, _admin.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _admin.Email, "pwd", _admin.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/transactions/{Guid.NewGuid()}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);

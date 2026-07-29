@@ -11,7 +11,7 @@ namespace FinTrack.IntegrationTests.API.UserControllerTests
     {
         private readonly HttpClient _client;
         private readonly FinTrackWebApplicationFactory<Program> _factory;
-
+        private readonly CancellationToken ct = TestContext.Current.CancellationToken;
 
         public CreateUserTests(FinTrackWebApplicationFactory<Program> factory)
         {
@@ -35,11 +35,11 @@ namespace FinTrack.IntegrationTests.API.UserControllerTests
                 Name = "newname"
             };
 
-            var response = await _client.PostAsJsonAsync("/api/users", request);
+            var response = await _client.PostAsJsonAsync("/api/users", request, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.Created);
 
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>(ct);
 
             data.Should().NotBeNullOrEmpty();
             data["id"].Should().NotBeNullOrEmpty();
@@ -58,7 +58,7 @@ namespace FinTrack.IntegrationTests.API.UserControllerTests
                 Name = "newname"
             };
 
-            var response = await _client.PostAsJsonAsync("/api/users", request);
+            var response = await _client.PostAsJsonAsync("/api/users", request, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }

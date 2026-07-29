@@ -3,6 +3,7 @@
 using FinTrack.API.Core.Entities;
 using FinTrack.API.Application.Interfaces;
 using FinTrack.API.Infrastructure.Common.DTO;
+using System.Runtime.InteropServices;
 
 namespace FinTrack.API.TestMocks.Builders
 {
@@ -15,6 +16,8 @@ namespace FinTrack.API.TestMocks.Builders
         private string _hash = "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=";
         private List<string> _roles = [];
         private string _nonce = Guid.NewGuid().ToString()[..8];
+        private string? _totpSecret = null;
+        private bool isEmailVerified = false;
         
 
         public UserBuilder()
@@ -27,6 +30,8 @@ namespace FinTrack.API.TestMocks.Builders
         public User Build()
         {
             var user =  new User(_email,_phone, _name, _hash);
+            if (_totpSecret != null) user.SetTotpSecret(_totpSecret);
+            if (isEmailVerified && _totpSecret != null) user.VerifyEmail();
             foreach (var role in _roles)
             {
                 user.AssignRole(role);
@@ -43,7 +48,9 @@ namespace FinTrack.API.TestMocks.Builders
                 Phone = _phone,
                 Name = _name,
                 PasswordHash = _hash,
-                Roles = _roles
+                Roles = _roles,
+                TotpSecret = _totpSecret,
+                IsEmailVerified = isEmailVerified
             };
             return dbUser;
         }
@@ -78,10 +85,14 @@ namespace FinTrack.API.TestMocks.Builders
             _name = username;
             return this;
         }
-
-        public UserBuilder WithNonce(string nonce)
+        public UserBuilder WithTotpSecret(string secret)
         {
-            _nonce = nonce;
+            _totpSecret = secret;
+            return this;
+        }
+        public UserBuilder WithVerifiedEmail() 
+        {
+            isEmailVerified = true;
             return this;
         }
     }

@@ -12,6 +12,7 @@ namespace FinTrack.IntegrationTests.API.UserControllerTests
     {
         private readonly HttpClient _client;
         private readonly FinTrackWebApplicationFactory<Program> _factory;
+        private readonly CancellationToken ct = TestContext.Current.CancellationToken;
         private readonly User _admin;
         private readonly User _user;
 
@@ -34,16 +35,16 @@ namespace FinTrack.IntegrationTests.API.UserControllerTests
         [Fact]
         async public Task GetUserById_WithAdminToken_Return200()
         {
-            var token = await AuthHelper.GetToken(_client, _admin.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _admin.Email, "pwd", _admin.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{_user.Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>(ct);
 
             data.Should().NotBeNullOrEmpty();
             data["email"].Should().Be(_user.Email);
@@ -55,12 +56,12 @@ namespace FinTrack.IntegrationTests.API.UserControllerTests
         [Fact]
         async public Task GetUserById_RandomGuid_Return404()
         {
-            var token = await AuthHelper.GetToken(_client, _admin.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _admin.Email, "pwd", _admin.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{Guid.NewGuid()}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
@@ -68,12 +69,12 @@ namespace FinTrack.IntegrationTests.API.UserControllerTests
         [Fact]
         async public Task GetUserById_WithSimpleUserToken_Return403()
         {
-            var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _user.Email, "pwd", _user.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{_admin.Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         }
@@ -83,7 +84,7 @@ namespace FinTrack.IntegrationTests.API.UserControllerTests
         {
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{_user.Id}");
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct  );
 
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }

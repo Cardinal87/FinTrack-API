@@ -13,6 +13,7 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
     {
         private readonly HttpClient _client;
         private readonly FinTrackWebApplicationFactory<Program> _factory;
+        private readonly CancellationToken ct = TestContext.Current.CancellationToken;
         private readonly User _admin;
         private readonly User _user;
 
@@ -69,17 +70,17 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
         [Fact]
         async public Task GetTransactionsForAccount_User_OwnAccount_Return200()
         {
-            var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _user.Email, "pwd", _user.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/transactions/account/{_userAccounts[0].Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDb>>>();
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDb>>>(ct);
             data.Should().NotBeNull();
 
             var transactions = data["transactions"];
@@ -91,13 +92,13 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
         [Fact]
         async public Task GetTransactionsForAccount_User_AnyAccount_Return403()
         {
-            var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _user.Email, "pwd", _user.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/transactions/account/{_adminAccounts[0].Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
 
             response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -106,17 +107,17 @@ namespace FinTrack.IntegrationTests.API.TransactionControllerTests
         [Fact]
         async public Task GetTransactionsForAccount_Admin_AnyAccount_Return200()
         {
-            var token = await AuthHelper.GetToken(_client, _admin.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _admin.Email, "pwd", _admin.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/transactions/account/{_userAccounts[0].Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDb>>>();
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, List<TransactionDb>>>(ct);
             data.Should().NotBeNull();
 
             var transactions = data["transactions"];

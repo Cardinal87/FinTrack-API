@@ -12,6 +12,7 @@ namespace FinTrack.IntegrationTests.API.AccountControllerTests
     {
         private readonly HttpClient _client;
         private readonly FinTrackWebApplicationFactory<Program> _factory;
+        private readonly CancellationToken ct = TestContext.Current.CancellationToken;
         private readonly User _admin;
         private readonly User _user;
 
@@ -43,16 +44,16 @@ namespace FinTrack.IntegrationTests.API.AccountControllerTests
         [Fact]
         async public Task GetAccountById_User_OwnAccount_Return200()
         {
-            var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _user.Email, "pwd", _user.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/accounts/{_userAccount.Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>(ct);
             data.Should().NotBeNullOrEmpty();
 
             data["id"].Should().NotBeNull();
@@ -63,12 +64,12 @@ namespace FinTrack.IntegrationTests.API.AccountControllerTests
         [Fact]
         async public Task GetAccountById_User_AnyAccount_Return403()
         {
-            var token = await AuthHelper.GetToken(_client, _user.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _user.Email, "pwd", _user.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/accounts/{_adminAccount.Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         }
@@ -76,16 +77,16 @@ namespace FinTrack.IntegrationTests.API.AccountControllerTests
         [Fact]
         async public Task GetAccountById_Admin_AnyAccount_Return200()
         {
-            var token = await AuthHelper.GetToken(_client, _admin.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _admin.Email, "pwd", _admin.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/accounts/{_userAccount.Id}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
+            var data = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>(ct);
             data.Should().NotBeNullOrEmpty();
 
             data["id"].Should().NotBeNull();
@@ -96,12 +97,12 @@ namespace FinTrack.IntegrationTests.API.AccountControllerTests
         [Fact]
         async public Task GetAccountById_WithNonexistentId_Return404()
         {
-            var token = await AuthHelper.GetToken(_client, _admin.Email, "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, _admin.Email, "pwd", _admin.Id);
 
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/accounts/{Guid.NewGuid()}");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await _client.SendAsync(httpRequest);
+            var response = await _client.SendAsync(httpRequest, ct);
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }

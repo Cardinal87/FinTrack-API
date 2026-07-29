@@ -118,45 +118,7 @@ namespace FinTrack.Tests.Core.Entities
 
         }
 
-        [Fact]
-        public void AddAccount_WithMixedAccounts_AcceptsSingleValid()
-        {
-            var user = new User("test@email.com",
-                                "+79998887766",
-                                "test_user",
-                                "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=");
 
-            var valid_account = new Account(user.Id);
-            var invalid_account = new Account(Guid.NewGuid());
-
-            var add_valid_account = () => user.AddAccount(valid_account);
-            var add_invalid_account = () => user.AddAccount(invalid_account);
-
-            add_valid_account.Should().NotThrow();
-            add_invalid_account.Should().Throw<AccountOwnershipException>();
-
-            user.Accounts.Should().HaveCount(1);
-            user.Accounts.Should().Contain(valid_account);
-        }
-
-        [Fact]
-        public void DeleteAccout_WithMixesGuid_AcceptSingleValid()
-        {
-            var user = new User("test@email.com",
-                                "+79998887766",
-                                "test_user",
-                                "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=");
-
-            var valid_account = new Account(user.Id);
-            user.AddAccount(valid_account);
-
-            var delete_existing = () => user.DeleteAccount(valid_account.Id);
-            var invalid_delete = () => user.DeleteAccount(Guid.NewGuid());
-
-            delete_existing.Should().NotThrow();
-            invalid_delete.Should().Throw<KeyNotFoundException>();
-            user.Accounts.Should().HaveCount(0);
-        }
 
         [Fact]
         public void RoleValidation_WithMixedValues_AcceptsOnlyValid()

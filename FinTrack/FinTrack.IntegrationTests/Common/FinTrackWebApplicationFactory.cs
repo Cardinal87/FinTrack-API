@@ -17,6 +17,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using StackExchange.Redis;
 using Moq;
+using NATS.Client.Core;
+using NATS.Client.JetStream;
+using FinTrack.API.TestMocks.Messaging;
 
 namespace FinTrack.IntegrationTests.Common
 {
@@ -28,6 +31,7 @@ namespace FinTrack.IntegrationTests.Common
         public TransactionRepositoryMock TransactionRepositoryMock { get; private set; } = new();
         public RefreshTokenRepositoryMock RefreshTokenRepositoryMock { get; private set; } = new();
         public CacheServiceMock CacheServiceMock { get; private set; } = new();
+        public MessagePublisherMock MessagePublisherMock { get; set; } = new();
         public Mock<IUnitOfWork> UnitOfWorkMock { get; private set; } = new(); 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -42,10 +46,16 @@ namespace FinTrack.IntegrationTests.Common
                 services.RemoveAll<IAccountRepository>();
                 services.RemoveAll<ITransactionRepository>();
                 services.RemoveAll<IRefreshTokenRepository>();
+                services.RemoveAll<IUnitOfWork>();
 
                 //Remove all redis specified services
                 services.RemoveAll<IConnectionMultiplexer>();
                 services.RemoveAll<ICacheService>();
+
+                //Remove all NATS services
+                services.RemoveAll<INatsClient>();
+                services.RemoveAll<INatsConnection>();
+                services.RemoveAll<INatsJSContext>();
 
                 //Change vault to local signing service
                 services.RemoveAll<IJwtSigningService>();
@@ -61,6 +71,9 @@ namespace FinTrack.IntegrationTests.Common
 
                 //Add mocks to imitate cache
                 services.AddSingleton<ICacheService>(CacheServiceMock);
+
+                //Add mocks to imitate message publisher
+                services.AddSingleton<IMessagePublisher>(MessagePublisherMock);
 
                 //Restore Decorators
                 services.Decorate<ICacheService, CacheResilienceDecorator>();
@@ -78,6 +91,7 @@ namespace FinTrack.IntegrationTests.Common
             TransactionRepositoryMock.Reset();
             RefreshTokenRepositoryMock.Reset();
             CacheServiceMock.Reset();
+            MessagePublisherMock.Reset();
         }
 
         public (User, User) CreateBaseUsers()
@@ -85,16 +99,20 @@ namespace FinTrack.IntegrationTests.Common
             using (var scope = Services.CreateScope())
             {
                 var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
-
+                var totpService = scope.ServiceProvider.GetRequiredService<ITotpService>();
 
                 var admin = new UserBuilder().WithPassword("pwd", hasher)
                     .WithEmail("admin@email.com")
                     .WithRoles(UserRoles.Admin, UserRoles.User)
+                    .WithTotpSecret(totpService.GenerateSecret())
+                    .WithVerifiedEmail()
                     .Build();
 
                 var user = new UserBuilder().WithPassword("pwd", hasher)
                     .WithEmail("user@email.com")
                     .WithRoles(UserRoles.User)
+                    .WithTotpSecret(totpService.GenerateSecret())
+                    .WithVerifiedEmail()
                     .Build();
 
 

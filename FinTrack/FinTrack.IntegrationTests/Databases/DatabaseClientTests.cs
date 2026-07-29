@@ -9,14 +9,14 @@ namespace FinTrack.IntegrationTests.Databases
 {
     public class DatabaseClientTests : DatabaseTestBase
     {
-        
+        private readonly CancellationToken ct = TestContext.Current.CancellationToken;
         [Fact]
         async public Task AddUser_WithExistingEmail_ThrownException()
         {
             var user = new UserBuilder().BuildDbUser();
             
             _client.Users.Add(user);
-            await _client.SaveChangesAsync();
+            await _client.SaveChangesAsync(ct);
 
             var sameEmailUser = new UserBuilder().WithEmail(user.Email).BuildDbUser();
 
@@ -31,7 +31,7 @@ namespace FinTrack.IntegrationTests.Databases
             var user = new UserBuilder().BuildDbUser();
 
             _client.Users.Add(user);
-            await _client.SaveChangesAsync();
+            await _client.SaveChangesAsync(ct);
 
             var samePhoneUser = new UserBuilder().WithPhone(user.Phone).BuildDbUser();
 
@@ -46,7 +46,7 @@ namespace FinTrack.IntegrationTests.Databases
             var user = new UserBuilder().BuildDbUser();
 
             _client.Users.Add(user);
-            await _client.SaveChangesAsync();
+            await _client.SaveChangesAsync(ct);
 
             var sameNameUser = new UserBuilder().WithName(user.Name).BuildDbUser();
 
@@ -60,7 +60,7 @@ namespace FinTrack.IntegrationTests.Databases
         {
             var user = new UserBuilder().BuildDbUser();
             _client.Users.Add(user);
-            await _client.SaveChangesAsync();
+            await _client.SaveChangesAsync(ct);
 
 
             var firstAccount = new AccountDb()
@@ -76,12 +76,12 @@ namespace FinTrack.IntegrationTests.Databases
 
             _client.Accounts.Add(firstAccount);
             _client.Accounts.Add(secondAccount);
-            await _client.SaveChangesAsync();
+            await _client.SaveChangesAsync(ct);
 
             _client.Users.Remove(user);
-            await _client.SaveChangesAsync();
+            await _client.SaveChangesAsync(ct);
 
-            var accounts = await _client.Accounts.Where(t => t.UserId == user.Id).ToListAsync();
+            var accounts = await _client.Accounts.Where(t => t.UserId == user.Id).ToListAsync(ct);
             accounts.Should().HaveCount(0);
 
         }

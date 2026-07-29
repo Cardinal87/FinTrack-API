@@ -16,7 +16,8 @@ namespace FinTrack.IntegrationTests.Repositories
         private IAccountRepository _accountRepository = null!;
         private IUnitOfWork _unitOfWork = null!;
         private UserDb defaultUser = null!;
-        
+        private readonly CancellationToken ct = TestContext.Current.CancellationToken;
+
         override async public ValueTask InitializeAsync()
         {
             await base.InitializeAsync();
@@ -46,7 +47,7 @@ namespace FinTrack.IntegrationTests.Repositories
 
             await _accountRepository.AddAsync(first_account);
             await _accountRepository.AddAsync(second_account);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(ct);
 
             await _client.SaveChangesAsync(cancellationToken);
             var accounts = await _client.Accounts.ToListAsync(cancellationToken);
@@ -71,7 +72,7 @@ namespace FinTrack.IntegrationTests.Repositories
             list[0].TopUp(500);
 
             await _accountRepository.UpdateAsync(list[0]);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(ct);
 
             var updated = await _client.Accounts.FirstOrDefaultAsync(t => t.Id == list[0].Id,cancellationToken);
 
@@ -113,7 +114,7 @@ namespace FinTrack.IntegrationTests.Repositories
             var list = await AddValidAccounts(2);
 
             await _accountRepository.DeleteAsync(list[0].Id);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(ct);
 
             var accounts = await _client.Accounts.ToListAsync(cancellationToken);
 

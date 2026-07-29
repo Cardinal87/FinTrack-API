@@ -128,7 +128,7 @@ namespace FinTrack.API.Controllers
         /// <response code="401">access token is missing or invalid</response>
         /// <response code="403">user does not has access</response>
         /// <response code="404">user with <paramref name="id"/> not found</response>
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
         [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -212,7 +212,7 @@ namespace FinTrack.API.Controllers
         /// <response code="403">user does not has access</response>
         /// <response code="404">user not found</response>
         [HttpGet("{id}")]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
@@ -267,7 +267,7 @@ namespace FinTrack.API.Controllers
         /// <response code="401">access token is missing or invalid</response>
         /// <response code="403">user does not has access</response>
         [HttpGet()]
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
@@ -330,7 +330,7 @@ namespace FinTrack.API.Controllers
         /// <response code="401">access token is missing or invalid</response>
         /// <response code="403">user does not has access</response>
         /// <response code="404">user not found</response>
-        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]

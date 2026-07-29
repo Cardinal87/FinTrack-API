@@ -23,7 +23,7 @@ namespace FinTrack.API.Infrastructure.Messaging
             _streamOptions = streamOptions.Value;
         }
 
-        public async Task PublishAsync<T>(string subject, T message, CancellationToken cancellationToken = default) where T : class
+        public async Task PublishAsync<T>(string subject, T message, CancellationToken cancellationToken = default) where T : struct
         {
             await InitializeStream(cancellationToken);
 

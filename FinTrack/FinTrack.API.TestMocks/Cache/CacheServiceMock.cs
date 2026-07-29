@@ -71,6 +71,15 @@ namespace FinTrack.API.TestMocks.Cache
             _cache.Clear();
         }
 
+        public Task<bool> TrySetKeyOnlyAsync(string key, TimeSpan ttl, CancellationToken ct = default)
+        {
+            if (_cache.ContainsKey(key)){
+                return Task.FromResult(false);
+            }
+            _cache[key] = new CacheEntry("", DateTime.UtcNow.Add(ttl));
+            return Task.FromResult(true);
+        }
+
         private record CacheEntry(string JsonValue, DateTime Expiration);
     }
 }

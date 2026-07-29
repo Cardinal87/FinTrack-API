@@ -1,6 +1,5 @@
 ﻿using FinTrack.API;
 using FinTrack.API.Core.Common;
-using FinTrack.API.Core.Entities;
 using FinTrack.API.Application.Interfaces;
 using FinTrack.API.DTO;
 using FinTrack.API.TestMocks.Builders;
@@ -12,6 +11,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
+using StackExchange.Redis;
 
 namespace FinTrack.IntegrationTests.API
 {
@@ -20,6 +20,7 @@ namespace FinTrack.IntegrationTests.API
         private readonly HttpClient _client;
         private readonly FinTrackWebApplicationFactory<Program> _factory;
         private readonly CancellationToken ct = TestContext.Current.CancellationToken;
+        private readonly Guid _testUserId;
 
         public TokenControllerTests(FinTrackWebApplicationFactory<Program> factory)
         {
@@ -28,17 +29,21 @@ namespace FinTrack.IntegrationTests.API
             using (var scope = factory.Services.CreateScope())
             {
                 var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+                var totpService = scope.ServiceProvider.GetRequiredService<ITotpService>();
 
                 var user = new UserBuilder().WithPassword("pwd", hasher)
                     .WithEmail("test@email.com")
                     .WithRoles(UserRoles.Admin, UserRoles.User)
+                    .WithTotpSecret(totpService.GenerateSecret())
+                    .WithVerifiedEmail()
                     .Build();
 
+                _testUserId = user.Id;
                 _factory.UserRepositoryMock.AddAsync(user);
             }
         }
         [Fact]
-        async public Task GetJwtToken_ValidCredentials_Returns200()
+        async public Task GetJwtToken_WithTwoFactorAuth_Returns200()
         {
             var request = new LoginRequest
             {
@@ -48,13 +53,36 @@ namespace FinTrack.IntegrationTests.API
 
             var response = await _client.PostAsJsonAsync("/api/auth/token", request, ct);
 
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
             var data = await response.Content.ReadFromJsonAsync<JsonNode>(ct);
             data.Should().NotBeNull();
-            data["access_token"].Should().NotBeNull();
-            data["refresh_token"].Should().NotBeNull();
+            data["challenge_token"].Should().NotBeNull();
             data["expires_in"]!.GetValue<int>().Should().BeGreaterThan(0);
+
+            var code = _factory.MessagePublisherMock.GetCode(_testUserId);
+            if (string.IsNullOrEmpty(code))
+            {
+                throw new InvalidOperationException("Fake publisher did not capture the TOTP code");
+            }
+
+            var challengeToken = (string)data["challenge_token"]!;
+            var verifyRequest = new VerifyCodeRequest { Code = code };
+
+            var verifyMessage = new HttpRequestMessage(HttpMethod.Post, "/api/auth/2fa/complete");
+            verifyMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", challengeToken);
+            verifyMessage.Content = JsonContent.Create(verifyRequest);
+
+            var verifyResponse = await _client.SendAsync(verifyMessage, ct);
+
+            verifyResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var verifyData = await verifyResponse.Content.ReadFromJsonAsync<JsonNode>(ct);
+
+            verifyData.Should().NotBeNull();
+            verifyData["access_token"].Should().NotBeNull();
+            verifyData["refresh_token"].Should().NotBeNull();
+            verifyData["expires_in"]!.GetValue<int>().Should().BeGreaterThan(0);
         }
 
         [Fact]
@@ -114,7 +142,7 @@ namespace FinTrack.IntegrationTests.API
         [Fact]
         async public Task GetJwtStatus_ValidToken_Returns200()
         {
-            var token = await AuthHelper.GetToken(_client, "test@email.com", "pwd");
+            var token = await AuthHelper.GetTokenAsync(_client, _factory.MessagePublisherMock, "test@email.com", "pwd", _testUserId);
             
             var httpRequest = new HttpRequestMessage(HttpMethod.Get, "/api/auth/token/status");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
