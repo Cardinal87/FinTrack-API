@@ -24,6 +24,7 @@ Prototype of the financial system API
 **Swagger UI:** http://localhost:8080/swagger (when running in develop environment) 
 
 ## Quick start
+### Environment configuration
 Create `.env` file to configure environmental variables
 Possible options:
 | **Variable** | **Description** | **Value example**
@@ -35,10 +36,13 @@ Possible options:
 | ASPNETCORE_ENVIRONMENT | runtime environment | `Development`
 | GRAFANA_USERNAME | admin username for grafana | `admin` 
 | GRAFANA_PASSWORD | admin password for grafana | `password`
-| LOKI_URI | uri of the grafana/loki log aggregator | `http://loki:3100`
+| SMTP_HOST | smpt relay url | `smtp.gmail.com`
+| SMTP_PORT | smtp relay port | `587`
+| SMTP_USERNAME | smtp username for authentication | `your@email.com`
+| SMTP_PASSWORD | smtp password for authentication | `password`
 
 Then run API with one of two possible ways:
-### Only API
+### Only API (Manual configuration of all service dependencies)
 Download [docker image](https://hub.docker.com/repository/docker/cardinal87/fintrack/general) from Docker Hub using 
 ``` bash
 docker pull cardinal87/fintrack:tagname
@@ -48,13 +52,33 @@ then run docker image with following command:
 docker run --env-file path/to/.env -p 8080:8080 -v path/to/api/logs:/app/logs cardinal87/fintrack
 ```
 ### Using docker-compose (Recommended)
-download [docker-compose.yml](https://github.com/Cardinal87/FinTrack-API/blob/main/FinTrack/docker-compose.yml) file with command:
-```bash
-curl -O https://github.com/Cardinal87/FinTrack-API/blob/main/FinTrack/docker-compose.yml
+Firstly, initialize appropriate directory structure:
+``` bash
+mkdir -p fintrack/configs fintrack/deployment
+cd fintrack
 ```
-then, in the same directory, run docker containers with:
+
+Download all configuration files from [configs](configs/) directory:
+``` bash
+curl -o configs/fintrack-api-policy.hcl https://raw.githubusercontent.com/Cardinal87/FinTrack-API/main/configs/fintrack-api-policy.hcl
+curl -o configs/loki.yaml https://raw.githubusercontent.com/Cardinal87/FinTrack-API/main/configs/loki.yaml
+curl -o configs/nats-server.conf https://raw.githubusercontent.com/Cardinal87/FinTrack-API/main/configs/nats-server.conf
+curl -o configs/prometheus.yml https://raw.githubusercontent.com/Cardinal87/FinTrack-API/main/configs/prometheus.yml
+curl -o configs/redis.conf https://raw.githubusercontent.com/Cardinal87/FinTrack-API/main/configs/redis.conf
+curl -o configs/vault.hcl https://raw.githubusercontent.com/Cardinal87/FinTrack-API/main/configs/vault.hcl
+```
+
+Download [docker-compose.yml](https://github.com/Cardinal87/FinTrack-API/blob/main/FinTrack/docker-compose.yml) file:
 ```bash
-docker-compose --env-file path/to/.env up -d
+curl -o deployment/docker-compose.yml https://github.com/Cardinal87/FinTrack-API/blob/main/FinTrack/docker-compose.yml
+```
+
+Create the `.env` file in the `deployment` folder according to the [Environment configuration](#environment-configuration) section
+
+Finally run docker containers with:
+```bash
+cd deployment
+docker-compose up -d
 ```
 
 
