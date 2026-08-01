@@ -13,8 +13,6 @@ using FinTrack.API.Infrastructure.Interfaces;
 using FinTrack.API.Infrastructure.Messaging;
 using FinTrack.API.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -43,7 +41,7 @@ namespace FinTrack.API
         private static string environment = "development";
 
 
-        public static void Main(string[] args)
+        public async static Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
             bool isTesting = builder.Environment.IsEnvironment("Testing");
@@ -91,7 +89,10 @@ namespace FinTrack.API
                         try
                         {
                             var db = scope.ServiceProvider.GetRequiredService<DatabaseClient>();
-                            db.Database.Migrate();
+                            await db.Database.MigrateAsync();
+
+                            var natsPublisher = scope.ServiceProvider.GetRequiredService<NatsMessagePublisher>();
+                            await natsPublisher.InitializeStream();
                         }
                         catch (Exception ex)
                         {
@@ -357,7 +358,8 @@ namespace FinTrack.API
                 var conn = sp.GetRequiredService<INatsConnection>();
                 return conn.CreateJetStreamContext();
             });
-            services.AddSingleton<IMessagePublisher, NatsMessagePublisher>();
+            services.AddSingleton<NatsMessagePublisher>();
+            services.AddSingleton<IMessagePublisher>(sp => sp.GetRequiredService<NatsMessagePublisher>());
 
             //AutoMapper
             services.AddAutoMapper(typeof(Infrastructure.AssemblyReference).Assembly);

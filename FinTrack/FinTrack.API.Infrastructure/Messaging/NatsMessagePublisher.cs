@@ -13,8 +13,6 @@ namespace FinTrack.API.Infrastructure.Messaging
         private readonly ILogger<NatsMessagePublisher> _logger;
         private readonly INatsJSContext _context;
         private readonly MessageStreamOptions _streamOptions;
-        private bool isStreamInitialized;
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
         public NatsMessagePublisher(ILogger<NatsMessagePublisher> logger,  INatsJSContext context, IOptions<MessageStreamOptions> streamOptions)
         {
@@ -25,41 +23,26 @@ namespace FinTrack.API.Infrastructure.Messaging
 
         public async Task PublishAsync<T>(string subject, T message, CancellationToken cancellationToken = default) where T : struct
         {
-            await InitializeStream(cancellationToken);
-
             var ack = await _context.PublishAsync(subject, message, cancellationToken:  cancellationToken);
             ack.EnsureSuccess();
 
             _logger.LogDebug("Message for subject {Subject} published", subject);
         }
 
-        public async Task InitializeStream(CancellationToken ct)
+        public async Task InitializeStream(CancellationToken ct = default)
         {
-            if (isStreamInitialized) return;
-
-            await _semaphore.WaitAsync(ct);
-            try
+            var stream = new StreamConfig
             {
-                if (isStreamInitialized) return;
-                var stream = new StreamConfig
-                {
-                    Name = _streamOptions.Name,
-                    Subjects = _streamOptions.Subjects,
-                    MaxAge = _streamOptions.MaxAge,
-                    MaxBytes = _streamOptions.MaxBytes,
-                    Storage = StreamConfigStorage.File,
-                    Retention = StreamConfigRetention.Workqueue
-                };
-                await _context.CreateStreamAsync(stream, ct);
-                isStreamInitialized = true;
+                Name = _streamOptions.Name,
+                Subjects = _streamOptions.Subjects,
+                MaxAge = _streamOptions.MaxAge,
+                MaxBytes = _streamOptions.MaxBytes,
+                Storage = StreamConfigStorage.File,
+                Retention = StreamConfigRetention.Workqueue
+            };
+            await _context.CreateStreamAsync(stream, ct);
 
-                _logger.LogDebug("Stream initialized");
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-
+            _logger.LogInformation("NATS Stream '{StreamName}' successfully initialized", _streamOptions.Name);
         }
     }
 }

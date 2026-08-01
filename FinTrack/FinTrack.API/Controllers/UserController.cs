@@ -160,7 +160,8 @@ namespace FinTrack.API.Controllers
         /// {
         ///     "name": "myname",
         ///     "phone": "+79996668877",
-        ///     "email": "exmaple@gmail.com"
+        ///     "email": "exmaple@gmail.com",
+        ///     "is_email_verified": true
         /// }
         /// </remarks>
         /// <response code="200">successfull request</response>
@@ -184,6 +185,7 @@ namespace FinTrack.API.Controllers
                     name = result.Value.Name,
                     phone = result.Value.Phone,
                     email = result.Value.Email,
+                    is_email_verified = result.Value.IsEmailVerified
                 });
             }
 
@@ -203,7 +205,8 @@ namespace FinTrack.API.Controllers
         /// {
         ///     "name": "myname",
         ///     "phone": "+79996668877",
-        ///     "email": "exmaple@gmail.com"
+        ///     "email": "exmaple@gmail.com",
+        ///     "is_email_verified": true,
         ///     "hash": "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="
         /// }
         /// </remarks>
@@ -230,6 +233,7 @@ namespace FinTrack.API.Controllers
                     name = result.Value.Name,
                     phone = result.Value.Phone,
                     email = result.Value.Email,
+                    is_email_verified = result.Value.IsEmailVerified,
                     hash = result.Value.PasswordHash
                 });
             }
@@ -255,7 +259,8 @@ namespace FinTrack.API.Controllers
         ///                     "id": "30dd879c-ee2f-11db-8314-0800200c9a66",
         ///                     "name": "myname",
         ///                     "phone": "+79996668877",
-        ///                     "email": "exmaple@gmail.com"
+        ///                     "email": "exmaple@gmail.com",
+        ///                     "is_email_verified": true,
         ///                     "hash": "SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg="
         ///                 },
         ///                 ...
@@ -281,7 +286,14 @@ namespace FinTrack.API.Controllers
             {
                 return Ok(new
                 {
-                    users = result.Value.Select(x => new { x.Id, x.Name, x.Phone, x.Email, x.PasswordHash })
+                    users = result.Value.Select(x => new 
+                    { 
+                        id = x.Id, 
+                        name = x.Name, 
+                        phone = x.Phone, 
+                        email = x.Email, 
+                        is_email_verified = x.IsEmailVerified,
+                        hash = x.PasswordHash })
                 });
             }
 
