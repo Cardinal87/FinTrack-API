@@ -12,10 +12,64 @@
           "Account"
         ],
         "summary": "Creates account for user",
-        "description": "Request example:\r\nPOST /api/accounts\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"id\": \"CREATED_ACCOUNT_ID\"\r\n}",
+        "description": "Request example:\nPOST /api/accounts\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    \"id\": \"CREATED_ACCOUNT_ID\"\n}",
         "responses": {
           "201": {
             "description": "account created successfully"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Returns all accounts",
+        "description": "Requets example:\nGET /api/accounts\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    \"accounts\": [    \n                {\n                    \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\n                    \"balance\": 300,\n                    \"user_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\"\n                },\n                ...\n             ]\n    \n}",
+        "parameters": [
+          {
+            "name": "page_num",
+            "in": "query",
+            "description": "page number of the paginated result (default: 1)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "page size of the paginated result, maximum size is 1000 (default: 50)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfull request"
+          },
+          "401": {
+            "description": "access token is missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user does not has access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -26,7 +80,7 @@
           "Account"
         ],
         "summary": "Returns info abount account by id",
-        "description": "Request example:\r\nGET /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\r\n    \"balance\": 300,\r\n    \"user_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\"\r\n}",
+        "description": "Request example:\nGET /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\n    \"balance\": 300,\n    \"user_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\"\n}",
         "parameters": [
           {
             "name": "id",
@@ -83,7 +137,7 @@
           "Account"
         ],
         "summary": "Deletes account by id",
-        "description": "Request example:\r\nDELETE /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"",
+        "description": "Request example:\nDELETE /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"",
         "parameters": [
           {
             "name": "id",
@@ -169,7 +223,7 @@
           "Account"
         ],
         "summary": "Top ups account balance",
-        "description": "Request example:\r\nPOST /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66/topup?amount=300\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"balance\": 300,\r\n}",
+        "description": "Request example:\nPOST /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66/topup?amount=300\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    \"balance\": 300,\n}",
         "parameters": [
           {
             "name": "id",
@@ -237,7 +291,7 @@
           "Account"
         ],
         "summary": "Debits account balance",
-        "description": "Request example:\r\nPOST /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66/debit?amount=300\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"balance\": 0,\r\n}",
+        "description": "Request example:\nPOST /api/accounts/30dd879c-ee2f-11db-8314-0800200c9a66/debit?amount=300\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    \"balance\": 0,\n}",
         "parameters": [
           {
             "name": "id",
@@ -304,8 +358,8 @@
         "tags": [
           "Token"
         ],
-        "summary": "Creates access JWT-token for user",
-        "description": "Request example:\r\nPOST /api/auth/token\r\n{\r\n    \"login\": \"mylogin\",\r\n    \"password\": \"mypassword\"\r\n}\r\n\r\nResponse example:\r\n{\r\n    \"token\": YOUR_ACCESS_TOKEN\r\n}",
+        "summary": "Creates access-refresh token pair for user by credentials\nor sends verification code to user email and creates challenge token if 2fa enabled",
+        "description": "Request example:\nPOST /api/auth/token\n{\n    \"login\": \"mylogin\",\n    \"password\": \"mypassword\"\n}\n\nResponse example:\n{\n    \"access_token\": \"eyJ...\",\n    \"refresh_token\": \"...\",\n    \"expires_in\": 900\n}\n\nOR\n\nResponse example:\n{\n    \"message\": \"verific ation code was sent to your email\"\n    \"challenge_token\": \"eyJ...\",\n    \"expires_in\": 90,\n    \"_links\": {\n         \"verify\": {\n            \"href\": \"/api/auth/2fa/complete\",\n            \"method\": \"POST\",\n            \"title\": \"verification code confirmation\"\n         },\n         \"resend\": {\n            \"href\": \"/api/auth/2fa/resend\",\n            \"method\": \"POST\",\n            \"title\": \"resend verification code\"\n         }\n    }\n}",
         "requestBody": {
           "description": "user credentials",
           "content": {
@@ -318,10 +372,149 @@
         },
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "access token created"
+          },
+          "202": {
+            "description": "challenge token created and code was sent to email"
           },
           "401": {
-            "description": "Unauthorized",
+            "description": "provided credentials are invalid or user does not exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "provided credentials are valid, 2fa enabled but email is not verified yet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/2fa/complete": {
+      "post": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Completes authentication by verification otp code",
+        "description": "Request example:\nPOST /api/auth/2fa/complete\n-H \"Authorization: Bearer YOUR_CHALLENGE_TOKEN\"\n{\n    \"code\": 123456\n}\n\nResponse example:\n{\n    \"access_token\": \"eyJ...\",\n    \"refresh_token\": \"...\",\n    \"expires_in\": 900\n}",
+        "requestBody": {
+          "description": "Verification code",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyCodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "access token created"
+          },
+          "401": {
+            "description": "provided code is invalid or user does not exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/2fa/resend": {
+      "post": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Sends new verification code to user email",
+        "description": "Request example:\nPOST /api/auth/2fa/resend\n-H \"Authorization: Bearer YOUR_CHALLENGE_TOKEN\"\n\nResponse example:\n{\n    \"message\": \"verification code was sent to your email\"\n    \"challenge_token\": \"eyJ...\",\n    \"expires_in\": 90,\n    \"_links\": {\n         \"verify\": {\n            \"href\": \"/api/auth/2fa/complete\",\n            \"method\": \"POST\",\n            \"title\": \"verification code confirmation\"\n         },\n         \"resend\": {\n            \"href\": \"/api/auth/2fa/resend\",\n            \"method\": \"POST\",\n            \"title\": \"resend verification code\"\n         }\n    }\n}",
+        "responses": {
+          "202": {
+            "description": "challenge token created and code was sent to email"
+          },
+          "401": {
+            "description": "provided credentials are invalid or user does not exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/token/refresh": {
+      "post": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Creates access-refresh token pair for user by refresh token",
+        "description": "Request example:\nPOST /api/auth/token/refresh\n{\n    \"refresh_token\": \"...\" \n}\n\nResponse example:\n{\n    \"access_token\": \"eyJ...\",\n    \"refresh_token\": \"...\",\n    \"expires_in\": 900\n}",
+        "requestBody": {
+          "description": "valid refresh token",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "token created"
+          },
+          "401": {
+            "description": "provided credentials are invalid or user does not exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/token/revoke": {
+      "post": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Revoked a refresh token.\nRequires valid access token",
+        "description": "Request example:\nPOST /api/auth/token/revoke\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n{\n    \"refresh_token\": \"YOUR_REFRESH_TOKEN\"\n}",
+        "requestBody": {
+          "description": "valid refresh token",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "token revoked"
+          },
+          "401": {
+            "description": "access or refresh token invalid or does not provided",
             "content": {
               "application/json": {
                 "schema": {
@@ -339,25 +532,15 @@
           "Token"
         ],
         "summary": "Returns status of provided JWT-token",
-        "description": "Request example:\r\nGET /api/auth/token/status\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"",
+        "description": "Request example:\nGET /api/auth/token/status\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "access token is valid"
           },
           "401": {
-            "description": "Unauthorized",
+            "description": "access token invalid or does not provided",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
@@ -373,7 +556,7 @@
           "Transaction"
         ],
         "summary": "Creates transaction between accounts",
-        "description": "Request example:\r\nPOST /api/transactions\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n{\r\n    \"amount\": \"300\",\r\n    \"source_account_id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\r\n    \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\r\n}\r\n\r\nResponse example:\r\n{\r\n    \"id\": \"CREATED_Transaction_ID\"\r\n}",
+        "description": "Request example:\nPOST /api/transactions\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n{\n    \"amount\": \"300\",\n    \"source_account_id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\n    \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\n}\n\nResponse example:\n{\n    \"id\": \"CREATED_Transaction_ID\"\n}",
         "requestBody": {
           "description": "data for creating transaction",
           "content": {
@@ -386,10 +569,64 @@
         },
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "transaction created successfully"
           },
           "400": {
-            "description": "Bad Request",
+            "description": "invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Returns all transactions",
+        "description": "Requets example:\nGET /api/transactions\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    \"transactions\": [    \n                {\n                    \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\n                    \"amount\": 300,\n                    \"source_account_id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\n                    \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\n                },\n                ...\n             ]\n    \n}",
+        "parameters": [
+          {
+            "name": "page_num",
+            "in": "query",
+            "description": "page number of the paginated result (default: 1)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "page size of the paginated result, maximum size is 1000 (default: 50)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfull request"
+          },
+          "401": {
+            "description": "access token is missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user does not has access",
             "content": {
               "application/json": {
                 "schema": {
@@ -407,7 +644,7 @@
           "Transaction"
         ],
         "summary": "Returns transaction by id",
-        "description": "Request example:\r\nGET /api/transactions/30dd879c-ee2f-11db-8314-0800200c9a66\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\r\n    \"amount\": 300,\r\n    \"source_account_id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\r\n    \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\r\n    \r\n}",
+        "description": "Request example:\nGET /api/transactions/30dd879c-ee2f-11db-8314-0800200c9a66\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\n    \"amount\": 300,\n    \"source_account_id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\n    \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\n    \n}",
         "parameters": [
           {
             "name": "id",
@@ -463,7 +700,7 @@
           "Transaction"
         ],
         "summary": "Returns transaction by date",
-        "description": "Request example:\r\nGET /api/transactions/date/2025-08-19\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    [    \r\n        {\r\n            \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\r\n            \"amount\": 300,\r\n            \"source_account_id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\r\n            \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\r\n        },\r\n        ...\r\n    ]\r\n    \r\n}",
+        "description": "Request example:\nGET /api/transactions/date/2025-08-19?page_num=2&page_size=75\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    [    \n        {\n            \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\n            \"amount\": 300,\n            \"source_account_id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\n            \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\n        },\n        ...\n    ]\n    \n}",
         "parameters": [
           {
             "name": "date",
@@ -473,6 +710,26 @@
             "schema": {
               "type": "string",
               "format": "date"
+            }
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "description": "page number of the paginated result (default: 1)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "page size of the paginated result, maximum size is 1000 (default: 50)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
             }
           }
         ],
@@ -499,7 +756,7 @@
           "Transaction"
         ],
         "summary": "Returns transaction by time interval",
-        "description": "Request example:\r\nGET /api/transactions/interval?start=2025-08-10&end=2025-08-13\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    [    \r\n        {\r\n            \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\r\n            \"amount\": 300,\r\n            \"source_account_id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\r\n            \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\r\n        },\r\n        ...\r\n    ]\r\n    \r\n}",
+        "description": "Request example:\nGET /api/transactions/interval?start=2025-08-10&end=2025-08-13&page_num=2&page_size=75\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    [    \n        {\n            \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\n            \"amount\": 300,\n            \"source_account_id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\n            \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\n        },\n        ...\n    ]\n    \n}",
         "parameters": [
           {
             "name": "start",
@@ -517,6 +774,26 @@
             "schema": {
               "type": "string",
               "format": "date-time"
+            }
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "description": "page number of the paginated result (default: 1)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "page size of the paginated result, maximum size is 1000 (default: 50)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
             }
           }
         ],
@@ -543,7 +820,7 @@
           "Transaction"
         ],
         "summary": "Returns all transactions of specified account",
-        "description": "Request example:\r\nGET /api/transactions/account/30dd879c-ee2f-11db-8314-0800200c9a66\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    [    \r\n        {\r\n            \"id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\r\n            \"amount\": 300,\r\n            \"source_account_id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\r\n            \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\r\n        },\r\n        ...\r\n    ]\r\n    \r\n}",
+        "description": "Request example:\nGET /api/transactions/account/30dd879c-ee2f-11db-8314-0800200c9a66?page_num=2&page_size=75\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    [    \n        {\n            \"id\": \"85cb33aa-f7a5-4940-9bf2-7c50850925aa\",\n            \"amount\": 300,\n            \"source_account_id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\n            \"destination_account_id\": \"3b7c138f-fc68-42b8-a705-31417bb4cb56\",\n        },\n        ...\n    ]\n    \n}",
         "parameters": [
           {
             "name": "id",
@@ -553,6 +830,26 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "page_num",
+            "in": "query",
+            "description": "page number of the paginated result (default: 1)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "page size of the paginated result, maximum size is 1000 (default: 50)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
             }
           }
         ],
@@ -599,7 +896,7 @@
           "User"
         ],
         "summary": "Creates new user",
-        "description": "Request example:\r\nPOST /api/users\r\n{\r\n    \"name\": \"myname\",\r\n    \"email\": \"example@gmail.com\",\r\n    \"phone\": \"+79998886655\",\r\n    \"password\": \"pwd\"\r\n}\r\n\r\nResponse example:\r\n{\r\n    \"id\": \"CREATED_USER_ID\"\r\n}",
+        "description": "Request example:\nPOST /api/users\n{\n    \"name\": \"myname\",\n    \"email\": \"example@gmail.com\",\n    \"phone\": \"+79998886655\",\n    \"password\": \"pwd\"\n}\n\nResponse example:\n{\n    \"id\": \"CREATED_USER_ID\"\n}",
         "requestBody": {
           "description": "data for creating new user",
           "content": {
@@ -612,10 +909,64 @@
         },
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "user created successfully"
           },
           "400": {
-            "description": "Bad Request",
+            "description": "invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Returns all users",
+        "description": "Requets example:\nGET /api/users\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    \"users\": [    \n                {\n                    \"id\": \"30dd879c-ee2f-11db-8314-0800200c9a66\",\n                    \"name\": \"myname\",\n                    \"phone\": \"+79996668877\",\n                    \"email\": \"exmaple@gmail.com\",\n                    \"is_email_verified\": true,\n                    \"hash\": \"SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=\"\n                },\n                ...\n             ]\n    \n}",
+        "parameters": [
+          {
+            "name": "page_num",
+            "in": "query",
+            "description": "page number of the paginated result (default: 1)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "description": "page size of the paginated result, maximum size is 1000 (default: 50)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successfull request"
+          },
+          "401": {
+            "description": "access token is missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user does not has access",
             "content": {
               "application/json": {
                 "schema": {
@@ -628,18 +979,60 @@
       }
     },
     "/api/users/me": {
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Updates current user",
+        "description": "Requets example:\nPUT /api/users/me\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n{\n    \"name\": \"new_name\",\n    \"email\": \"new_example@gmail.com\",\n    \"phone\": \"+79998886655\"\n}",
+        "requestBody": {
+          "description": "data for updating user",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "successfull request"
+          },
+          "400": {
+            "description": "invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "access token is missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
       "get": {
         "tags": [
           "User"
         ],
         "summary": "Returns info about current user",
-        "description": "Request example:\r\nGET /api/users/me\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"name\": \"myname\",\r\n    \"phone\": \"+79996668877\",\r\n    \"email\": \"exmaple@gmail.com\"\r\n}",
+        "description": "Request example:\nGET /api/users/me\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    \"name\": \"myname\",\n    \"phone\": \"+79996668877\",\n    \"email\": \"exmaple@gmail.com\",\n    \"is_email_verified\": true\n}",
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "successfull request"
           },
           "401": {
-            "description": "Unauthorized",
+            "description": "access token is missing or invalid",
             "content": {
               "application/json": {
                 "schema": {
@@ -649,7 +1042,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "user not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -665,13 +1058,13 @@
           "User"
         ],
         "summary": "Deletes current user",
-        "description": "Request example:\r\nDELETE /api/users/me\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"",
+        "description": "Request example:\nDELETE /api/users/me\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"",
         "responses": {
           "204": {
-            "description": "No Content"
+            "description": "user deleted successfully"
           },
           "401": {
-            "description": "Unauthorized",
+            "description": "access token is missing or invalid",
             "content": {
               "application/json": {
                 "schema": {
@@ -681,7 +1074,7 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "user not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -694,12 +1087,86 @@
       }
     },
     "/api/users/{id}": {
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Updated user by id",
+        "description": "Requets example:\nPUT /api/users/30dd879c-ee2f-11db-8314-0800200c9a66\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n{\n    \"name\": \"new_name\",\n    \"email\": \"new_example@gmail.com\",\n    \"phone\": \"+79998886655\"\n}",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the user that will be updated",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "data for updating user",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "successfull request"
+          },
+          "400": {
+            "description": "invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "access token is missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user does not has access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "user with id not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
       "get": {
         "tags": [
           "User"
         ],
         "summary": "Returns user info by id",
-        "description": "Requets example:\r\nGET /api/users/30dd879c-ee2f-11db-8314-0800200c9a66\r\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\r\n\r\nResponse example:\r\n{\r\n    \"name\": \"myname\",\r\n    \"phone\": \"+79996668877\",\r\n    \"email\": \"exmaple@gmail.com\"\r\n    \"hash\": \"SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=\"\r\n}",
+        "description": "Requets example:\nGET /api/users/30dd879c-ee2f-11db-8314-0800200c9a66\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    \"name\": \"myname\",\n    \"phone\": \"+79996668877\",\n    \"email\": \"exmaple@gmail.com\",\n    \"is_email_verified\": true,\n    \"hash\": \"SHA256.50.Y0ea1poJCyWCd+yPum+ZQZov+ySJgVEGV8lEzNEUjpc=.XohImNooBHFR0OVvjcYpJ3NgPQ1qq73WKhHvch0VQtg=\"\n}",
         "parameters": [
           {
             "name": "id",
@@ -714,10 +1181,10 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "successfull request"
           },
           "401": {
-            "description": "Unauthorized",
+            "description": "access token is missing or invalid",
             "content": {
               "application/json": {
                 "schema": {
@@ -727,7 +1194,7 @@
             }
           },
           "403": {
-            "description": "Forbidden",
+            "description": "user does not has access",
             "content": {
               "application/json": {
                 "schema": {
@@ -737,7 +1204,148 @@
             }
           },
           "404": {
-            "description": "Not Found",
+            "description": "user not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Deletes user by id",
+        "description": "Request example:\nDELETE /api/users/30dd879c-ee2f-11db-8314-0800200c9a66\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "user deleted successfully"
+          },
+          "401": {
+            "description": "access token is missing or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user does not has access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "user not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/email/code": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Sends code for email verification to user email",
+        "description": "Request example:\nPOST /api/users/email/code\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n\nResponse example:\n{\n    \"message\": \"verifivation code was sent to your email\"\n    \"_links\": {\n         \"verify\": {\n            \"href\": \"/api/users/email/verify\",\n            \"method\": \"POST\",\n            \"title\": \"verification code confirmation\"\n         },\n         \"resend\": {\n            \"href\": \"/api/users/email/code\",\n            \"method\": \"POST\",\n            \"title\": \"resend verification code\"\n         }\n    }\n}",
+        "responses": {
+          "202": {
+            "description": "verification code was sent to email"
+          },
+          "404": {
+            "description": "user not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "2fa is not enabled or email is already verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/email/verify": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "summary": "Verifies code for email verification",
+        "description": "Request example:\nPOST /api/users/email/verify\n-H \"Authorization: Bearer YOUR_ACCESS_TOKEN\"\n{\n    \"code\": 123456\n}\n\nResponse example:\n{\n    \"message\": \"email verified successfully\"\n}",
+        "requestBody": {
+          "description": "verification code",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyCodeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "email verified successfully"
+          },
+          "400": {
+            "description": "provided code is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "user not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "2fa is not enabled or email is already verified",
             "content": {
               "application/json": {
                 "schema": {
@@ -832,6 +1440,44 @@
           }
         },
         "additionalProperties": { }
+      },
+      "RefreshTokenRequest": {
+        "type": "object",
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateUserRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VerifyCodeRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       }
     }
   }
